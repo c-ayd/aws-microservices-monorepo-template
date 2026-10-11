@@ -25,6 +25,7 @@
     <ProjectReference Include="..\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
     <ProjectReference Include="..\Shared.RabbitMq.Helpers\Shared.RabbitMq.Helpers.csproj" />
     <ProjectReference Include="..\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />
+    <ProjectReference Include="..\Shared.Redis\Shared.Redis.csproj" />
   </ItemGroup>
 
 </Project>
