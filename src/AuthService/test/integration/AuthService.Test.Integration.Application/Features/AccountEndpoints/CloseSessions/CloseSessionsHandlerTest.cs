@@ -37,7 +37,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials(account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTlsWithCredentials(account.Id.ToString());
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -61,7 +61,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials(account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTlsWithCredentials(account.Id.ToString());
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -96,7 +96,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials(account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTlsWithCredentials(account.Id.ToString());
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);

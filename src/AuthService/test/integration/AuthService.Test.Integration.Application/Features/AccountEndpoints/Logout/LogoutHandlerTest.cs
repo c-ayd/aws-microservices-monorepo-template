@@ -28,7 +28,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         public async Task Handle_WhenNotAuthenticated_ShouldReturnUnauthorized()
         {
             // Arrange
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTls();
 
             // Act
             var response = await client.DeleteAsync(_endpoint);
@@ -49,7 +49,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials(account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTlsWithCredentials(account.Id.ToString());
 
             // Act
             var response = await client.DeleteAsync(_endpoint);
@@ -77,7 +77,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials(
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTlsWithCredentials(
                 account.Id.ToString(),
                 SupportedLanguages.DefaultLanguage,
                 new Dictionary<string, string>()
@@ -117,7 +117,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials(
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTlsWithCredentials(
                 account.Id.ToString(),
                 SupportedLanguages.DefaultLanguage,
                 new Dictionary<string, string>()
@@ -154,7 +154,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials(
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTlsWithCredentials(
                 account.Id.ToString(),
                 SupportedLanguages.DefaultLanguage,
                 new Dictionary<string, string>()
