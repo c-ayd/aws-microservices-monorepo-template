@@ -1,12 +1,16 @@
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using ApiGateway.Web.BackgroundServices;
 using ApiGateway.Web.DistributedCaches;
 using ApiGateway.Web.Middlewares;
 using ApiGateway.Web.Options;
 using ApiGateway.Web.Transforms.Request;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
 using Shared.AspNetCore.Helpers.DependencyInjection;
+using Shared.AspNetCore.Helpers.Tls;
+using Shared.AspNetCore.Helpers.Tls.Utilities;
 using Shared.Http.Authentication.Constants;
 using Shared.Http.Response.Middlewares;
 using Shared.Logging.DependencyInjection;
@@ -14,13 +18,33 @@ using Shared.Logging.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var serverCertificate = TlsUtility.LoadCertificateFromFile(
+        certificateOptions.ServerKeyFilePath,
+        certificateOptions.ServerCertificatePath);
+
+    // Since YARP acts like an API gateway, it onyl accepts HTTP/1.1.
+    // gRPC is used only for internal service communication.
+    options.ConfigureTls(serverCertificate, port: 8443, HttpProtocols.Http1);
+});
+
 builder.Services.AddSingleton<TokenBlacklistRedis>();
 builder.Services.AddSingleton<RateLimiterRedis>();
 builder.Services.AddHealthChecks();
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddTransforms<ClearReservedHeadersTransform>()
-    .AddTransforms<JwtBearerTransform>();
+    .AddTransforms<JwtBearerTransform>()
+    .ConfigureHttpClient((context, handler) =>
+    {
+        var caBundle = X509CertificateLoader.LoadCertificateFromFile(certificateOptions.CABundlePath);
+        handler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+        {
+            return TlsUtility.ValidateServerCertificate(certificate, caBundle);
+        };
+    });
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularWeb", policy =>
@@ -41,7 +65,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = jwtOptions.Authority;
-        options.RequireHttpsMetadata = false;   // TLS is terminated at the gateway since the Auth Service is in the K8S cluster with no public access.
+        options.RequireHttpsMetadata = builder.Environment.IsProduction();
 
         options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters()
