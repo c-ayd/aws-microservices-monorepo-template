@@ -45,6 +45,7 @@ builder.Services.AddReverseProxy()
             return TlsUtility.ValidateServerCertificate(certificate, caBundle);
         };
     });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularWeb", policy =>
@@ -54,6 +55,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
+});
+builder.Services.AddHsts(options =>
+{
+    options.MaxAge = TimeSpan.FromDays(365);
+    options.IncludeSubDomains = builder.Environment.IsProduction();
 });
 
 builder.Services.AddHostedService<RedisBackgroundServices>();
@@ -104,6 +110,8 @@ builder.Logging.AddStructuredConsoleLogging(
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseHsts();
 
 app.UseCors("AllowAngularWeb");
 
