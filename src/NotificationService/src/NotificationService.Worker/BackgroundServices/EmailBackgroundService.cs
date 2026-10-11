@@ -5,6 +5,7 @@ using NotificationService.Worker.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.RabbitMq.Helpers.BackgroundServices;
+using Shared.RabbitMq.Helpers.Structures;
 using Shared.RabbitMq.Notifications.Configurations;
 using Shared.RabbitMq.Notifications.Messages;
 
@@ -20,18 +21,12 @@ namespace NotificationService.Worker.BackgroundServices
         private readonly ILogger<EmailBackgroundService> _logger;
 
         public EmailBackgroundService(
-            IOptions<RabbitMqOptions> rabbitMqOptions,
+            IOptions<ConnectionsOptions> connectionsOptions,
             ITemplateService templateService,
             IEmailService emailService,
             ILogger<EmailBackgroundService> logger)
             : base(
-            connectionFactory: new ConnectionFactory()
-            {
-                UserName = rabbitMqOptions.Value.Username,
-                Password = rabbitMqOptions.Value.Password,
-                HostName = rabbitMqOptions.Value.Host,
-                Port = rabbitMqOptions.Value.Port
-            },
+            connectionsOptions.Value.RabbitMq,
             healthCheckTime: TimeSpan.FromSeconds(10),
             graceTime: TimeSpan.FromSeconds(5),
             queueName: EmailConfiguration.QueueName,
