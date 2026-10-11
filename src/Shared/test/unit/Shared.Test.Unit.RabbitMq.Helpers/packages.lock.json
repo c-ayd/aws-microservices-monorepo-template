@@ -112,10 +112,14 @@
           "xunit.extensibility.core": "[2.9.3]"
         }
       },
+      "shared.aspnetcore.helpers": {
+        "type": "Project"
+      },
       "shared.rabbitmq.helpers": {
         "type": "Project",
         "dependencies": {
-          "RabbitMQ.Client": "[7.2.1, )"
+          "RabbitMQ.Client": "[7.2.1, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
         }
       }
     }
