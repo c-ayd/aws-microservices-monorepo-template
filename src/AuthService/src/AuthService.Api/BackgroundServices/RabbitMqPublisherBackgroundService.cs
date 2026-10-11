@@ -3,7 +3,6 @@ using AuthService.Application.Abstractions.MessageBrokers;
 using AuthService.Application.Options;
 using AuthService.Persistence.DbContexts;
 using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
 using Shared.Crypto;
 using Shared.RabbitMq.Helpers;
 using Shared.RabbitMq.Helpers.BackgroundServices;
@@ -18,19 +17,13 @@ namespace AuthService.Api.BackgroundServices
         private readonly IAesGcmEncryptionVersions _aesGcmEncryptionVersions;
 
         public RabbitMqPublisherBackgroundService(
-            IOptions<RabbitMqOptions> rabbitMqOptions,
+            IOptions<ConnectionsOptions> connectionsOptions,
             IServiceScopeFactory scopeFactory,
             IAesGcmEncryptionVersions aesGcmEncryptionVersions,
             IEmailService emailService,
             ILogger<RabbitMqPublisherBackgroundService> logger)
             : base(
-            connectionFactory: new ConnectionFactory()
-            {
-                UserName = rabbitMqOptions.Value.Username,
-                Password = rabbitMqOptions.Value.Password,
-                HostName = rabbitMqOptions.Value.Host,
-                Port = rabbitMqOptions.Value.Port
-            },
+            connectionsOptions.Value.RabbitMq,
             publishers: new List<Publisher>()
             {
                 (Publisher)emailService
