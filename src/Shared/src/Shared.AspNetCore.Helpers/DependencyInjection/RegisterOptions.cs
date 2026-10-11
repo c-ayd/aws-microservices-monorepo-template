@@ -2,12 +2,11 @@ using System.Reflection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.AspNetCore.Helpers.Exceptions;
-using Shared.AspNetCore.Helpers;
 using Microsoft.Extensions.Configuration;
 
 namespace Shared.AspNetCore.Helpers.DependencyInjection
 {
-    public static class DependencyInjection
+    public static partial class DependencyInjection
     {
         public static void RegisterOptionsFromAssembly(this IHostApplicationBuilder builder, Assembly assembly)
         {
@@ -28,7 +27,7 @@ namespace Shared.AspNetCore.Helpers.DependencyInjection
         private static List<Type> GetOptionsFromAssembly(Assembly assembly)
         {
             return assembly.GetTypes()
-                .Where(t => t.IsAssignableTo(typeof(IOptions)))
+                .Where(t => t.IsClass && t.IsAssignableTo(typeof(IOptions)))
                 .ToList();
         }
         
