@@ -1,9 +1,11 @@
 ﻿{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "NotificationService.Worker": {
+    "https": {
       "commandName": "Project",
-      "dotnetRunMessages": true
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:8000"
     }
   }
 }
