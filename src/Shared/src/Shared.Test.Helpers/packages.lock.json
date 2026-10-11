@@ -618,6 +618,9 @@
           "Shared.AspNetCore.Helpers": "[1.0.0, )",
           "StackExchange.Redis": "[3.1.31, )"
         }
+      },
+      "shared.test.webapi": {
+        "type": "Project"
       }
     }
   }

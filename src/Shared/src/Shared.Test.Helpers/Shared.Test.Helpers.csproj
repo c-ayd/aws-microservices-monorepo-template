@@ -26,6 +26,7 @@
     <ProjectReference Include="..\Shared.RabbitMq.Helpers\Shared.RabbitMq.Helpers.csproj" />
     <ProjectReference Include="..\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />
     <ProjectReference Include="..\Shared.Redis\Shared.Redis.csproj" />
+    <ProjectReference Include="..\Shared.Test.WebApi\Shared.Test.WebApi.csproj" />
   </ItemGroup>
 
 </Project>
