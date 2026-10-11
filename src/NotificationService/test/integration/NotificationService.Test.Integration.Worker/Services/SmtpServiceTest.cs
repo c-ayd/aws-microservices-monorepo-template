@@ -34,8 +34,8 @@ namespace NotificationService.Test.Integration.Worker.Services
             var emails = await _collectionCluster.SmtpFixture.GetEmailsAsync();
             Assert.Single(emails);
 
-            var smtpOptions = _collectionCluster.SmtpFixture.GetSmtpOptions();
-            Assert.Equal($"\"{smtpOptions.DisplayName}\" <{smtpOptions.Email}>",
+            var smtpConnSettings = _collectionCluster.SmtpFixture.GetSmtpConnectionSettings();
+            Assert.Equal($"\"{smtpConnSettings.DisplayName}\" <{smtpConnSettings.Email}>",
                 emails[0].From);
 
             Assert.Single(emails[0].To);
@@ -69,8 +69,8 @@ namespace NotificationService.Test.Integration.Worker.Services
             var emails = await _collectionCluster.SmtpFixture.GetEmailsAsync();
             Assert.Single(emails);
 
-            var smtpOptions = _collectionCluster.SmtpFixture.GetSmtpOptions();
-            Assert.Equal($"\"{smtpOptions.DisplayName}\" <{smtpOptions.Email}>",
+            var smtpConnSettings = _collectionCluster.SmtpFixture.GetSmtpConnectionSettings();
+            Assert.Equal($"\"{smtpConnSettings.DisplayName}\" <{smtpConnSettings.Email}>",
                 emails[0].From);
 
             foreach (var item in emails[0].To)
