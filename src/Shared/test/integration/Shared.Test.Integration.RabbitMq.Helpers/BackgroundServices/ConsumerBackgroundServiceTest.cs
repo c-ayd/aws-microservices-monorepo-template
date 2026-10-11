@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.RabbitMq.Helpers.BackgroundServices;
+using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.Test.Generators;
 using Shared.Test.Helpers.Fixtures;
 using Shared.Test.Integration.RabbitMq.Helpers.Collections;
@@ -37,7 +38,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         {
             // Arrange
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.ConnectionFactory,
+                _rabbitMqFixture.GetConnectionOptions(),
                 TimeSpan.FromSeconds(60),
                 _graceTime,
                 _queueName,
@@ -62,7 +63,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         {
             // Arrange
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.ConnectionFactory,
+                _rabbitMqFixture.GetConnectionOptions(),
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
@@ -103,7 +104,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         {
             // Arrange
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.ConnectionFactory,
+                _rabbitMqFixture.GetConnectionOptions(),
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
@@ -119,11 +120,11 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
             if (isConnectionClosed)
             {
-                await SetConnection(backgroundService, null);
+                await CloseConnection(backgroundService);
             }
             else if (isChannelClosed)
             {
-                await SetChannel(backgroundService, null);
+                await CloseChannel(backgroundService);
             }
 
             var message = StringGenerator.GeneratePrintableAscii();
@@ -153,7 +154,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         {
             // Arrange
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.ConnectionFactory,
+                _rabbitMqFixture.GetConnectionOptions(),
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
@@ -181,45 +182,21 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             return (IConnection)fieldInfo.GetValue(backgroundService)!;
         }
 
-        private async Task SetConnection(TestBackgroundService backgroundService, IConnection? value)
+        private async Task CloseConnection(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(ConsumerBackgroundService).GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            var connection = (IConnection)fieldInfo.GetValue(backgroundService)!;
+            var connection = GetConnection(backgroundService);
             if (connection != null)
             {
-                if (connection.IsOpen)
-                {
-                    await connection.CloseAsync();
-                }
-
-                await connection.DisposeAsync();
+                await connection.CloseAsync();
             }
-
-            fieldInfo.SetValue(backgroundService, value);
-
-            await SetChannel(backgroundService, null);
         }
 
-        private async Task SetChannel(TestBackgroundService backgroundService, IChannel? value)
+        private async Task CloseChannel(TestBackgroundService backgroundService)
         {
             if (backgroundService.Channel != null)
             {
-                if (backgroundService.Channel.IsOpen)
-                {
-                    var consumerTag = GetConsumerTag(backgroundService);
-                    if (consumerTag != null)
-                    {
-                        await backgroundService.Channel.BasicCancelAsync(consumerTag);
-                    }
-
-                    await backgroundService.Channel.CloseAsync();
-                }
-
-                await backgroundService.Channel.DisposeAsync();
+                await backgroundService.Channel.CloseAsync();
             }
-
-            var propertyInfo = typeof(ConsumerBackgroundService).GetProperty("Channel", BindingFlags.Public | BindingFlags.Instance)!;
-            propertyInfo.SetValue(backgroundService, value);
         }
 
         private string GetConsumerTag(TestBackgroundService backgroundService)
@@ -240,13 +217,13 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             public string? Message { get; private set; }
 
             public TestBackgroundService(
-                ConnectionFactory connectionFactory,
+                RabbitMqConnectionOptions connectionOptions,
                 TimeSpan healthCheckTime,
                 TimeSpan graceTime,
                 string queueName,
                 ushort prefetchCount,
                 ILogger logger)
-                : base(connectionFactory, healthCheckTime, graceTime, queueName, prefetchCount, logger)
+                : base(connectionOptions, healthCheckTime, graceTime, queueName, prefetchCount, logger)
             {
                 ReceivedTcs = new TaskCompletionSource<bool>();
             }

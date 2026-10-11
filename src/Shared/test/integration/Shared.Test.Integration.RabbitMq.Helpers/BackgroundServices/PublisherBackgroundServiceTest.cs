@@ -6,6 +6,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.RabbitMq.Helpers;
 using Shared.RabbitMq.Helpers.BackgroundServices;
+using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Structures;
 using Shared.Test.Generators;
 using Shared.Test.Helpers.Fixtures;
@@ -47,7 +48,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.ConnectionFactory,
+                _rabbitMqFixture.GetConnectionOptions(),
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -76,7 +77,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.ConnectionFactory,
+                _rabbitMqFixture.GetConnectionOptions(),
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -123,7 +124,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.ConnectionFactory,
+                _rabbitMqFixture.GetConnectionOptions(),
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -172,13 +173,52 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             Assert.False(backgroundService.IsShuttingDown, "The shutdown parameter was given as true.");
         }
 
+        [Theory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        public async Task ExecuteAsync_WhenConnectionOrChannelIsClosed_ShouldRenewConnectionOrChannel(bool isConnectionClosed, bool isChannelClosed)
+        {
+            // Arrange
+            var publisher = new TestPublisher();
+            var backgroundService = new TestBackgroundService(
+                _rabbitMqFixture.GetConnectionOptions(),
+                new List<Publisher>() { publisher },
+                _retryTime,
+                _graceTime,
+                _logger
+            );
+
+            await InitializeBackgroundServiceAndPublisher(backgroundService, publisher);
+
+            if (isConnectionClosed)
+            {
+                await CloseConnection(backgroundService);
+            }
+            else if (isChannelClosed)
+            {
+                await CloseChannel(publisher);
+            }
+
+            // Act
+            var cts = new CancellationTokenSource();
+            var executeTask = Task.Run(() => ExecuteAsync(backgroundService, cts.Token));
+
+            await Task.Delay(_timeoutTime);
+
+            // Assert
+            Assert.True(GetConnection(backgroundService).IsOpen, "The connection is not open.");
+            Assert.True(publisher.Channel!.IsOpen, "The channel is not open.");
+
+            await cts.CancelAsync();
+        }
+
         [Fact]
         public async Task StopAsync_WhenApplicationShutsDown_ShouldCombineLeftOverMessagesAndCallSaveRejectedMessagesAndCloseConnectionAndChannels()
         {
             // Arrange
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.ConnectionFactory,
+                _rabbitMqFixture.GetConnectionOptions(),
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -271,6 +311,23 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             return (IConnection)fieldInfo.GetValue(backgroundService)!;
         }
 
+        private async Task CloseConnection(TestBackgroundService backgroundService)
+        {
+            var connection = GetConnection(backgroundService);
+            if (connection != null)
+            {
+                await connection.CloseAsync();
+            }
+        }
+
+        private async Task CloseChannel(TestPublisher publisher)
+        {
+            if (publisher.Channel != null)
+            {
+                await publisher.Channel.CloseAsync();
+            }
+        }
+
         private Task ExecuteAsync(TestBackgroundService backgroundService, CancellationToken cancellationToken)
         {
             var methodInfo = typeof(PublisherBackgroundService).GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -307,12 +364,12 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             public bool IsShuttingDown { get; private set; }
 
             public TestBackgroundService(
-                ConnectionFactory connectionFactory,
+                RabbitMqConnectionOptions connectionOptions,
                 List<Publisher> publishers,
                 TimeSpan publishRetryTime,
                 TimeSpan graceTime,
                 ILogger logger)
-                : base(connectionFactory, publishers, publishRetryTime, graceTime, logger)
+                : base(connectionOptions, publishers, publishRetryTime, graceTime, logger)
             {
                 RejectedMessages = new List<Message>();
             }
