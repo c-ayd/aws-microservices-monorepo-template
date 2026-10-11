@@ -2,6 +2,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Shared.RabbitMq.Helpers.Options.Extensions;
+using Shared.RabbitMq.Helpers.Utilities;
 
 namespace Shared.RabbitMq.Helpers.BackgroundServices
 {
@@ -19,17 +21,14 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
         private string? _consumerTag;
 
         public ConsumerBackgroundService(
-            ConnectionFactory connectionFactory,
+            RabbitMqConnectionOptions connectionOptions,
             TimeSpan healthCheckTime,
             TimeSpan graceTime,
             string queueName,
             ushort prefetchCount,
             ILogger logger)
         {
-            _connectionFactory = connectionFactory;
-            _connectionFactory.AutomaticRecoveryEnabled = false;
-            _connectionFactory.TopologyRecoveryEnabled = false;
-
+            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions);
             _healthCheckTime = healthCheckTime;
             _graceTime = graceTime;
             _queueName = queueName;

@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Structures;
+using Shared.RabbitMq.Helpers.Utilities;
 
 namespace Shared.RabbitMq.Helpers.BackgroundServices
 {
@@ -17,16 +19,13 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
         private Dictionary<int, Message> _rejectedMessages;
 
         public PublisherBackgroundService(
-            ConnectionFactory connectionFactory,
+            RabbitMqConnectionOptions connectionOptions,
             List<Publisher> publishers,
             TimeSpan retryPublishTime,
             TimeSpan graceTime,
             ILogger logger)
         {
-            _connectionFactory = connectionFactory;
-            _connectionFactory.AutomaticRecoveryEnabled = false;
-            _connectionFactory.TopologyRecoveryEnabled = false;
-
+            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions);
             _publishers = publishers;
             _retryPublishTime = retryPublishTime;
             _graceTime = graceTime;
