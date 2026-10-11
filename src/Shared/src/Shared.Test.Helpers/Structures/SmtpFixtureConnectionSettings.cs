@@ -1,6 +1,6 @@
 namespace Shared.Test.Helpers.Structures
 {
-    public record SmtpFixtureOptions(
+    public record SmtpFixtureConnectionSettings(
         string Email,
         string DisplayName,
         string Server,
