@@ -1,6 +1,10 @@
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using DotNet.Testcontainers.Builders;
 using RabbitMQ.Client;
-using Shared.Test.Helpers.Structures;
+using Shared.AspNetCore.Helpers.Tls.Utilities;
+using Shared.RabbitMq.Helpers.Options.Extensions;
 using Testcontainers.RabbitMq;
 
 namespace Shared.Test.Helpers.Fixtures
@@ -12,43 +16,90 @@ namespace Shared.Test.Helpers.Fixtures
     {
         private RabbitMqContainer _container = null!;
 
-        public ConnectionFactory ConnectionFactory { get; private set; } = null!;
+        private ConnectionFactory _connectionFactory { get; set; } = null!;
         public IConnection Connection { get; private set; } = null!;
         public IChannel Channel { get; private set; } = null!;
 
-        public async Task InitializeAsync()
+        private bool _sslEnabled = false;
+        private string? _caBundlePath = null;
+
+        public async Task InitializeAsync(
+            bool sslEnabled,
+            string? caBundlePath = null,
+            string? rabbitMqCertificateFolder = null)
         {
-            _container = new RabbitMqBuilder("rabbitmq:4.3.4-management")
-                .WithPortBinding(5672, true)
+            var builder = new RabbitMqBuilder("rabbitmq:4.3.4-management")
                 .WithPortBinding(15672, true)
                 .WithEnvironment("RABBITMQ_DEFAULT_USER", "guest")
                 .WithEnvironment("RABBITMQ_DEFAULT_PASS", "guest")
-                .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged(".*Server startup complete.*"))
-                .Build();
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged(".*Server startup complete.*"));
+
+            if (sslEnabled)
+            {
+                _sslEnabled = true;
+                _caBundlePath = caBundlePath;
+                _container = builder
+                    .WithPortBinding(5671, true)
+                    .WithResourceMapping(rabbitMqCertificateFolder, "/etc/rabbitmq/")
+                    .Build();
+            }
+            else
+            {
+                _sslEnabled = false;
+                _caBundlePath = null;
+                _container = builder
+                    .WithPortBinding(5672, true)
+                    .Build();
+            }
+
             await _container.StartAsync();
 
-            var rabbitMqOptions = GetRabbitMqOptions();
-            ConnectionFactory = new ConnectionFactory()
+            var connectionOptions = GetConnectionOptions();
+            _connectionFactory = new ConnectionFactory()
             {
-                UserName = rabbitMqOptions.Username,
-                Password = rabbitMqOptions.Password,
-                HostName = rabbitMqOptions.Host,
-                Port = rabbitMqOptions.Port,
+                UserName = connectionOptions.Username,
+                Password = connectionOptions.Password,
+                HostName = connectionOptions.Host,
+                Port = connectionOptions.Port
             };
-            Connection = await ConnectionFactory.CreateConnectionAsync();
+
+            if (_sslEnabled)
+            {
+                var caBundle = X509CertificateLoader.LoadCertificateFromFile(caBundlePath!);
+
+                _connectionFactory.Ssl = new SslOption()
+                {
+                    Enabled = true,
+                    ServerName = connectionOptions.Ssl!.ServerName,
+                    Version = SslProtocols.Tls12 | SslProtocols.Tls13,
+                    AcceptablePolicyErrors = SslPolicyErrors.None,
+                    CertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                    {
+                        return TlsUtility.ValidateServerCertificate(certificate, caBundle!);
+                    }
+                };
+            }
+
+            Connection = await _connectionFactory.CreateConnectionAsync();
             Channel = await Connection.CreateChannelAsync(new CreateChannelOptions(
                 publisherConfirmationsEnabled: true,
                 publisherConfirmationTrackingEnabled: true));
         }
 
-        public RabbitMqFixtureOptions GetRabbitMqOptions()
+        public RabbitMqConnectionOptions GetConnectionOptions()
         {
-            return new RabbitMqFixtureOptions(
-                Username: "guest",
-                Password: "guest",
-                Host: _container.Hostname,
-                Port: _container.GetMappedPublicPort(5672)
-            );
+            return new RabbitMqConnectionOptions()
+            {
+                Host = _container.Hostname,
+                Port = _container.GetMappedPublicPort(_sslEnabled ? 5671 : 5672),
+                Username = "guest",
+                Password = "guest",
+                Ssl = !_sslEnabled ? null : new RabbitMqConnectionOptions.SslOptions()
+                {
+                    CABundlePath = _caBundlePath!,
+                    ServerName = "localhost"
+                }
+            };
         }
 
         public async Task PublishMessageAsync(string exchangeName, string routingKey, BasicProperties properties, byte[] body)

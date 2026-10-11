@@ -604,6 +604,13 @@
         "dependencies": {
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )"
         }
+      },
+      "shared.rabbitmq.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "RabbitMQ.Client": "[7.2.1, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+        }
       }
     }
   }
