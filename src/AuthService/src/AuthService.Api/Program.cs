@@ -14,8 +14,22 @@ using AuthService.Application.Features.AccountEndpoints;
 using AuthService.Application;
 using Shared.Http.DependencyInjection;
 using Shared.Http.Authentication.Constants;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using AuthService.Application.Options;
+using Shared.AspNetCore.Helpers.Tls;
+using Shared.AspNetCore.Helpers.Tls.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
+    var serverCertificate = TlsUtility.LoadCertificateFromFile(
+        certificateOptions.ServerKeyFilePath,
+        certificateOptions.ServerCertificatePath);
+
+    options.ConfigureTls(serverCertificate, port: 8443, HttpProtocols.Http1AndHttp2);
+});
 
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();
