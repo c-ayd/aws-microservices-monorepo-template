@@ -19,10 +19,13 @@ namespace AuthDb.Test.Integration.Migrations.Collections
 
         public async Task InitializeAsync()
         {
-            await PostgreSqlFixture.InitializeAsync(new Dictionary<string, Type>()
-            {
-                { "auth-db", typeof(AuthDbContext) }
-            }, runMigrations: false);
+            await PostgreSqlFixture.InitializeAsync(
+                sslEnabled: false,
+                dbContexts: new Dictionary<string, Type>()
+                {
+                    { "auth-db", typeof(AuthDbContext) }
+                },
+                runMigrations: false);
         }
 
         public async Task DisposeAsync()

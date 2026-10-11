@@ -627,6 +627,14 @@
           "Testcontainers": "4.14.0"
         }
       },
+      "Testcontainers.Toxiproxy": {
+        "type": "Transitive",
+        "resolved": "4.14.0",
+        "contentHash": "90rsAbQETgMGh23L4uzrKhnHDhGjz8s/VbBR5fyaKYYsfbCvtI1QmLwE0pZw5iE6uFYK9nXjv5BfQVD/eJ6F3A==",
+        "dependencies": {
+          "Testcontainers": "4.14.0"
+        }
+      },
       "xunit.abstractions": {
         "type": "Transitive",
         "resolved": "2.0.3",
@@ -684,6 +692,7 @@
           "Shared.Constants": "[1.0.0, )",
           "Shared.Crypto": "[1.0.0, )",
           "Shared.Http": "[1.0.0, )",
+          "Shared.PostgreSql.Helpers": "[1.0.0, )",
           "Shared.RabbitMq.Helpers": "[1.0.0, )",
           "Shared.RabbitMq.Notifications": "[1.0.0, )",
           "Shared.Redis": "[1.0.0, )",
@@ -716,10 +725,17 @@
           "System.IdentityModel.Tokens.Jwt": "[8.19.2, )"
         }
       },
+      "shared.postgresql.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )"
+        }
+      },
       "shared.rabbitmq.helpers": {
         "type": "Project",
         "dependencies": {
-          "RabbitMQ.Client": "[7.2.1, )"
+          "RabbitMQ.Client": "[7.2.1, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
       "shared.rabbitmq.notifications": {
@@ -731,6 +747,7 @@
       "shared.redis": {
         "type": "Project",
         "dependencies": {
+          "Shared.AspNetCore.Helpers": "[1.0.0, )",
           "StackExchange.Redis": "[3.1.31, )"
         }
       },
@@ -743,13 +760,18 @@
           "Microsoft.AspNetCore.Mvc.Testing": "[10.0.10, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
           "RabbitMQ.Client": "[7.2.1, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )",
           "Shared.Constants": "[1.0.0, )",
           "Shared.Http": "[1.0.0, )",
+          "Shared.PostgreSql.Helpers": "[1.0.0, )",
+          "Shared.RabbitMq.Helpers": "[1.0.0, )",
+          "Shared.Redis": "[1.0.0, )",
           "StackExchange.Redis": "[3.1.31, )",
           "Testcontainers": "[4.14.0, )",
           "Testcontainers.PostgreSql": "[4.14.0, )",
           "Testcontainers.RabbitMq": "[4.14.0, )",
-          "Testcontainers.Redis": "[4.14.0, )"
+          "Testcontainers.Redis": "[4.14.0, )",
+          "Testcontainers.Toxiproxy": "[4.14.0, )"
         }
       }
     }

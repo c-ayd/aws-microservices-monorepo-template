@@ -19,10 +19,13 @@ namespace TemplateDb.Test.Integration.Migrations.Collections
 
         public async Task InitializeAsync()
         {
-            await PostgreSqlFixture.InitializeAsync(new Dictionary<string, Type>()
-            {
-                { "template-db", typeof(TemplateDbContext) }
-            }, runMigrations: false);
+            await PostgreSqlFixture.InitializeAsync(
+                sslEnabled: false,
+                dbContexts: new Dictionary<string, Type>()
+                {
+                    { "template-db", typeof(TemplateDbContext) }
+                },
+                runMigrations: false);
         }
 
         public async Task DisposeAsync()
