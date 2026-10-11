@@ -20,7 +20,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
         public async Task ApplyTransform_WhenNotAuthenticated_ShouldAddNothingToHeaders()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
             foreach (var userClaim in ApiGatewayAuthKeys.Claims.AllUserClaims)
             {
                 apiGatewayClient.DefaultRequestHeaders.Add(userClaim.HeaderKey, StringGenerator.GenerateAlpha());

@@ -5,8 +5,11 @@ using ApiGateway.Web.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Shared.Constants;
@@ -26,11 +29,14 @@ namespace ApiGateway.Test.Integration.Web.Collections
     {
         public const string CABundlePath = "./Certs/test-ca-bundle.crt";
 
+        private const string _serviceKeyFilePath = "./Certs/test-webapi-server.key";
+        private const string _serviceCertificateFilePath = "./Certs/test-webapi-server.crt";
+
         public RedisFixture TokenBlacklistRedisFixture { get; private set; }
         public RedisFixture RateLimiterRedis { get; private set; }
-        public TestHostFixture DownstreamServiceFixture { get; private set; }
-        public TestHostFixture ProtectedDownstreamServiceFixture { get; private set; }
-        public TestHostFixture AdminDownstreamServiceFixture { get; private set; }
+        public WebApiFixture AuthServiceFixture { get; private set; }
+        public WebApiFixture ProtectedServiceFixture { get; private set; }
+        public WebApiFixture AdminServiceFixture { get; private set; }
 
         public ApiGatewayWebAppFactory ApiGatewayWebApp { get; private set; } = null!;
 
@@ -38,9 +44,21 @@ namespace ApiGateway.Test.Integration.Web.Collections
         {
             TokenBlacklistRedisFixture = new RedisFixture();
             RateLimiterRedis = new RedisFixture();
-            DownstreamServiceFixture = new TestHostFixture();
-            ProtectedDownstreamServiceFixture = new TestHostFixture();
-            AdminDownstreamServiceFixture = new TestHostFixture();
+            AuthServiceFixture = new WebApiFixture(
+                port: 7000,
+                caBundlePath: CABundlePath,
+                serverKeyFilePath: _serviceKeyFilePath,
+                serverCertificatePath: _serviceCertificateFilePath);
+            ProtectedServiceFixture = new WebApiFixture(
+                port: 7001,
+                caBundlePath: CABundlePath,
+                serverKeyFilePath: _serviceKeyFilePath,
+                serverCertificatePath: _serviceCertificateFilePath);
+            AdminServiceFixture = new WebApiFixture(
+                port: 7002,
+                caBundlePath: CABundlePath,
+                serverKeyFilePath: _serviceKeyFilePath,
+                serverCertificatePath: _serviceCertificateFilePath);
         }
 
         public async Task InitializeAsync()
@@ -54,31 +72,32 @@ namespace ApiGateway.Test.Integration.Web.Collections
                     sslEnabled: true,
                     caBundlePath: CABundlePath,
                     redisCertificateFolder: "./Certs/Redis"),
-                DownstreamServiceFixture.InitializeAsync(
+                AuthServiceFixture.InitializeAsync(
                     addConfiguration: null,
                     configureServices: null,
                     configureApp: null,
-                    configureEndpoints: DownstreamServiceConfigureEndpoints,
-                    port: 5000),
-                ProtectedDownstreamServiceFixture.InitializeAsync(
-                    addConfiguration: null,
-                    configureServices: null,
-                    configureApp: null,
-                    configureEndpoints: (endpoints) =>
-                    {
-                        endpoints.MapGet("/", () => Results.NoContent());
-                    },
-                    port: 5001),
-                AdminDownstreamServiceFixture.InitializeAsync(
+                    configureEndpoints: DownstreamServiceConfigureEndpoints),
+                ProtectedServiceFixture.InitializeAsync(
                     addConfiguration: null,
                     configureServices: null,
                     configureApp: null,
                     configureEndpoints: (endpoints) =>
                     {
                         endpoints.MapGet("/", () => Results.NoContent());
-                    },
-                    port: 5002)
+                    }),
+                AdminServiceFixture.InitializeAsync(
+                    addConfiguration: null,
+                    configureServices: null,
+                    configureApp: null,
+                    configureEndpoints: (endpoints) =>
+                    {
+                        endpoints.MapGet("/", () => Results.NoContent());
+                    })
             );
+
+            AuthServiceFixture.StartServer();
+            ProtectedServiceFixture.StartServer();
+            AdminServiceFixture.StartServer();
 
             ApiGatewayWebApp = new ApiGatewayWebAppFactory(
                 new ConnectionsOptions()
@@ -94,9 +113,9 @@ namespace ApiGateway.Test.Integration.Web.Collections
             await Task.WhenAll(
                 TokenBlacklistRedisFixture.DisposeAsync(),
                 RateLimiterRedis.DisposeAsync(),
-                DownstreamServiceFixture.DisposeAsync(),
-                ProtectedDownstreamServiceFixture.DisposeAsync(),
-                AdminDownstreamServiceFixture.DisposeAsync()
+                AuthServiceFixture.DisposeWebApiAsync(),
+                ProtectedServiceFixture.DisposeWebApiAsync(),
+                AdminServiceFixture.DisposeWebApiAsync()
             );
 
             await ApiGatewayWebApp.DisposeAsync();
@@ -154,8 +173,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
             {
                 await Results.Ok(new
                 {
-                    issuer = "http://localhost:5000",
-                    jwks_uri = "http://localhost:5000/.well-known/jwks.json"
+                    issuer = "https://localhost:7000",
+                    jwks_uri = "https://localhost:7000/.well-known/jwks.json"
                 }).ExecuteAsync(context);
             });
             endpoints.MapGet("/.well-known/jwks.json", async (context) =>
@@ -197,6 +216,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
             });
 
             // Test endpoins
+            endpoints.MapGet("/", () => Results.NoContent());
             endpoints.MapGet("/test/generate-access-token", async (
                 HttpContext context,
                 Guid accountId,
@@ -233,7 +253,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                 };
 
                 var token = new JwtSecurityToken(
-                    issuer: "http://localhost:5000",
+                    issuer: "https://localhost:7000",
                     audience: "https://localhost:8443",
                     claims: claims,
                     expires: expired.HasValue && expired.Value ? DateTimeOffset.UtcNow.AddDays(-1).UtcDateTime : DateTimeOffset.UtcNow.AddDays(1).UtcDateTime,
@@ -270,7 +290,6 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
                 await Results.Ok(headers).ExecuteAsync(context);
             });
-            endpoints.MapGet("/", () => Results.NoContent());
         }
     }
 }

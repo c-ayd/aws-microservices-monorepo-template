@@ -758,6 +758,7 @@
           "Shared.PostgreSql.Helpers": "[1.0.0, )",
           "Shared.RabbitMq.Helpers": "[1.0.0, )",
           "Shared.Redis": "[1.0.0, )",
+          "Shared.Test.WebApi": "[1.0.0, )",
           "StackExchange.Redis": "[3.1.31, )",
           "Testcontainers": "[4.14.0, )",
           "Testcontainers.PostgreSql": "[4.14.0, )",
@@ -765,6 +766,9 @@
           "Testcontainers.Redis": "[4.14.0, )",
           "Testcontainers.Toxiproxy": "[4.14.0, )"
         }
+      },
+      "shared.test.webapi": {
+        "type": "Project"
       }
     }
   }

@@ -28,7 +28,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Get
         public async Task Handle_WhenNotAuthenticated_ShouldReturnUnauthorized()
         {
             // Arrange
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTls();
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpsClient();
 
             // Act
             var response = await client.GetAsync(_endpoint);
@@ -54,7 +54,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Get
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
             
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithTlsWithCredentials(account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpsClientWithCredentials(account.Id.ToString());
 
             // Act
             var response = await client.GetAsync(_endpoint);

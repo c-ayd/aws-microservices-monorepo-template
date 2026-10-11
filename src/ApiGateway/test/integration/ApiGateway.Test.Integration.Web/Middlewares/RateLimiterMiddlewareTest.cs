@@ -18,11 +18,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task RateLimiter_WhenAuthenticatedAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
-            var downstreamServiceClient = _collectionCluster.DownstreamServiceFixture.CreateHttpClient();
-            var tokenResponse = await downstreamServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpsClient();
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -48,11 +48,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task RateLimiter_WhenAuthenticatedWithAdminRoleAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
-            var downstreamServiceClient = _collectionCluster.DownstreamServiceFixture.CreateHttpClient();
-            var tokenResponse = await downstreamServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles=Admin");
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpsClient();
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles=Admin");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act

@@ -2,7 +2,6 @@ using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.TestHost;
 using Shared.Http.Authentication.Constants;
 using Shared.Http.Response.Middlewares;
 using Shared.Test.Helpers.Fixtures;
@@ -15,11 +14,11 @@ namespace Shared.Test.Integration.Http.Response.Middlewares
     {
         private const string _roleName = "TestRole";
 
-        private readonly TestHostFixture _testHostFixture;
+        private readonly WebApiFixture _webApiFixture;
 
         public AuthErrorResponseMiddlewareTest(TestHostCollectionCluster collectionCluster)
         {
-            _testHostFixture = collectionCluster.TestHostFixture;
+            _webApiFixture = collectionCluster.WebApiFixture;
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
@@ -42,7 +41,7 @@ namespace Shared.Test.Integration.Http.Response.Middlewares
         public async Task Invoke_WhenResponseIs401_ShouldReturn401ErrorItem()
         {
             // Arrange
-            using var client = _testHostFixture.CreateHttpClient();
+            using var client = _webApiFixture.CreateHttpsClient();
             
             // Act
             var responseAnonymous = await client.GetAsync("/auth-error/anonymous");
@@ -59,7 +58,7 @@ namespace Shared.Test.Integration.Http.Response.Middlewares
         public async Task Invoke_WhenResponseIs403_ShouldReturn403ErrorItem()
         {
             // Arrange
-            using var client = _testHostFixture.CreateHttpClient();
+            using var client = _webApiFixture.CreateHttpsClient();
 
             var userId = Guid.NewGuid().ToString();
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, userId);
@@ -82,7 +81,7 @@ namespace Shared.Test.Integration.Http.Response.Middlewares
         public async Task Invoke_WhenResponseIsNotRelatedToAuth_ShouldDoNothing()
         {
             // Arrange
-            using var client = _testHostFixture.CreateHttpClient();
+            using var client = _webApiFixture.CreateHttpsClient();
 
             var userId = Guid.NewGuid().ToString();
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, userId);

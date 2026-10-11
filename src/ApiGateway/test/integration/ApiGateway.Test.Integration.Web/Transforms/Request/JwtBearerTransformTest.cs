@@ -21,7 +21,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
         public async Task ApplyTransform_WhenNotAuthenticated_ShouldAddNothingToHeaders()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
 
             // Act
             var response = await apiGatewayClient.GetAsync("/auth/test/get-headers");
@@ -42,15 +42,15 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             // Arrange
             var accountId = Guid.NewGuid().ToString();
 
-            var downstreamServiceClient = _collectionCluster.DownstreamServiceFixture.CreateHttpClient();
-            var tokenResponse = await downstreamServiceClient.GetAsync($"/test/generate-access-token?accountId={accountId}&issuedInPast=true");
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpsClient();
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={accountId}&issuedInPast=true");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
             await _collectionCluster.TokenBlacklistRedisFixture
                 .GetDatabase()
                 .SaveAsStringAsync(accountId, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), TimeSpan.FromMinutes(5));
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -73,11 +73,11 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             // Arrange
             var accountId = Guid.NewGuid().ToString();
 
-            var downstreamServiceClient = _collectionCluster.DownstreamServiceFixture.CreateHttpClient();
-            var tokenResponse = await downstreamServiceClient.GetAsync($"/test/generate-access-token?accountId={accountId}&expired=true");
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpsClient();
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={accountId}&expired=true");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -98,7 +98,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
         public async Task ApplyTransform_WhenTokenIsInvalid_ShouldAddNothingToHeadersAndRemoveTokenFromHeaders()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer Token");
 
             // Act
@@ -126,7 +126,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             var emailVerified = true;
             var preferredLanguage = "abc";
 
-            var downstreamServiceClient = _collectionCluster.DownstreamServiceFixture.CreateHttpClient();
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpsClient();
 
             string tokenUrl = $"/test/generate-access-token?accountId={accountId}&emailVerified={emailVerified}&preferredLang={preferredLanguage}";
             if (hasRoles)
@@ -135,10 +135,10 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
                 tokenUrl += $"&roles={roles[0]}&roles={roles[1]}";
             }
 
-            var tokenResponse = await downstreamServiceClient.GetAsync(tokenUrl);
+            var tokenResponse = await authServiceClient.GetAsync(tokenUrl);
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act

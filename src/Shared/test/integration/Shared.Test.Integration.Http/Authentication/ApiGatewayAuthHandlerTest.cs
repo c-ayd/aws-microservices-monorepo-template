@@ -20,11 +20,11 @@ namespace Shared.Test.Integration.Http.Authentication
     {
         private const string _roleName = "TestRole";
         
-        private readonly TestHostFixture _testHostFixture;
+        private readonly WebApiFixture _webApiFixture;
 
         public ApiGatewayAuthHandlerTest(TestHostCollectionCluster collectionCluster)
         {
-            _testHostFixture = collectionCluster.TestHostFixture;
+            _webApiFixture = collectionCluster.WebApiFixture;
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
@@ -62,7 +62,7 @@ namespace Shared.Test.Integration.Http.Authentication
         public async Task Invoke_WhenHeadersHaveUserContent_ShouldFillClaimPrincipalAndAuthorize()
         {
             // Arrange
-            using var client = _testHostFixture.CreateHttpClient();
+            using var client = _webApiFixture.CreateHttpsClient();
 
             var userId = Guid.NewGuid().ToString();
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, userId);
@@ -109,7 +109,7 @@ namespace Shared.Test.Integration.Http.Authentication
         public async Task Invoke_WhenHeadersHaveNoUserContent_ShouldLeftClaimPrincipalEmptyAndNotAuthorize()
         {
             // Arrange
-            using var client = _testHostFixture.CreateHttpClient();
+            using var client = _webApiFixture.CreateHttpsClient();
 
             // Act
             var responseUser = await client.GetFromJsonAsync<UserDto>("/api-gateway");
