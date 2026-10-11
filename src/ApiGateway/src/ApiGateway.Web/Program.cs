@@ -1,3 +1,4 @@
+using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using ApiGateway.Web.BackgroundServices;
@@ -71,7 +72,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = jwtOptions.Authority;
-        options.RequireHttpsMetadata = builder.Environment.IsProduction();
+        options.RequireHttpsMetadata = true;
 
         options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters()
@@ -90,10 +91,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RoleClaimType = ApiGatewayAuthKeys.Claims.Roles.ClaimType
         };
 
+        var caBundle = X509CertificateLoader.LoadCertificateFromFile(certificateOptions.CABundlePath);
         options.BackchannelHttpHandler = new SocketsHttpHandler
         {
             PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2)
+            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+            SslOptions = new SslClientAuthenticationOptions()
+            {
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                {
+                    return TlsUtility.ValidateServerCertificate(certificate, caBundle);
+                }
+            }
         };
     });
 
