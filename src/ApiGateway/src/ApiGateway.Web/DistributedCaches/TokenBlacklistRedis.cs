@@ -8,8 +8,8 @@ namespace ApiGateway.Web.DistributedCaches
     public class TokenBlacklistRedis : RedisConnection
     {
         public TokenBlacklistRedis(
-            IOptions<ConnectionStringsOptions> connectionStrings)
-            : base(connectionStrings.Value.AuthTokenBlacklistRedis)
+            IOptions<ConnectionsOptions> connectionsOptions)
+            : base(connectionsOptions.Value.TokenBlacklistRedis)
         {
         }
 
