@@ -1,9 +1,11 @@
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Shared.AspNetCore.Helpers.Tls.Utilities;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
 
@@ -16,27 +18,89 @@ namespace Shared.Test.Helpers.Fixtures
     public class WebAppFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint>
         where TEntryPoint : class
     {
+        private readonly int _port = 8111;
+        private X509Certificate2 _caBundle;
+
         protected List<HttpClient> HttpClients { get; private set; } = new List<HttpClient>();
+
+        public WebAppFactoryFixture(int port, string caBundlePath)
+        {
+            if (port == 8111)
+                throw new ArgumentException("Port 8111 is reserved for forcing WebAppFactory to use Kestrel.", nameof(port));
+
+            // To force WebAppFactory to use Kestrel instead of TestServer
+            UseKestrel(options =>
+            {
+                options.ListenAnyIP(8111);
+            });
+
+            _port = port;
+            _caBundle = X509CertificateLoader.LoadCertificateFromFile(caBundlePath);
+        }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Development");
         }
 
-        public HttpClient CreateHttpClient()
+        public HttpClient CreateHttpClientWithoutTls()
         {
-            var client = CreateClient();
-            HttpClients.Add(client);
+            return CreateHttpClient($"http://localhost:{_port}");
+        }
+
+        public HttpClient CreateHttpClientWithTls()
+        {
+            return CreateHttpClient($"https://localhost:{_port}");
+        }
+
+        private HttpClient CreateHttpClient(string url)
+        {
+            var client = new HttpClient(new SocketsHttpHandler()
+            {
+                SslOptions = new SslClientAuthenticationOptions()
+                {
+                    RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                    {
+                        return TlsUtility.ValidateServerCertificate(certificate, _caBundle);
+                    }
+                }
+            });
             
+            client.BaseAddress = new Uri(url);
+
+            HttpClients.Add(client);
+
             return client;
         }
 
-        public HttpClient CreateHttpClientWithCredentials(
+        public HttpClient CreateHttpClientWithoutTlsWithCredentials(
             string accountId,
             string preferredLanguage = SupportedLanguages.DefaultLanguage,
             Dictionary<string, string>? cookieValues = null)
         {
-            var client = CreateHttpClient();
+            var client = CreateHttpClientWithoutTls();
+            AddCredentials(client, accountId, preferredLanguage, cookieValues);
+
+            return client;
+        }
+
+        public HttpClient CreateHttpClientWithTlsWithCredentials(
+            string accountId,
+            string preferredLanguage = SupportedLanguages.DefaultLanguage,
+            Dictionary<string, string>? cookieValues = null)
+        {
+            var client = CreateHttpClientWithTls();
+            AddCredentials(client, accountId, preferredLanguage, cookieValues);
+
+            return client;
+        }
+
+        private void AddCredentials(
+            HttpClient client,
+            string accountId,
+            string preferredLanguage = SupportedLanguages.DefaultLanguage,
+            Dictionary<string, string>? cookieValues = null)
+        {
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, accountId);
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, preferredLanguage);
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
@@ -51,8 +115,6 @@ namespace Shared.Test.Helpers.Fixtures
 
                 client.DefaultRequestHeaders.Add("Cookie", cookieString.Substring(0, cookieString.Length - 2));
             }
-
-            return client;
         }
 
         public TService GetService<TService>()
