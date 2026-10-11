@@ -1,3 +1,8 @@
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using Shared.AspNetCore.Helpers.Tls.Utilities;
+using Shared.Redis.Options.Extensions;
 using StackExchange.Redis;
 
 namespace Shared.Redis
@@ -7,14 +12,35 @@ namespace Shared.Redis
     /// </summary>
     public abstract class RedisConnection
     {
+        private readonly ConfigurationOptions _configOptions;
         internal ConnectionMultiplexer? Connection { get; private set; }
         private SemaphoreSlim _connectionSemaphore = new SemaphoreSlim(1, 1);
 
-        private readonly string _connectionString;
-
-        public RedisConnection(string connectionString)
+        public RedisConnection(RedisConnectionOptions connectionOptions)
         {
-            _connectionString = connectionString;
+            _configOptions = new ConfigurationOptions()
+            {
+                EndPoints = { $"{connectionOptions.Host}:{connectionOptions.Port}" },
+                Password = connectionOptions.Password,
+                AbortOnConnectFail = connectionOptions.AbortOnConnectionFail
+            };
+
+            if (connectionOptions.Ssl != null)
+            {
+                var caBundle = X509CertificateLoader.LoadCertificateFromFile(connectionOptions.Ssl.CABundlePath);
+                
+                _configOptions.Ssl = true;
+                _configOptions.SslClientAuthenticationOptions = _ => new SslClientAuthenticationOptions()
+                {
+                    ClientCertificates = null,
+                    EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
+                    TargetHost = connectionOptions.Host,
+                    RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                    {
+                        return TlsUtility.ValidateServerCertificate(certificate, caBundle);
+                    }
+                };
+            }
         }
 
         internal async Task ConnectAsync(CancellationToken cancellationToken)
@@ -32,7 +58,7 @@ namespace Shared.Redis
             // is not wrapped with a catch block and should throw an exception if something goes wrong.
             try
             {
-                Connection = await ConnectionMultiplexer.ConnectAsync(_connectionString);
+                Connection = await ConnectionMultiplexer.ConnectAsync(_configOptions);
             }
             finally
             {
