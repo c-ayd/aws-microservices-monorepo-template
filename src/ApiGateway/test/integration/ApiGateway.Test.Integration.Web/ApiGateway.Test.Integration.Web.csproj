@@ -35,6 +35,8 @@
     <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/test-api-gateway-server.key" Link="Certs/test-api-gateway-server.key" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/test-api-gateway-server.crt" Link="Certs/test-api-gateway-server.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/test-webapi-server.key" Link="Certs/test-webapi-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/test-webapi-server.crt" Link="Certs/test-webapi-server.crt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/Redis/test-redis-server.key" Link="Certs/Redis/test-redis-server.key" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/Redis/test-redis-server.crt" Link="Certs/Redis/test-redis-server.crt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

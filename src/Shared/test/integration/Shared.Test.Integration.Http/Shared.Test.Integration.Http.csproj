@@ -25,4 +25,10 @@
     <ProjectReference Include="..\..\..\src\Shared.Test.Helpers\Shared.Test.Helpers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/test-webapi-server.key" Link="Certs/test-webapi-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/test-webapi-server.crt" Link="Certs/test-webapi-server.crt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
