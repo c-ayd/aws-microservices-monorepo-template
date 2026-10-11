@@ -18,7 +18,7 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenNotAuthenticatedAndProtectedServiceIsRequested_ShouldReturnUnauthorized()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
 
             // Act
             var response = await apiGatewayClient.GetAsync("/protected");
@@ -35,7 +35,7 @@ namespace ApiGateway.Test.Integration.Web
             var tokenResponse = await downstreamServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -49,7 +49,7 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenNotAuthenticatedAndAdminServiceIsRequested_ShouldReturnUnauthorized()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
 
             // Act
             var response = await apiGatewayClient.GetAsync("/admin");
@@ -66,7 +66,7 @@ namespace ApiGateway.Test.Integration.Web
             var tokenResponse = await downstreamServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -84,7 +84,7 @@ namespace ApiGateway.Test.Integration.Web
             var tokenResponse = await downstreamServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles=Admin");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act

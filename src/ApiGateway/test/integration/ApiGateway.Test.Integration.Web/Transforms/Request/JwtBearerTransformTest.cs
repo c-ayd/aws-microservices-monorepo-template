@@ -21,7 +21,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
         public async Task ApplyTransform_WhenNotAuthenticated_ShouldAddNothingToHeaders()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
 
             // Act
             var response = await apiGatewayClient.GetAsync("/auth/test/get-headers");
@@ -50,7 +50,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
                 .GetDatabase()
                 .SaveAsStringAsync(accountId, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), TimeSpan.FromMinutes(5));
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -77,7 +77,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             var tokenResponse = await downstreamServiceClient.GetAsync($"/test/generate-access-token?accountId={accountId}&expired=true");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -98,7 +98,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
         public async Task ApplyTransform_WhenTokenIsInvalid_ShouldAddNothingToHeadersAndRemoveTokenFromHeaders()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer Token");
 
             // Act
@@ -138,7 +138,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             var tokenResponse = await downstreamServiceClient.GetAsync(tokenUrl);
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClientWithTls();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
