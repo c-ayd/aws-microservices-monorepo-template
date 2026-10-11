@@ -578,6 +578,9 @@
         "resolved": "8.0.0",
         "contentHash": "7mu9v0QDv66ar3DpGSZHg9NuNcxDaaAcnMULuZlaTpP9+hwXhrxNGsF5GmLkSHxFdb5bBc1TzeujsRgTrPWi+Q=="
       },
+      "shared.aspnetcore.helpers": {
+        "type": "Project"
+      },
       "shared.constants": {
         "type": "Project"
       },
@@ -585,6 +588,12 @@
         "type": "Project",
         "dependencies": {
           "System.IdentityModel.Tokens.Jwt": "[8.19.2, )"
+        }
+      },
+      "shared.postgresql.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )"
         }
       }
     }
