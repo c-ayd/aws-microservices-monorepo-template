@@ -28,8 +28,8 @@ namespace Shared.Test.Helpers.Fixtures
             : base(port, caBundlePath)
         {
             _port = port;
-            _serverKeyFilePath = serverKeyFilePath;
-            _serverCertificatePath = serverCertificatePath;
+            _serverKeyFilePath = Path.Combine(AppContext.BaseDirectory, serverKeyFilePath);
+            _serverCertificatePath = Path.Combine(AppContext.BaseDirectory, serverCertificatePath);
         }
 
         public async Task InitializeAsync(

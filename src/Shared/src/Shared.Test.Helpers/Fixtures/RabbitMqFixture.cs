@@ -37,10 +37,12 @@ namespace Shared.Test.Helpers.Fixtures
             if (sslEnabled)
             {
                 _sslEnabled = true;
-                _caBundlePath = caBundlePath;
+                _caBundlePath = Path.Combine(AppContext.BaseDirectory, caBundlePath!);
                 _container = builder
                     .WithPortBinding(5671, true)
-                    .WithResourceMapping(rabbitMqCertificateFolder, "/etc/rabbitmq/")
+                    .WithResourceMapping(
+                        Path.Combine(AppContext.BaseDirectory, rabbitMqCertificateFolder!),
+                        "/etc/rabbitmq/")
                     .Build();
             }
             else
@@ -65,7 +67,7 @@ namespace Shared.Test.Helpers.Fixtures
 
             if (_sslEnabled)
             {
-                var caBundle = X509CertificateLoader.LoadCertificateFromFile(caBundlePath!);
+                var caBundle = X509CertificateLoader.LoadCertificateFromFile(_caBundlePath!);
 
                 _connectionFactory.Ssl = new SslOption()
                 {

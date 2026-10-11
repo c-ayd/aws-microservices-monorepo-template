@@ -24,8 +24,8 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
         {
             await _redisFixture.InitializeAsync(
                 sslEnabled: true,
-                caBundlePath: "./Certs/test-ca-bundle.crt",
-                redisCertificateFolder: "./Certs/Redis");
+                caBundlePath: "Certs/test-ca-bundle.crt",
+                redisCertificateFolder: "Certs/Redis");
 
             var connectionsOptions = new ConnectionsOptions()
             {

@@ -9,7 +9,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.Collections
 
     public class RabbitMqCollectionCluster : IAsyncLifetime
     {
-        public const string CABundlePath = "./Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
         public RabbitMqFixture RabbitMqFixture { get; private set; }
 
@@ -23,7 +23,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.Collections
             await RabbitMqFixture.InitializeAsync(
                 sslEnabled: true,
                 caBundlePath: CABundlePath,
-                rabbitMqCertificateFolder: "./Certs/RabbitMq");
+                rabbitMqCertificateFolder: "Certs/RabbitMq");
         }
 
         public async Task DisposeAsync()

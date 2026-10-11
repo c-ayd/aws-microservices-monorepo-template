@@ -31,10 +31,12 @@ namespace Shared.Test.Helpers.Fixtures
             if (sslEnabled)
             {
                 _sslEnabled = true;
-                _caBundlePath = caBundlePath;
+                _caBundlePath = Path.Combine(AppContext.BaseDirectory, caBundlePath!);
                 _container = builder
                     .WithPortBinding(6380, true)
-                    .WithResourceMapping(redisCertificateFolder, "/etc/redis/")
+                    .WithResourceMapping(
+                        Path.Combine(AppContext.BaseDirectory, redisCertificateFolder!),
+                        "/etc/redis/")
                     .WithCommand(
                         "redis-server",
                         "--tls-port", "6380",
@@ -70,7 +72,7 @@ namespace Shared.Test.Helpers.Fixtures
 
             if (sslEnabled)
             {
-                var caBundle = X509CertificateLoader.LoadCertificateFromFile(caBundlePath!);
+                var caBundle = X509CertificateLoader.LoadCertificateFromFile(_caBundlePath!);
 
                 configOptions.Ssl = true;
                 configOptions.SslClientAuthenticationOptions = _ => new SslClientAuthenticationOptions()

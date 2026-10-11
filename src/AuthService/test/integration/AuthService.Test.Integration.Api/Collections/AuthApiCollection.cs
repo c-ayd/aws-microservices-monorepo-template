@@ -16,7 +16,7 @@ namespace AuthService.Test.Integration.Api.Collections
 
     public class AuthApiCollectionCluster :  IAsyncLifetime
     {
-        public const string CABundlePath = "./Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
         public const string AuthDbName = "auth-db";
         public const string AuthRejectedMessagesDbName = "auth-rejected-messages-db";
@@ -40,8 +40,8 @@ namespace AuthService.Test.Integration.Api.Collections
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
                     caBundlePath: CABundlePath,
-                    certificateKeyFilePath: "./Certs/PostgreSql/test-postgresql-server.key",
-                    certificateFilePath: "./Certs/PostgreSql/test-postgresql-server.crt",
+                    certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
+                    certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     new Dictionary<string, Type>()
                     {
                         { AuthDbName, typeof(AuthDbContext) },
@@ -50,11 +50,11 @@ namespace AuthService.Test.Integration.Api.Collections
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
                     caBundlePath: CABundlePath,
-                    rabbitMqCertificateFolder: "./Certs/RabbitMq"),
+                    rabbitMqCertificateFolder: "Certs/RabbitMq"),
                 TokenBlacklistRedisFixture.InitializeAsync(
                     sslEnabled: true,
                     caBundlePath: CABundlePath,
-                    redisCertificateFolder: "./Certs/Redis")
+                    redisCertificateFolder: "Certs/Redis")
             );
 
             AuthApiWebApp = new AuthApiWebAppFactory(

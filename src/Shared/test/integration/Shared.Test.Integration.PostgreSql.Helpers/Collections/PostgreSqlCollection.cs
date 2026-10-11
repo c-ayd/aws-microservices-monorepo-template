@@ -10,7 +10,7 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.Collections
 
     public class PostgreSqlCollectionCluster : IAsyncLifetime
     {
-        public const string CABundlePath = "./Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
         public ToxiProxyFixture ToxiProxyFixture { get; private set; }
@@ -27,8 +27,8 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.Collections
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
                     caBundlePath: CABundlePath,
-                    certificateKeyFilePath: "./Certs/PostgreSql/test-postgresql-server.key",
-                    certificateFilePath: "./Certs/PostgreSql/test-postgresql-server.crt",
+                    certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
+                    certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     new Dictionary<string, Type>()
                     {
                         { "test-db-1", typeof(TestDbContext1) },

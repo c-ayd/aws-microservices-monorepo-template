@@ -18,8 +18,8 @@ namespace Shared.Test.Integration.Redis.Extensions
         {
             await _redisFixture.InitializeAsync(
                 sslEnabled: true,
-                caBundlePath: "./Certs/test-ca-bundle.crt",
-                redisCertificateFolder: "./Certs/Redis");
+                caBundlePath: "Certs/test-ca-bundle.crt",
+                redisCertificateFolder: "Certs/Redis");
         }
 
         public async Task DisposeAsync()

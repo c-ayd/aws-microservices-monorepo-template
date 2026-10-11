@@ -16,9 +16,9 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Collections
         {
             WebApiFixture = new WebApiFixture(
                 port: 8443,
-                caBundlePath: "./Certs/test-ca-bundle.crt",
-                serverKeyFilePath: "./Certs/test-webapi-server.key",
-                serverCertificatePath: "./Certs/test-webapi-server.crt");
+                caBundlePath: "Certs/test-ca-bundle.crt",
+                serverKeyFilePath: "Certs/test-webapi-server.key",
+                serverCertificatePath: "Certs/test-webapi-server.crt");
         }
 
         public async Task InitializeAsync()

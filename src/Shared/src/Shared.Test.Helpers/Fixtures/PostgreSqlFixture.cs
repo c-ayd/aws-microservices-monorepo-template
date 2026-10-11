@@ -34,9 +34,11 @@ namespace Shared.Test.Helpers.Fixtures
             if (sslEnabled)
             {
                 _sslEnabled = true;
-                _caBundlePath = caBundlePath;
+                _caBundlePath = Path.Combine(AppContext.BaseDirectory, caBundlePath!);
                 _container = builder
-                    .WithSsl(certificateFilePath, certificateKeyFilePath)
+                    .WithSsl(
+                        Path.Combine(AppContext.BaseDirectory, certificateFilePath!),
+                        Path.Combine(AppContext.BaseDirectory, certificateKeyFilePath!))
                     .Build();
             }
             else

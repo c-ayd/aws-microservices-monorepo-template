@@ -28,7 +28,7 @@ namespace Shared.Test.Helpers.Fixtures
         public WebAppFactoryFixture(int port, string caBundlePath)
         {
             _port = port;
-            _caBundle = X509CertificateLoader.LoadCertificateFromFile(caBundlePath);
+            _caBundle = X509CertificateLoader.LoadCertificateFromFile(Path.Combine(AppContext.BaseDirectory, caBundlePath));
 
             // To force WebAppFactory to use Kestrel instead of TestServer, a random port is also
             // opened as plain HTTP. Since there is change that one of the predefined ports might

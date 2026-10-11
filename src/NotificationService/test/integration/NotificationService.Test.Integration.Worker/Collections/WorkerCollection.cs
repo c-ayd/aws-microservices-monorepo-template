@@ -15,7 +15,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
     public class WorkerCollectionCluster : IAsyncLifetime
     {
-        public const string CABundlePath = "./Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
         public const string TemplateDbName = "template-db";
 
@@ -38,8 +38,8 @@ namespace NotificationService.Test.Integration.Worker.Collections
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
                     caBundlePath: CABundlePath,
-                    certificateKeyFilePath: "./Certs/PostgreSql/test-postgresql-server.key",
-                    certificateFilePath: "./Certs/PostgreSql/test-postgresql-server.crt",
+                    certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
+                    certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     new Dictionary<string, Type>()
                     {
                         { TemplateDbName, typeof(TemplateDbContext) }
@@ -47,7 +47,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
                     caBundlePath: CABundlePath,
-                    rabbitMqCertificateFolder: "./Certs/RabbitMq"),
+                    rabbitMqCertificateFolder: "Certs/RabbitMq"),
                 SmtpFixture.InitializeAsync()
             );
 
