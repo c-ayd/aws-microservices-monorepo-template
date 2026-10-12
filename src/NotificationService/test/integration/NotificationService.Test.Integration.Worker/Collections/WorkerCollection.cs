@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using NotificationService.Worker.DbContexts;
 using NotificationService.Worker.Options;
+using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.Test.Helpers.Fixtures;
@@ -115,8 +116,10 @@ namespace NotificationService.Test.Integration.Worker.Collections
                             _connectionsOptions.TemplateDb.Username),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Password)}",
                             _connectionsOptions.TemplateDb.Password),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(PostgreSqlConnectionOptions.SslOptions.CABundlePath)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
                             _connectionsOptions.TemplateDb.Ssl!.CABundlePath),
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
+                            _connectionsOptions.TemplateDb.Ssl!.ServerName),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.RetryMechanism)}",
                             null),
 
@@ -128,9 +131,9 @@ namespace NotificationService.Test.Integration.Worker.Collections
                             _connectionsOptions.RabbitMq.Username),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Password)}",
                             _connectionsOptions.RabbitMq.Password),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(RabbitMqConnectionOptions.Ssl.CABundlePath)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
                             _connectionsOptions.RabbitMq.Ssl!.CABundlePath),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(RabbitMqConnectionOptions.Ssl.ServerName)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
                             _connectionsOptions.RabbitMq.Ssl!.ServerName),
 
                         new KeyValuePair<string, string?>($"{SmtpOptions.Key}:{nameof(SmtpOptions.Username)}",
@@ -146,7 +149,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
                         new KeyValuePair<string, string?>($"{SmtpOptions.Key}:{nameof(SmtpOptions.Port)}",
                             _smtpOptions.Port.ToString()),
                         new KeyValuePair<string, string?>($"{SmtpOptions.Key}:{nameof(SmtpOptions.EnableSsl)}",
-                            _smtpOptions.EnableSsl.ToString()),
+                            _smtpOptions.EnableSsl.ToString())
                     ]);
                 });
             }

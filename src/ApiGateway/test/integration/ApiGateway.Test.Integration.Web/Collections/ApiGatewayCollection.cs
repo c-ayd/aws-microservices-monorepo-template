@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
 using Shared.Redis.Options.Extensions;
@@ -148,8 +149,10 @@ namespace ApiGateway.Test.Integration.Web.Collections
                             _connectionsOptions.TokenBlacklistRedis.Password),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.AbortOnConnectionFail)}",
                             _connectionsOptions.TokenBlacklistRedis.AbortOnConnectionFail.ToString().ToLower()),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(RedisConnectionOptions.SslOptions.CABundlePath)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
                             _connectionsOptions.TokenBlacklistRedis.Ssl!.CABundlePath),
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
+                            _connectionsOptions.TokenBlacklistRedis.Ssl!.ServerName),
 
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.Host)}",
                             _connectionsOptions.RateLimiterRedis.Host),
@@ -159,8 +162,10 @@ namespace ApiGateway.Test.Integration.Web.Collections
                             _connectionsOptions.RateLimiterRedis.Password),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.AbortOnConnectionFail)}",
                             _connectionsOptions.RateLimiterRedis.AbortOnConnectionFail.ToString().ToLower()),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(RedisConnectionOptions.SslOptions.CABundlePath)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
                             _connectionsOptions.RateLimiterRedis.Ssl!.CABundlePath),
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
+                            _connectionsOptions.RateLimiterRedis.Ssl!.ServerName)
                     ]);
                 });
             }

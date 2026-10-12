@@ -2,6 +2,7 @@ using AuthService.Application.Options;
 using AuthService.Persistence.DbContexts;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.Redis.Options.Extensions;
@@ -128,8 +129,10 @@ namespace AuthService.Test.Integration.Application.Collections
                             _connectionsOptions.AuthDb.Username),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Password)}",
                             _connectionsOptions.AuthDb.Password),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(PostgreSqlConnectionOptions.SslOptions.CABundlePath)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
                             _connectionsOptions.AuthDb.Ssl!.CABundlePath),
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
+                            _connectionsOptions.AuthDb.Ssl!.ServerName),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.RetryMechanism)}",
                             null),
 
@@ -143,8 +146,10 @@ namespace AuthService.Test.Integration.Application.Collections
                             _connectionsOptions.AuthRejectedMessagesDb.Username),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Password)}",
                             _connectionsOptions.AuthRejectedMessagesDb.Password),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(PostgreSqlConnectionOptions.SslOptions.CABundlePath)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
                             _connectionsOptions.AuthRejectedMessagesDb.Ssl!.CABundlePath),
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
+                            _connectionsOptions.AuthRejectedMessagesDb.Ssl!.ServerName),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.RetryMechanism)}",
                             null),
 
@@ -156,9 +161,9 @@ namespace AuthService.Test.Integration.Application.Collections
                             _connectionsOptions.RabbitMq.Username),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Password)}",
                             _connectionsOptions.RabbitMq.Password),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(RabbitMqConnectionOptions.Ssl.CABundlePath)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
                             _connectionsOptions.RabbitMq.Ssl!.CABundlePath),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(RabbitMqConnectionOptions.Ssl.ServerName)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
                             _connectionsOptions.RabbitMq.Ssl!.ServerName),
 
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Host)}",
@@ -169,8 +174,10 @@ namespace AuthService.Test.Integration.Application.Collections
                             _connectionsOptions.TokenBlacklistRedis.Password),
                         new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.AbortOnConnectionFail)}",
                             _connectionsOptions.TokenBlacklistRedis.AbortOnConnectionFail.ToString().ToLower()),
-                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(RedisConnectionOptions.SslOptions.CABundlePath)}",
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
                             _connectionsOptions.TokenBlacklistRedis.Ssl!.CABundlePath),
+                        new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
+                            _connectionsOptions.TokenBlacklistRedis.Ssl!.ServerName),
 
                         new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.CurrentKeyId)}",
                             _jwtKeysOptions.CurrentKeyId),
