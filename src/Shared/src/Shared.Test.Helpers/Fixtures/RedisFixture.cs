@@ -2,6 +2,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using DotNet.Testcontainers.Builders;
+using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
 using Shared.AspNetCore.Helpers.Tls.Utilities;
 using Shared.Redis.Options.Extensions;
 using StackExchange.Redis;
@@ -97,10 +98,11 @@ namespace Shared.Test.Helpers.Fixtures
                 Host = _container.Hostname,
                 Port = _container.GetMappedPublicPort(_sslEnabled ? 6380 : 6379),
                 Password = "redis-password",
-                AbortOnConnectionFail = false,  // For tests, it throws an exception immediately when the connection is initially not established
-                Ssl = !_sslEnabled ? null : new RedisConnectionOptions.SslOptions()
+                AbortOnConnectionFail = true,  // For tests, it throws an exception immediately when the connection is initially not established
+                Ssl = !_sslEnabled ? null : new SslOptions()
                 {
-                    CABundlePath = _caBundlePath!
+                    CABundlePath = _caBundlePath!,
+                    ServerName = "localhost"
                 }
             };
         }

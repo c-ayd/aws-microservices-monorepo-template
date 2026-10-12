@@ -3,6 +3,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using DotNet.Testcontainers.Builders;
 using RabbitMQ.Client;
+using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
 using Shared.AspNetCore.Helpers.Tls.Utilities;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 using Testcontainers.RabbitMq;
@@ -72,7 +73,7 @@ namespace Shared.Test.Helpers.Fixtures
                 _connectionFactory.Ssl = new SslOption()
                 {
                     Enabled = true,
-                    ServerName = connectionOptions.Ssl!.ServerName,
+                    ServerName = connectionOptions.Ssl!.ServerName!,
                     Version = SslProtocols.Tls12 | SslProtocols.Tls13,
                     AcceptablePolicyErrors = SslPolicyErrors.None,
                     CertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
@@ -96,7 +97,7 @@ namespace Shared.Test.Helpers.Fixtures
                 Port = _container.GetMappedPublicPort(_sslEnabled ? 5671 : 5672),
                 Username = "guest",
                 Password = "guest",
-                Ssl = !_sslEnabled ? null : new RabbitMqConnectionOptions.SslOptions()
+                Ssl = !_sslEnabled ? null : new SslOptions()
                 {
                     CABundlePath = _caBundlePath!,
                     ServerName = "localhost"
