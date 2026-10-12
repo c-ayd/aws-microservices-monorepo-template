@@ -1,6 +1,5 @@
 using System.Net.Security;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using ApiGateway.Web.BackgroundServices;
 using ApiGateway.Web.DistributedCaches;
 using ApiGateway.Web.Middlewares;
@@ -11,6 +10,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
 using Shared.AspNetCore.Helpers.DependencyInjection;
 using Shared.AspNetCore.Helpers.Kestrel;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Http.Authentication.Constants;
 using Shared.Http.Response.Middlewares;
@@ -19,17 +19,21 @@ using Shared.Logging.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var portConfigs = new PortConfigs();
 var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
 builder.WebHost.ConfigureKestrel(options =>
 {
     // Since YARP acts like an API gateway, it onyl accepts HTTP/1.1.
     // gRPC is used only for internal service communication.
     options.ConfigureHttps(
+        name: "HttpsOnly",
         certificateOptions.ServerKeyFilePath,
         certificateOptions.ServerCertificateFilePath,
-        port: 8443,
-        HttpProtocols.Http1);
+        port: builder.Configuration.GetValue<int>("HttpsPort"),
+        HttpProtocols.Http1,
+        portConfigs);
 });
+builder.Services.AddSingleton(portConfigs);
 
 builder.Services.AddSingleton<TokenBlacklistRedis>();
 builder.Services.AddSingleton<RateLimiterRedis>();

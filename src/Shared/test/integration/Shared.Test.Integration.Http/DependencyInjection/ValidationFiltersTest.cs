@@ -46,7 +46,7 @@ namespace Shared.Test.Integration.Http.DependencyInjection
             // Arrange
             var request = new ValidationType1(10);
 
-            using var client = _webApiFixture.CreateHttpsClient();
+            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
 
             // Act
             var response = await client.PostAsJsonAsync("/valiation-filter/validation", request);
@@ -61,7 +61,7 @@ namespace Shared.Test.Integration.Http.DependencyInjection
             // Arrange
             var request = new ValidationType1(-1);
 
-            using var client = _webApiFixture.CreateHttpsClient();
+            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
 
             // Act
             var response = await client.PostAsJsonAsync("/valiation-filter/validation", request);
@@ -80,7 +80,7 @@ namespace Shared.Test.Integration.Http.DependencyInjection
             // Arrange
             var request = new ValidationType1(10);
 
-            using var client = _webApiFixture.CreateHttpsClient();
+            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
 
             // Act
             var response = await client.PostAsJsonAsync("/valiation-filter/async-validation", request);
@@ -95,7 +95,7 @@ namespace Shared.Test.Integration.Http.DependencyInjection
             // Arrange
             var request = new ValidationType1(-1);
 
-            using var client = _webApiFixture.CreateHttpsClient();
+            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
 
             // Act
             var response = await client.PostAsJsonAsync("/valiation-filter/async-validation", request);

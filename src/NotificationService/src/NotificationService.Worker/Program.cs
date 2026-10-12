@@ -6,22 +6,24 @@ using NotificationService.Worker.Services;
 using NotificationService.Worker.BackgroundServices;
 using Shared.AspNetCore.Helpers.DependencyInjection;
 using Shared.Logging.DependencyInjection;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
+using Shared.AspNetCore.Helpers.Kestrel;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var portConfigs = new PortConfigs();
 builder.WebHost.ConfigureKestrel(options =>
 {
     // Notification service does not have to talk with any other services.
     // Its job is to handle RabbitMQ messages. The only exposed endpoint is
     // the health check endpoint, which can be plain HTTP instead of HTTPS.
-    
-    options.ListenAnyIP(8080, config =>
-    {
-        config.Protocols = HttpProtocols.Http1;
-    });
+    options.ConfigureHttp(
+        name: "Http",
+        port: builder.Configuration.GetValue<int>("HttpPort"),
+        portConfigs);
 });
+builder.Services.AddSingleton(portConfigs);
 
 builder.Services.AddSingleton<IEmailService, SmtpService>();
 builder.Services.AddSingleton<ITemplateService, TemplateService>();

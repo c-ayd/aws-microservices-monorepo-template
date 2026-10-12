@@ -106,7 +106,7 @@ namespace AuthService.Test.Integration.Api.Collections
             public AuthApiWebAppFactory(
                 ConnectionsOptions connectionsOptions,
                 JwtKeysOptions jwtKeysOptions)
-                : base(port: 8443, caBundlePath: CABundlePath)
+                : base(CABundlePath)
             {
                 _connectionsOptions = connectionsOptions;
                 _jwtKeysOptions = jwtKeysOptions;

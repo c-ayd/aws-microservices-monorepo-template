@@ -91,7 +91,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
             public NotificationWebAppFactory(
                 ConnectionsOptions connectionsOptions,
                 SmtpOptions smtpOptions)
-                : base(port: 8080, caBundlePath: CABundlePath)
+                : base(CABundlePath)
             {
                 _connectionsOptions = connectionsOptions;
                 _smtpOptions = smtpOptions;

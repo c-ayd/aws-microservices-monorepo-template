@@ -127,7 +127,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
             private readonly ConnectionsOptions _connectionsOptions;
 
             public ApiGatewayWebAppFactory(ConnectionsOptions connectionsOptions)
-                : base(port: 8443, caBundlePath: CABundlePath)
+                : base(CABundlePath)
             {
                 _connectionsOptions = connectionsOptions;
             }

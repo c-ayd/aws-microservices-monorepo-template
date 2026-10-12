@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
@@ -18,29 +20,20 @@ namespace Shared.Test.Helpers.Fixtures
     public class WebAppFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint>
         where TEntryPoint : class
     {
-        private static List<int> _availablePorts = Enumerable.Range(8000, 8080).ToList();
-
-        private readonly int _port = 8111;
         private X509Certificate2Collection _caBundle;
 
         protected List<HttpClient> HttpClients { get; private set; } = new List<HttpClient>();
 
-        public WebAppFactoryFixture(int port, string caBundlePath)
+        public WebAppFactoryFixture(string caBundlePath)
         {
-            _port = port;
             _caBundle = TlsUtility.LoadCertificateChainFromFile(Path.Combine(AppContext.BaseDirectory, caBundlePath));
 
             // To force WebAppFactory to use Kestrel instead of TestServer, a random port is also
             // opened as plain HTTP. Since there is change that one of the predefined ports might
             // be needed in some test cases, that port is removed from the list.
-            _availablePorts.Remove(_port);
-
-            var randomPort = _availablePorts[Random.Shared.Next(_availablePorts.Count)];
-            _availablePorts.Remove(randomPort);
-            
             UseKestrel(options =>
             {
-                options.ListenAnyIP(randomPort);
+                options.ListenAnyIP(0);
             });
         }
 
@@ -49,32 +42,46 @@ namespace Shared.Test.Helpers.Fixtures
             builder.UseEnvironment("Development");
         }
 
-        public HttpClient CreateHttpsClient()
+        public HttpClient CreateHttpClient(string portConfigName)
         {
-            var client = new HttpClient(new SocketsHttpHandler()
-            {
-                SslOptions = new SslClientAuthenticationOptions()
-                {
-                    RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-                    {
-                        return TlsUtility.ValidateServerCertificate(certificate, chain, _caBundle, sslPolicyErrors);
-                    }
-                }
-            });
+            HttpClient client;
 
-            client.BaseAddress = new Uri($"https://localhost:{_port}");
+            var portConfigs = GetService<PortConfigs>();
+            var portConfig = portConfigs.Ports[portConfigName];
+            if (portConfig.TlsEnabled)
+            {
+                client = new HttpClient(new SocketsHttpHandler()
+                {
+                    SslOptions = new SslClientAuthenticationOptions()
+                    {
+                        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                        {
+                            return TlsUtility.ValidateServerCertificate(certificate, chain, _caBundle, sslPolicyErrors);
+                        }
+                    },
+                });
+
+                client.BaseAddress = new Uri($"https://localhost:{((IPEndPoint)portConfig.Configuration.EndPoint).Port}");
+            }
+            else
+            {
+                client = new HttpClient()
+                {
+                    BaseAddress = new Uri($"http://localhost:{((IPEndPoint)portConfig.Configuration.EndPoint).Port}")
+                };
+            }
 
             HttpClients.Add(client);
-
             return client;
         }
 
-        public HttpClient CreateHttpsClientWithCredentials(
+        public HttpClient CreateHttpClientWithCredentials(
+            string portConfigName,
             string accountId,
             string preferredLanguage = SupportedLanguages.DefaultLanguage,
             Dictionary<string, string>? cookieValues = null)
         {
-            var client = CreateHttpsClient();
+            var client = CreateHttpClient(portConfigName);
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, accountId);
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, preferredLanguage);
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());

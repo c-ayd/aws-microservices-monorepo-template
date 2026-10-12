@@ -5,11 +5,14 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.AspNetCore.Helpers.Kestrel;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
 
 namespace Shared.Test.Helpers.Fixtures
 {
     public class WebApiFixture : WebAppFactoryFixture<Shared.Test.WebApi.Program>
     {
+        public const string HttpsPortConfigName = "HttpsOnly";
+
         private Action<IConfigurationBuilder>? _addConfiguration;
         private Action<IServiceCollection, IConfiguration>? _configureServices;
         private Action<IApplicationBuilder>? _configureApp;
@@ -24,7 +27,7 @@ namespace Shared.Test.Helpers.Fixtures
             string caBundlePath,
             string serverKeyFilePath,
             string serverCertificateFilePath)
-            : base(port, caBundlePath)
+            : base(caBundlePath)
         {
             _port = port;
             _serverKeyFilePath = Path.Combine(AppContext.BaseDirectory, serverKeyFilePath);
@@ -47,9 +50,16 @@ namespace Shared.Test.Helpers.Fixtures
         {
             base.ConfigureWebHost(builder);
 
+            var portConfigs = new PortConfigs();
             builder.ConfigureKestrel(options =>
             {
-                options.ConfigureHttps(_serverKeyFilePath, _serverCertificateFilePath, _port, HttpProtocols.Http1AndHttp2);
+                options.ConfigureHttps(
+                    HttpsPortConfigName,
+                    _serverKeyFilePath,
+                    _serverCertificateFilePath,
+                    port: _port,
+                    HttpProtocols.Http1AndHttp2,
+                    portConfigs);
             });
 
             builder.ConfigureAppConfiguration((context, config) =>
@@ -59,6 +69,8 @@ namespace Shared.Test.Helpers.Fixtures
 
             builder.ConfigureServices((context, services) =>
             {
+                services.AddSingleton(portConfigs);
+                
                 _configureServices?.Invoke(services, context.Configuration);
             });
 

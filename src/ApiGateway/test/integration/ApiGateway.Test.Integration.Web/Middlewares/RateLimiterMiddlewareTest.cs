@@ -1,6 +1,7 @@
 using System.Net;
 using ApiGateway.Test.Integration.Web.Collections;
 using Microsoft.Net.Http.Headers;
+using Shared.Test.Helpers.Fixtures;
 
 namespace ApiGateway.Test.Integration.Web
 {
@@ -18,11 +19,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task RateLimiter_WhenAuthenticatedAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpsClient();
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -48,11 +49,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task RateLimiter_WhenAuthenticatedWithAdminRoleAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpsClient();
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles=Admin");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpsClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
