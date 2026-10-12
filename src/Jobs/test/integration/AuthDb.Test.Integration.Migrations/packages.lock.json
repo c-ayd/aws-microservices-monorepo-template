@@ -728,7 +728,8 @@
       "shared.postgresql.helpers": {
         "type": "Project",
         "dependencies": {
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )"
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
       "shared.rabbitmq.helpers": {
