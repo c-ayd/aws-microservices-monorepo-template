@@ -125,6 +125,9 @@
         "dependencies": {
           "Microsoft.Extensions.Logging.Abstractions": "10.0.0"
         }
+      },
+      "shared.aspnetcore.helpers": {
+        "type": "Project"
       }
     }
   }

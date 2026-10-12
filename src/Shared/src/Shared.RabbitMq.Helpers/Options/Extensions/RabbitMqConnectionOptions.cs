@@ -1,3 +1,5 @@
+using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
+
 namespace Shared.RabbitMq.Helpers.Options.Extensions
 {
     public class RabbitMqConnectionOptions
@@ -7,11 +9,5 @@ namespace Shared.RabbitMq.Helpers.Options.Extensions
         public required string Username { get; set; }
         public required string Password { get; set; }
         public SslOptions? Ssl { get; set; }
-        
-        public class SslOptions
-        {
-            public required string CABundlePath { get; set; }
-            public required string ServerName { get; set; }
-        }
     }
 }

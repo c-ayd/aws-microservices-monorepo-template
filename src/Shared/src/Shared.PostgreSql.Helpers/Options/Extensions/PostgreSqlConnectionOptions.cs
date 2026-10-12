@@ -1,3 +1,5 @@
+using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
+
 namespace Shared.PostgreSql.Helpers.Options.Extensions
 {
     public class PostgreSqlConnectionOptions
@@ -9,11 +11,6 @@ namespace Shared.PostgreSql.Helpers.Options.Extensions
         public required string Password { get; set; }
         public SslOptions? Ssl { get; set; }
         public RetryMechanismOptions? RetryMechanism { get; set; }
-
-        public class SslOptions
-        {
-            public required string CABundlePath { get; set; }
-        }
 
         public class RetryMechanismOptions
         {
