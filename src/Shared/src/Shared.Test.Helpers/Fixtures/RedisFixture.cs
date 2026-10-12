@@ -1,6 +1,5 @@
 using System.Net.Security;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using DotNet.Testcontainers.Builders;
 using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
 using Shared.AspNetCore.Helpers.Tls.Utilities;
@@ -73,17 +72,17 @@ namespace Shared.Test.Helpers.Fixtures
 
             if (sslEnabled)
             {
-                var caBundle = X509CertificateLoader.LoadCertificateFromFile(_caBundlePath!);
+                var caBundle = TlsUtility.LoadCertificateChainFromFile(_caBundlePath!);
 
                 configOptions.Ssl = true;
                 configOptions.SslClientAuthenticationOptions = _ => new SslClientAuthenticationOptions()
                 {
                     ClientCertificates = null,
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                    TargetHost = redisConnSettings.Host,
+                    TargetHost = redisConnSettings.Ssl!.ServerName,
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
-                        return TlsUtility.ValidateServerCertificate(certificate, caBundle);
+                        return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
                     }
                 };
             }

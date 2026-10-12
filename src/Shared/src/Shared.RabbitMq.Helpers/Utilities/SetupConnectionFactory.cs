@@ -1,6 +1,5 @@
 using System.Net.Security;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using RabbitMQ.Client;
 using Shared.AspNetCore.Helpers.Tls.Utilities;
 using Shared.RabbitMq.Helpers.Options.Extensions;
@@ -23,18 +22,22 @@ namespace Shared.RabbitMq.Helpers.Utilities
 
             if (connectionOptions.Ssl != null)
             {
-                var caBundle = X509CertificateLoader.LoadCertificateFromFile(connectionOptions.Ssl.CABundlePath);
+                var caBundle = TlsUtility.LoadCertificateChainFromFile(connectionOptions.Ssl.CABundlePath);
                 connectionFactory.Ssl = new SslOption()
                 {
                     Enabled = true,
-                    ServerName = connectionOptions.Ssl.ServerName,
                     Version = SslProtocols.Tls12 | SslProtocols.Tls13,
                     AcceptablePolicyErrors = SslPolicyErrors.None,
                     CertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
-                        return TlsUtility.ValidateServerCertificate(certificate, caBundle);
+                        return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
                     }
                 };
+
+                if (connectionOptions.Ssl.ServerName != null)
+                {
+                    connectionFactory.Ssl.ServerName = connectionOptions.Ssl.ServerName;
+                }
             }
 
             return connectionFactory;

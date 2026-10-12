@@ -27,17 +27,17 @@ namespace Shared.Redis
 
             if (connectionOptions.Ssl != null)
             {
-                var caBundle = X509CertificateLoader.LoadCertificateFromFile(connectionOptions.Ssl.CABundlePath);
+                var caBundle = TlsUtility.LoadCertificateChainFromFile(connectionOptions.Ssl.CABundlePath);
                 
                 _configOptions.Ssl = true;
                 _configOptions.SslClientAuthenticationOptions = _ => new SslClientAuthenticationOptions()
                 {
                     ClientCertificates = null,
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                    TargetHost = connectionOptions.Host,
+                    TargetHost = connectionOptions.Ssl.ServerName,
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
-                        return TlsUtility.ValidateServerCertificate(certificate, caBundle);
+                        return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
                     }
                 };
             }

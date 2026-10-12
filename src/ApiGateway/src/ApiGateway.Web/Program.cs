@@ -22,13 +22,13 @@ var builder = WebApplication.CreateBuilder(args);
 var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
 builder.WebHost.ConfigureKestrel(options =>
 {
-    var serverCertificate = TlsUtility.LoadCertificateFromFile(
-        certificateOptions.ServerKeyFilePath,
-        certificateOptions.ServerCertificateFilePath);
-
     // Since YARP acts like an API gateway, it onyl accepts HTTP/1.1.
     // gRPC is used only for internal service communication.
-    options.ConfigureTls(serverCertificate, port: 8443, HttpProtocols.Http1);
+    options.ConfigureTls(
+        certificateOptions.ServerKeyFilePath,
+        certificateOptions.ServerCertificateFilePath,
+        port: 8443,
+        HttpProtocols.Http1);
 });
 
 builder.Services.AddSingleton<TokenBlacklistRedis>();
@@ -40,10 +40,10 @@ builder.Services.AddReverseProxy()
     .AddTransforms<JwtBearerTransform>()
     .ConfigureHttpClient((context, handler) =>
     {
-        var caBundle = X509CertificateLoader.LoadCertificateFromFile(certificateOptions.CABundlePath);
+        var caBundle = TlsUtility.LoadCertificateChainFromFile(certificateOptions.CABundlePath);
         handler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
         {
-            return TlsUtility.ValidateServerCertificate(certificate, caBundle);
+            return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
         };
     });
 
@@ -91,7 +91,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RoleClaimType = ApiGatewayAuthKeys.Claims.Roles.ClaimType
         };
 
-        var caBundle = X509CertificateLoader.LoadCertificateFromFile(certificateOptions.CABundlePath);
+        var caBundle = TlsUtility.LoadCertificateChainFromFile(certificateOptions.CABundlePath);
         options.BackchannelHttpHandler = new SocketsHttpHandler
         {
             PooledConnectionLifetime = TimeSpan.FromMinutes(5),
@@ -100,7 +100,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                 {
-                    return TlsUtility.ValidateServerCertificate(certificate, caBundle);
+                    return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
                 }
             }
         };

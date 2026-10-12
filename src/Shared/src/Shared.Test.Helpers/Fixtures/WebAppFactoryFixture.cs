@@ -21,14 +21,14 @@ namespace Shared.Test.Helpers.Fixtures
         private static List<int> _availablePorts = Enumerable.Range(8000, 8080).ToList();
 
         private readonly int _port = 8111;
-        private X509Certificate2 _caBundle;
+        private X509Certificate2Collection _caBundle;
 
         protected List<HttpClient> HttpClients { get; private set; } = new List<HttpClient>();
 
         public WebAppFactoryFixture(int port, string caBundlePath)
         {
             _port = port;
-            _caBundle = X509CertificateLoader.LoadCertificateFromFile(Path.Combine(AppContext.BaseDirectory, caBundlePath));
+            _caBundle = TlsUtility.LoadCertificateChainFromFile(Path.Combine(AppContext.BaseDirectory, caBundlePath));
 
             // To force WebAppFactory to use Kestrel instead of TestServer, a random port is also
             // opened as plain HTTP. Since there is change that one of the predefined ports might
@@ -57,7 +57,7 @@ namespace Shared.Test.Helpers.Fixtures
                 {
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
-                        return TlsUtility.ValidateServerCertificate(certificate, _caBundle);
+                        return TlsUtility.ValidateServerCertificate(certificate, chain, _caBundle, sslPolicyErrors);
                     }
                 }
             });

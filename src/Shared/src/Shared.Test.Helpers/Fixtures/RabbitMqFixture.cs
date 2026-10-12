@@ -68,7 +68,7 @@ namespace Shared.Test.Helpers.Fixtures
 
             if (_sslEnabled)
             {
-                var caBundle = X509CertificateLoader.LoadCertificateFromFile(_caBundlePath!);
+                var caBundle = TlsUtility.LoadCertificateChainFromFile(_caBundlePath!);
 
                 _connectionFactory.Ssl = new SslOption()
                 {
@@ -78,7 +78,7 @@ namespace Shared.Test.Helpers.Fixtures
                     AcceptablePolicyErrors = SslPolicyErrors.None,
                     CertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
-                        return TlsUtility.ValidateServerCertificate(certificate, caBundle!);
+                        return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle!, sslPolicyErrors);
                     }
                 };
             }

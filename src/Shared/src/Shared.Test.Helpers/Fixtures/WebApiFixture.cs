@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.AspNetCore.Helpers.Tls;
-using Shared.AspNetCore.Helpers.Tls.Utilities;
 
 namespace Shared.Test.Helpers.Fixtures
 {
@@ -50,11 +49,7 @@ namespace Shared.Test.Helpers.Fixtures
 
             builder.ConfigureKestrel(options =>
             {
-                var serverCertificate = TlsUtility.LoadCertificateFromFile(
-                    _serverKeyFilePath,
-                    _serverCertificateFilePath);
-                
-                options.ConfigureTls(serverCertificate, _port, HttpProtocols.Http1AndHttp2);
+                options.ConfigureTls(_serverKeyFilePath, _serverCertificateFilePath, _port, HttpProtocols.Http1AndHttp2);
             });
 
             builder.ConfigureAppConfiguration((context, config) =>
