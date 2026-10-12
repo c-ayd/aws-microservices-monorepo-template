@@ -49,17 +49,17 @@ namespace ApiGateway.Test.Integration.Web.Collections
                 port: 7000,
                 caBundlePath: CABundlePath,
                 serverKeyFilePath: _serviceKeyFilePath,
-                serverCertificatePath: _serviceCertificateFilePath);
+                serverCertificateFilePath: _serviceCertificateFilePath);
             ProtectedServiceFixture = new WebApiFixture(
                 port: 7001,
                 caBundlePath: CABundlePath,
                 serverKeyFilePath: _serviceKeyFilePath,
-                serverCertificatePath: _serviceCertificateFilePath);
+                serverCertificateFilePath: _serviceCertificateFilePath);
             AdminServiceFixture = new WebApiFixture(
                 port: 7002,
                 caBundlePath: CABundlePath,
                 serverKeyFilePath: _serviceKeyFilePath,
-                serverCertificatePath: _serviceCertificateFilePath);
+                serverCertificateFilePath: _serviceCertificateFilePath);
         }
 
         public async Task InitializeAsync()

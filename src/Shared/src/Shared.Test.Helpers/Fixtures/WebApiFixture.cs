@@ -18,18 +18,18 @@ namespace Shared.Test.Helpers.Fixtures
 
         private int _port;
         private string _serverKeyFilePath;
-        private string _serverCertificatePath;
+        private string _serverCertificateFilePath;
 
         public WebApiFixture(
             int port,
             string caBundlePath,
             string serverKeyFilePath,
-            string serverCertificatePath)
+            string serverCertificateFilePath)
             : base(port, caBundlePath)
         {
             _port = port;
             _serverKeyFilePath = Path.Combine(AppContext.BaseDirectory, serverKeyFilePath);
-            _serverCertificatePath = Path.Combine(AppContext.BaseDirectory, serverCertificatePath);
+            _serverCertificateFilePath = Path.Combine(AppContext.BaseDirectory, serverCertificateFilePath);
         }
 
         public async Task InitializeAsync(
@@ -52,7 +52,7 @@ namespace Shared.Test.Helpers.Fixtures
             {
                 var serverCertificate = TlsUtility.LoadCertificateFromFile(
                     _serverKeyFilePath,
-                    _serverCertificatePath);
+                    _serverCertificateFilePath);
                 
                 options.ConfigureTls(serverCertificate, _port, HttpProtocols.Http1AndHttp2);
             });

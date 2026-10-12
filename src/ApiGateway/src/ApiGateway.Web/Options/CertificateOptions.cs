@@ -8,6 +8,6 @@ namespace ApiGateway.Web.Options
 
         public required string CABundlePath { get; set; }
         public required string ServerKeyFilePath { get; set; }
-        public required string ServerCertificatePath { get; set; }
+        public required string ServerCertificateFilePath { get; set; }
     }
 }

@@ -24,7 +24,7 @@ builder.WebHost.ConfigureKestrel(options =>
 {
     var serverCertificate = TlsUtility.LoadCertificateFromFile(
         certificateOptions.ServerKeyFilePath,
-        certificateOptions.ServerCertificatePath);
+        certificateOptions.ServerCertificateFilePath);
 
     // Since YARP acts like an API gateway, it onyl accepts HTTP/1.1.
     // gRPC is used only for internal service communication.

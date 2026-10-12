@@ -26,7 +26,7 @@ builder.WebHost.ConfigureKestrel(options =>
     var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
     var serverCertificate = TlsUtility.LoadCertificateFromFile(
         certificateOptions.ServerKeyFilePath,
-        certificateOptions.ServerCertificatePath);
+        certificateOptions.ServerCertificateFilePath);
 
     options.ConfigureTls(serverCertificate, port: 8443, HttpProtocols.Http1AndHttp2);
 });
