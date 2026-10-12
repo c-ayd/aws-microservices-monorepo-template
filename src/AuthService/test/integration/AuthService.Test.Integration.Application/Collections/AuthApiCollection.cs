@@ -2,7 +2,7 @@ using AuthService.Application.Options;
 using AuthService.Persistence.DbContexts;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
+using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.Redis.Options.Extensions;

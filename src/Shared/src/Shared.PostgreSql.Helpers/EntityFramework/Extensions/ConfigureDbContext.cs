@@ -1,7 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Shared.AspNetCore.Helpers.Tls.Utilities;
+using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 
 namespace Shared.PostgreSql.Helpers.EntityFramework.Extensions

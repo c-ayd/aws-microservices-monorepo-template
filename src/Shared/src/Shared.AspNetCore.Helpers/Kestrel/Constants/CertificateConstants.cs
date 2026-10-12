@@ -1,4 +1,4 @@
-namespace Shared.AspNetCore.Helpers.Tls.Constants
+namespace Shared.AspNetCore.Helpers.Kestrel.Constants
 {
     public static class CertificateConstants
     {

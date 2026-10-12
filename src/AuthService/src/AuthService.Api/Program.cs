@@ -16,14 +16,14 @@ using Shared.Http.DependencyInjection;
 using Shared.Http.Authentication.Constants;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using AuthService.Application.Options;
-using Shared.AspNetCore.Helpers.Tls;
+using Shared.AspNetCore.Helpers.Kestrel;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel(options =>
 {
     var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
-    options.ConfigureTls(
+    options.ConfigureHttps(
         certificateOptions.ServerKeyFilePath,
         certificateOptions.ServerCertificateFilePath,
         port: 8443,

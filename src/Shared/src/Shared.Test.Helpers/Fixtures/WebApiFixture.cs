@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.AspNetCore.Helpers.Tls;
+using Shared.AspNetCore.Helpers.Kestrel;
 
 namespace Shared.Test.Helpers.Fixtures
 {
@@ -49,7 +49,7 @@ namespace Shared.Test.Helpers.Fixtures
 
             builder.ConfigureKestrel(options =>
             {
-                options.ConfigureTls(_serverKeyFilePath, _serverCertificateFilePath, _port, HttpProtocols.Http1AndHttp2);
+                options.ConfigureHttps(_serverKeyFilePath, _serverCertificateFilePath, _port, HttpProtocols.Http1AndHttp2);
             });
 
             builder.ConfigureAppConfiguration((context, config) =>

@@ -1,4 +1,4 @@
-using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
+using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 
 namespace Shared.Redis.Options.Extensions
 {

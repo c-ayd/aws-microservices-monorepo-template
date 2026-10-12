@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using NotificationService.Worker.DbContexts;
 using NotificationService.Worker.Options;
-using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
+using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.Test.Helpers.Fixtures;

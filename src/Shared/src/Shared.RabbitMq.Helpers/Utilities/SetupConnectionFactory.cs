@@ -1,7 +1,7 @@
 using System.Net.Security;
 using System.Security.Authentication;
 using RabbitMQ.Client;
-using Shared.AspNetCore.Helpers.Tls.Utilities;
+using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 
 namespace Shared.RabbitMq.Helpers.Utilities

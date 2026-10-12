@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Shared.AspNetCore.Helpers.Tls.Utilities
+namespace Shared.AspNetCore.Helpers.Kestrel.Utilities
 {
     public static partial class TlsUtility
     {

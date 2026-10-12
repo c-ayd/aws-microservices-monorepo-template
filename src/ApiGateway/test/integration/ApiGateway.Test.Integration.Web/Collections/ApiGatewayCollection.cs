@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using Shared.AspNetCore.Helpers.Tls.Options.Extensions;
+using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
 using Shared.Redis.Options.Extensions;

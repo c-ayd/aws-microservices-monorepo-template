@@ -1,4 +1,4 @@
-namespace Shared.AspNetCore.Helpers.Tls.Options.Extensions
+namespace Shared.AspNetCore.Helpers.Kestrel.Options.Extensions
 {
     public class SslOptions
     {

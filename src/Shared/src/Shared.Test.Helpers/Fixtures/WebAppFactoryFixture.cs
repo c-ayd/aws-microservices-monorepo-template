@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Shared.AspNetCore.Helpers.Tls.Utilities;
+using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
 

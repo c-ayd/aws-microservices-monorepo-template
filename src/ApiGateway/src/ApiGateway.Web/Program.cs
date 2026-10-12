@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
 using Shared.AspNetCore.Helpers.DependencyInjection;
-using Shared.AspNetCore.Helpers.Tls;
-using Shared.AspNetCore.Helpers.Tls.Utilities;
+using Shared.AspNetCore.Helpers.Kestrel;
+using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Http.Authentication.Constants;
 using Shared.Http.Response.Middlewares;
 using Shared.Logging.DependencyInjection;
@@ -24,7 +24,7 @@ builder.WebHost.ConfigureKestrel(options =>
 {
     // Since YARP acts like an API gateway, it onyl accepts HTTP/1.1.
     // gRPC is used only for internal service communication.
-    options.ConfigureTls(
+    options.ConfigureHttps(
         certificateOptions.ServerKeyFilePath,
         certificateOptions.ServerCertificateFilePath,
         port: 8443,

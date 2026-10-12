@@ -1,15 +1,14 @@
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
-using Shared.AspNetCore.Helpers.Tls.Utilities;
+using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 
-namespace Shared.AspNetCore.Helpers.Tls
+namespace Shared.AspNetCore.Helpers.Kestrel
 {
-    public static partial class TlsHelper
+    public static partial class KestrelHelper
     {
-        public static void ConfigureTls(this KestrelServerOptions options,
+        public static void ConfigureHttps(this KestrelServerOptions options,
             string serverKeyFilePath,
             string serverCertificateFilePath,
             int port,
