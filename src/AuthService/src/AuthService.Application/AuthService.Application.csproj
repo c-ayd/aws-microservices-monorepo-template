@@ -6,7 +6,7 @@
     <ProjectReference Include="..\..\..\Shared\src\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.Http\Shared.Http.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.RabbitMq.Notifications\Shared.RabbitMq.Notifications.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Redis\Shared.Redis.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Redis.Helpers\Shared.Redis.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.RabbitMq.Helpers\Shared.RabbitMq.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.Constants\Shared.Constants.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />

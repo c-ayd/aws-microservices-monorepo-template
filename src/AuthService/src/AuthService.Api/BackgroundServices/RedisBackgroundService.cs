@@ -1,6 +1,6 @@
 using AuthService.Application.Abstractions.DistributedCaches;
-using Shared.Redis;
-using Shared.Redis.BackgroundService;
+using Shared.Redis.Helpers;
+using Shared.Redis.Helpers.BackgroundServices;
 
 namespace AuthService.Api.BackgroundServices
 {

@@ -312,7 +312,7 @@
           "Shared.PostgreSql.Helpers": "[1.0.0, )",
           "Shared.RabbitMq.Helpers": "[1.0.0, )",
           "Shared.RabbitMq.Notifications": "[1.0.0, )",
-          "Shared.Redis": "[1.0.0, )",
+          "Shared.Redis.Helpers": "[1.0.0, )",
           "System.IdentityModel.Tokens.Jwt": "[8.19.2, )"
         }
       },
@@ -361,7 +361,7 @@
           "RabbitMQ.Client": "[7.2.1, )"
         }
       },
-      "shared.redis": {
+      "shared.redis.helpers": {
         "type": "Project",
         "dependencies": {
           "Shared.AspNetCore.Helpers": "[1.0.0, )",

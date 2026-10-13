@@ -1,7 +1,7 @@
 using Shared.AspNetCore.Helpers;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
-using Shared.Redis.Options.Extensions;
+using Shared.Redis.Helpers.Options.Extensions;
 
 namespace AuthService.Application.Options
 {

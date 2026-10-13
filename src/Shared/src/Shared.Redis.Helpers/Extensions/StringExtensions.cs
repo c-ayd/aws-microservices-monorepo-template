@@ -1,7 +1,7 @@
 using System.Text.Json;
 using StackExchange.Redis;
 
-namespace Shared.Redis.Extensions
+namespace Shared.Redis.Helpers.Extensions
 {
     public static class StringExtensions
     {

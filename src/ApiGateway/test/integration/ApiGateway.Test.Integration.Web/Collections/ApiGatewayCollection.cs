@@ -15,7 +15,7 @@ using Microsoft.Net.Http.Headers;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
-using Shared.Redis.Options.Extensions;
+using Shared.Redis.Helpers.Options.Extensions;
 using Shared.Test.Helpers;
 using Shared.Test.Helpers.Fixtures;
 

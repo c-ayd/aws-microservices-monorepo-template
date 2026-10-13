@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
-using Shared.Redis.Options.Extensions;
+using Shared.Redis.Helpers.Options.Extensions;
 using Shared.Test.Helpers.Fixtures;
 
 namespace AuthService.Test.Integration.Api.Collections

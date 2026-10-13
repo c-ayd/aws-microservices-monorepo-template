@@ -1,8 +1,8 @@
 using AuthService.Application.Abstractions.DistributedCaches;
 using AuthService.Application.Options;
 using Microsoft.Extensions.Options;
-using Shared.Redis;
-using Shared.Redis.Extensions;
+using Shared.Redis.Helpers;
+using Shared.Redis.Helpers.Extensions;
 
 namespace AuthService.Persistence.DistributedCaches
 {

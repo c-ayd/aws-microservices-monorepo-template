@@ -1,9 +1,9 @@
 using System.Reflection;
-using Shared.Redis.Extensions;
+using Shared.Redis.Helpers.Extensions;
 using Shared.Test.Generators;
 using Shared.Test.Helpers.Fixtures;
 
-namespace Shared.Test.Integration.Redis.Extensions
+namespace Shared.Test.Integration.Redis.Helpers.Extensions
 {
     public class StringExtensionsTest : IClassFixture<RedisFixture>, IAsyncLifetime
     {

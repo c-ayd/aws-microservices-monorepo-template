@@ -1,9 +1,9 @@
-using Shared.Redis;
-using Shared.Redis.BackgroundService;
-using Shared.Redis.Options.Extensions;
+using Shared.Redis.Helpers;
+using Shared.Redis.Helpers.BackgroundServices;
+using Shared.Redis.Helpers.Options.Extensions;
 using Shared.Test.Helpers.Fixtures;
 
-namespace Shared.Test.Integration.Redis.BackgroundServices
+namespace Shared.Test.Integration.Redis.Helpers.BackgroundServices
 {
     public class RedisConnectionBackgroundServiceTest :
         IClassFixture<RedisFixture>,

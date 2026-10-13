@@ -4,7 +4,7 @@ using AuthService.Persistence.DistributedCaches;
 using Microsoft.Extensions.Options;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
-using Shared.Redis;
+using Shared.Redis.Helpers;
 using Shared.Test.Helpers.Fixtures;
 
 namespace AuthService.Test.Integration.Persistence.DistributedCaches
