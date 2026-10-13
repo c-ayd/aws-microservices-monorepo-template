@@ -49,8 +49,13 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials("HttpsOnly",
-                account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+                new Dictionary<string, string>()
+                {
+                    { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
+                    { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
+                    { ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() }
+                });
 
             // Act
             var response = await client.DeleteAsync(_endpoint);
@@ -78,10 +83,14 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials("HttpsOnly",
-                account.Id.ToString(),
-                SupportedLanguages.DefaultLanguage,
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+                headers: new Dictionary<string, string>()
+                {
+                    { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
+                    { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
+                    { ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() }
+                },
+                cookies: new Dictionary<string, string>()
                 {
                     { CookieKeys.SessionId, Guid.NewGuid().ToString() },
                     { CookieKeys.RefreshToken, StringGenerator.GenerateAlphanumeric() }
@@ -118,10 +127,14 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials("HttpsOnly",
-                account.Id.ToString(),
-                SupportedLanguages.DefaultLanguage,
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+                headers: new Dictionary<string, string>()
+                {
+                    { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
+                    { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
+                    { ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() }
+                },
+                cookies: new Dictionary<string, string>()
                 {
                     { CookieKeys.SessionId, matchSessionId ? account.Sessions.ElementAt(0).Id.ToString() : Guid.NewGuid().ToString() },
                     { CookieKeys.RefreshToken, matchRefreshToken ? refreshToken : StringGenerator.GenerateAlphanumeric() }
@@ -155,10 +168,14 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials("HttpsOnly",
-                account.Id.ToString(),
-                SupportedLanguages.DefaultLanguage,
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+                headers: new Dictionary<string, string>()
+                {
+                    { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
+                    { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
+                    { ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() }
+                },
+                cookies: new Dictionary<string, string>()
                 {
                     { CookieKeys.SessionId, account.Sessions.ElementAt(0).Id.ToString() },
                     { CookieKeys.RefreshToken, refreshToken }

@@ -75,21 +75,22 @@ namespace Shared.Test.Helpers.Fixtures
             return client;
         }
 
-        public HttpClient CreateHttpClientWithCredentials(
+        public HttpClient CreateHttpClientWithHeaders(
             string portConfigName,
-            string accountId,
-            string preferredLanguage = SupportedLanguages.DefaultLanguage,
-            Dictionary<string, string>? cookieValues = null)
+            Dictionary<string, string> headers,
+            Dictionary<string, string>? cookies = null)
         {
             var client = CreateHttpClient(portConfigName);
-            client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, accountId);
-            client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, preferredLanguage);
-            client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
 
-            if (cookieValues != null)
+            foreach (var (key, value) in headers)
+            {
+                client.DefaultRequestHeaders.Add(key, value);
+            }
+
+            if (cookies != null)
             {
                 string cookieString = "";
-                foreach (var (key, value) in cookieValues)
+                foreach (var (key, value) in cookies)
                 {
                     cookieString += $"{key}={value}; ";
                 }
