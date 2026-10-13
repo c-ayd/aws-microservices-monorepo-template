@@ -15,10 +15,10 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Collections
         public TestHostCollectionCluster()
         {
             WebApiFixture = new WebApiFixture(
-                port: 8443,
+                port: 0,
                 caBundlePath: "Certs/test-ca-bundle.crt",
-                serverKeyFilePath: "Certs/test-webapi-server.key",
-                serverCertificateFilePath: "Certs/test-webapi-server.crt");
+                serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
+                serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");
         }
 
         public async Task InitializeAsync()

@@ -30,8 +30,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
     {
         public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
-        private const string _serviceKeyFilePath = "Certs/test-webapi-server.key";
-        private const string _serviceCertificateFilePath = "Certs/test-webapi-server.crt";
+        private const string _serviceKeyFilePath = "Certs/WebApi/test-webapi-server.key";
+        private const string _serviceCertificateFilePath = "Certs/WebApi/test-webapi-server.crt";
 
         public RedisFixture TokenBlacklistRedisFixture { get; private set; }
         public RedisFixture RateLimiterRedis { get; private set; }
