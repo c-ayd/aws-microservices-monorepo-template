@@ -1,4 +1,4 @@
-using Shared.AspNetCore.Helpers;
+using Shared.AspNetCore.Helpers.Options;
 using Shared.Redis.Helpers.Options.Extensions;
 
 namespace ApiGateway.Web.Options

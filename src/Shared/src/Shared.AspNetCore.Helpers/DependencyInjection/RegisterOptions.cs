@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.AspNetCore.Helpers.Exceptions;
 using Microsoft.Extensions.Configuration;
+using Shared.AspNetCore.Helpers.Options;
 
 namespace Shared.AspNetCore.Helpers.DependencyInjection
 {
