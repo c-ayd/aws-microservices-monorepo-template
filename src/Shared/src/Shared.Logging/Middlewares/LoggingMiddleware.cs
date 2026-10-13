@@ -4,14 +4,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Shared.Logging.Middlewares
 {
-    public class LoggingMiddleware
+    public class MetricsLoggingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<LoggingMiddleware> _logger;
+        private readonly ILogger<MetricsLoggingMiddleware> _logger;
 
-        public LoggingMiddleware(
+        public MetricsLoggingMiddleware(
             RequestDelegate next,
-            ILogger<LoggingMiddleware> logger)
+            ILogger<MetricsLoggingMiddleware> logger)
         {
             _next = next;
             _logger = logger;
@@ -36,7 +36,7 @@ namespace Shared.Logging.Middlewares
             }
         }
 
-        private void LogMetrics(ILogger<LoggingMiddleware> logger, string endpoint, int statusCode, double elapsedTimeMs)
+        private void LogMetrics(ILogger<MetricsLoggingMiddleware> logger, string endpoint, int statusCode, double elapsedTimeMs)
         {
             if (endpoint.StartsWith("/.well-known") ||
                 (LoggingOptions.HealthEndpoint != null && endpoint == LoggingOptions.HealthEndpoint))
