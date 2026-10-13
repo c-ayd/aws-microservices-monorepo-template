@@ -15,7 +15,7 @@ using AuthService.Application;
 using Shared.Http.DependencyInjection;
 using Shared.Http.Authentication.Constants;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using AuthService.Application.Options;
+using AuthService.Api.Options;
 using Shared.AspNetCore.Helpers.Kestrel;
 using Shared.AspNetCore.Helpers.Kestrel.Structures;
 using Shared.Http.Request;

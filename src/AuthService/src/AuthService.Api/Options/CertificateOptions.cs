@@ -1,6 +1,6 @@
 using Shared.AspNetCore.Helpers.Options;
 
-namespace AuthService.Application.Options
+namespace AuthService.Api.Options
 {
     public class CertificateOptions : IOptions
     {
