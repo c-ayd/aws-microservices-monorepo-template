@@ -1,4 +1,3 @@
-using ApiGateway.Web.Exceptions;
 using ApiGateway.Web.Options;
 using Microsoft.Extensions.Options;
 using Shared.Redis;
@@ -35,7 +34,12 @@ namespace ApiGateway.Web.DistributedCaches
                 );
 
                 if (response == null)
-                    throw new RedisNullResponseException();
+                {
+                    _logger.LogCritical("Rate limiter Redis returned a null response. Key Type: {KeyType}",
+                        key.Split(':')[0]);
+                    
+                    return (true, (long)window.TotalSeconds);
+                }
             }
             catch (Exception exception)
             {

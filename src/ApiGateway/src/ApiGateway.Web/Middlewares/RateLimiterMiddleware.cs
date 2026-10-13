@@ -42,8 +42,7 @@ namespace ApiGateway.Web.Middlewares
             }
             else
             {
-                key = $"not-auth:{context.Connection.RemoteIpAddress?.ToString() ??
-                    (context.Request.Headers.TryGetValue("X-Forwarded-For", out var ip) ? ip : "unknown")}";
+                key = $"not-auth:{context.Connection.RemoteIpAddress?.ToString() ?? "unknown"}";
                 limit = 30;
                 window = TimeSpan.FromMinutes(1);
             }
