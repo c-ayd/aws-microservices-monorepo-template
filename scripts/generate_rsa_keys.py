@@ -3,8 +3,20 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from pathlib import Path
 import os
+import argparse
 
-def generate_rsa_keys():
+def main(args, root_folder):
+    if args.output is None:
+        print('Output directory is not provided.')
+        return
+
+    output_path = os.path.join(root_folder, args.output)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    generate_rsa_keys(output_path=output_path)
+
+def generate_rsa_keys(output_path):
     private_key = rsa.generate_private_key(
         backend=default_backend(),
         public_exponent=65537,
@@ -25,21 +37,24 @@ def generate_rsa_keys():
     private_pem_oneline = private_pem.decode('utf-8').replace('\n', '')
     public_pem_oneline = public_pem.decode('utf-8').replace('\n', '')
 
-    folder_path = Path(__file__).resolve().parent / 'output'
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-
-    with open(f'{folder_path}/rsa_private.pem', 'wb') as file:
+    with open(os.path.join(output_path, 'rsa-private-key.pem'), 'wb') as file:
         file.write(private_pem)
-    with open(f'{folder_path}/rsa_public.pem', 'wb') as file:
+    with open(os.path.join(output_path, 'rsa-public-key.pem'), 'wb') as file:
         file.write(public_pem)
 
-    with open(folder_path / 'rsa_private_oneline.txt', 'w') as file:
+    with open(os.path.join(output_path, 'rsa-private-key-oneline.txt'), 'w') as file:
         file.write(private_pem_oneline)
-    with open(folder_path / 'rsa_public_oneline.txt', 'w') as file:
+    with open(os.path.join(output_path, 'rsa-public-key-oneline.txt'), 'w') as file:
         file.write(public_pem_oneline)
 
-    print(f'RSA keys are created at {folder_path}')
+    print(f'RSA keys are generated.')
 
 if __name__ == '__main__':
-    generate_rsa_keys()
+    root_folder = Path(__file__).resolve().parent
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output', type=str)
+    args = parser.parse_args()
+
+    main(args=args,
+         root_folder=root_folder)
