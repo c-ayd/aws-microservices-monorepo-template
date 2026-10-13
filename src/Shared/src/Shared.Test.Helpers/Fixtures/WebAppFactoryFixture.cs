@@ -1,9 +1,13 @@
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
+using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
 
@@ -16,27 +20,68 @@ namespace Shared.Test.Helpers.Fixtures
     public class WebAppFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint>
         where TEntryPoint : class
     {
+        private X509Certificate2Collection _caBundle;
+
         protected List<HttpClient> HttpClients { get; private set; } = new List<HttpClient>();
+
+        public WebAppFactoryFixture(string caBundlePath)
+        {
+            _caBundle = TlsUtility.LoadCertificateChainFromFile(Path.Combine(AppContext.BaseDirectory, caBundlePath));
+
+            // To force WebAppFactory to use Kestrel instead of TestServer, a random port is also
+            // opened as plain HTTP. Since there is change that one of the predefined ports might
+            // be needed in some test cases, that port is removed from the list.
+            UseKestrel(options =>
+            {
+                options.ListenAnyIP(0);
+            });
+        }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Development");
         }
 
-        public HttpClient CreateHttpClient()
+        public HttpClient CreateHttpClient(string portConfigName)
         {
-            var client = CreateClient();
+            HttpClient client;
+
+            var portConfigs = GetService<PortConfigs>();
+            var portConfig = portConfigs.Ports[portConfigName];
+            if (portConfig.TlsEnabled)
+            {
+                client = new HttpClient(new SocketsHttpHandler()
+                {
+                    SslOptions = new SslClientAuthenticationOptions()
+                    {
+                        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                        {
+                            return TlsUtility.ValidateServerCertificate(certificate, chain, _caBundle, sslPolicyErrors);
+                        }
+                    },
+                });
+
+                client.BaseAddress = new Uri($"https://localhost:{((IPEndPoint)portConfig.Configuration.EndPoint).Port}");
+            }
+            else
+            {
+                client = new HttpClient()
+                {
+                    BaseAddress = new Uri($"http://localhost:{((IPEndPoint)portConfig.Configuration.EndPoint).Port}")
+                };
+            }
+
             HttpClients.Add(client);
-            
             return client;
         }
 
         public HttpClient CreateHttpClientWithCredentials(
+            string portConfigName,
             string accountId,
             string preferredLanguage = SupportedLanguages.DefaultLanguage,
             Dictionary<string, string>? cookieValues = null)
         {
-            var client = CreateHttpClient();
+            var client = CreateHttpClient(portConfigName);
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, accountId);
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, preferredLanguage);
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
@@ -59,6 +104,15 @@ namespace Shared.Test.Helpers.Fixtures
             where TService : notnull
         {
             return Services.GetRequiredService<TService>();
+        }
+
+        public AsyncServiceScope GetScopedService<TService>(out TService service)
+            where TService : notnull
+        {
+            var scope = Services.CreateAsyncScope();
+            service = scope.ServiceProvider.GetRequiredService<TService>();
+
+            return scope;
         }
 
         public TBackgroundService GetBackgroundService<TBackgroundService>()

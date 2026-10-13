@@ -10,16 +10,20 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Collections
 
     public class TestHostCollectionCluster : IAsyncLifetime
     {
-        public TestHostFixture TestHostFixture { get; private set; }
+        public WebApiFixture WebApiFixture { get; private set; }
 
         public TestHostCollectionCluster()
         {
-            TestHostFixture = new TestHostFixture();
+            WebApiFixture = new WebApiFixture(
+                port: 0,
+                caBundlePath: "Certs/test-ca-bundle.crt",
+                serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
+                serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");
         }
 
         public async Task InitializeAsync()
         {
-            await TestHostFixture.InitializeAsync(
+            await WebApiFixture.InitializeAsync(
                 addConfiguration: builder =>
                 {
                     AddOptionsTest.AddConfiguration(builder);
@@ -35,7 +39,7 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Collections
 
         public async Task DisposeAsync()
         {
-            await TestHostFixture.DisposeAsync();
+            await WebApiFixture.DisposeAsync();
         }
     }
 }

@@ -15,11 +15,11 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Options
         private const string _strValue = "TestValue";
         private const int _intValue = 10;
 
-        private readonly TestHostFixture _testHostFixture;
+        private readonly WebApiFixture _webApiFixture;
 
         public AddOptionsTest(TestHostCollectionCluster collectionCluster)
         {
-            _testHostFixture = collectionCluster.TestHostFixture;
+            _webApiFixture = collectionCluster.WebApiFixture;
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
@@ -45,11 +45,11 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Options
         public async Task AddOptions_WhenOptionsClassIsSet_ShouldRegisterOptionsClass()
         {
             // Assert
-            var options = _testHostFixture.Host.Services.GetService<IOptions<TestOptions>>();
+            var options = _webApiFixture.GetOptions<TestOptions>();
             Assert.NotNull(options);
-            Assert.Equal(_strValue, options.Value.StrValue);
-            Assert.Null(options.Value.NullableStrValue);
-            Assert.Equal(_intValue, options.Value.IntValue);
+            Assert.Equal(_strValue, options.StrValue);
+            Assert.Null(options.NullableStrValue);
+            Assert.Equal(_intValue, options.IntValue);
         }
 
         private class TestOptions : IOptions

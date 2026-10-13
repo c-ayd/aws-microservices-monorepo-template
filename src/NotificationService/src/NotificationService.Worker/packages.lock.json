@@ -224,10 +224,18 @@
       "shared.logging": {
         "type": "Project"
       },
+      "shared.postgresql.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+        }
+      },
       "shared.rabbitmq.helpers": {
         "type": "Project",
         "dependencies": {
-          "RabbitMQ.Client": "[7.2.1, )"
+          "RabbitMQ.Client": "[7.2.1, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
       "shared.rabbitmq.notifications": {

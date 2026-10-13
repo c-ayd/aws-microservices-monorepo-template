@@ -32,6 +32,13 @@
     <None Include="Keys/test_jwt_k1_public.txt" Link="test_jwt_k1_public.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Keys/test_jwt_k2_private.txt" Link="test_jwt_k2_private.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Keys/test_jwt_k2_public.txt" Link="test_jwt_k2_public.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/test-api-gateway-server.key" Link="Certs/test-api-gateway-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/test-api-gateway-server.crt" Link="Certs/test-api-gateway-server.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/WebApi/test-webapi-server.key" Link="Certs/WebApi/test-webapi-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/WebApi/test-webapi-server.crt" Link="Certs/WebApi/test-webapi-server.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/Redis/test-redis-server.key" Link="Certs/Redis/test-redis-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/Redis/test-redis-server.crt" Link="Certs/Redis/test-redis-server.crt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

@@ -25,4 +25,11 @@
     <ProjectReference Include="..\..\..\src\Shared.Test.Helpers\Shared.Test.Helpers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/RabbitMq/rabbitmq.conf" Link="Certs/RabbitMq/rabbitmq.conf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/RabbitMq/test-rabbitmq-server.key" Link="Certs/RabbitMq/test-rabbitmq-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/RabbitMq/test-rabbitmq-server.crt" Link="Certs/RabbitMq/test-rabbitmq-server.crt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

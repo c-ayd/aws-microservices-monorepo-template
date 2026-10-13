@@ -301,6 +301,7 @@
           "Shared.Constants": "[1.0.0, )",
           "Shared.Crypto": "[1.0.0, )",
           "Shared.Http": "[1.0.0, )",
+          "Shared.PostgreSql.Helpers": "[1.0.0, )",
           "Shared.RabbitMq.Helpers": "[1.0.0, )",
           "Shared.RabbitMq.Notifications": "[1.0.0, )",
           "Shared.Redis": "[1.0.0, )",
@@ -343,10 +344,18 @@
       "shared.logging": {
         "type": "Project"
       },
+      "shared.postgresql.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+        }
+      },
       "shared.rabbitmq.helpers": {
         "type": "Project",
         "dependencies": {
-          "RabbitMQ.Client": "[7.2.1, )"
+          "RabbitMQ.Client": "[7.2.1, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
       "shared.rabbitmq.notifications": {
@@ -358,6 +367,7 @@
       "shared.redis": {
         "type": "Project",
         "dependencies": {
+          "Shared.AspNetCore.Helpers": "[1.0.0, )",
           "StackExchange.Redis": "[3.1.31, )"
         }
       }

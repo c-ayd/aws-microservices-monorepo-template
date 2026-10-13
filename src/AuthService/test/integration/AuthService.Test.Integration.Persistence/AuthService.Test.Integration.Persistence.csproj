@@ -27,6 +27,11 @@
 
   <ItemGroup>
     <None Include="appsettings.Test.json" Link="appsettings.Test.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/PostgreSql/test-postgresql-server.key" Link="Certs/PostgreSql/test-postgresql-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/PostgreSql/test-postgresql-server.crt" Link="Certs/PostgreSql/test-postgresql-server.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/Redis/test-redis-server.key" Link="Certs/Redis/test-redis-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/Redis/test-redis-server.crt" Link="Certs/Redis/test-redis-server.crt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

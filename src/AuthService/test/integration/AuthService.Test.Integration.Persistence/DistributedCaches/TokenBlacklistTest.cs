@@ -2,6 +2,8 @@ using System.Reflection;
 using AuthService.Application.Options;
 using AuthService.Persistence.DistributedCaches;
 using Microsoft.Extensions.Options;
+using Shared.PostgreSql.Helpers.Options.Extensions;
+using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.Redis;
 using Shared.Test.Helpers.Fixtures;
 
@@ -20,16 +22,20 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
 
         public async Task InitializeAsync()
         {
-            await _redisFixture.InitializeAsync();
+            await _redisFixture.InitializeAsync(
+                sslEnabled: true,
+                caBundlePath: "Certs/test-ca-bundle.crt",
+                redisCertificateFolder: "Certs/Redis");
 
-            var connStrings = new ConnectionStringsOptions()
+            var connectionsOptions = new ConnectionsOptions()
             {
-                AuthDb = "",
-                AuthRejectedMessagesDb = "",
-                AuthTokenBlacklistRedis = _redisFixture.GetConnectionString()
+                TokenBlacklistRedis = _redisFixture.GetConnectionOptions(),
+                AuthDb = _placeholderPostgreSqlConnectionOptions,
+                AuthRejectedMessagesDb = _placeholderPostgreSqlConnectionOptions,
+                RabbitMq = _placeholderRabbitMqConnectionOptions
             };
 
-            _tokenBlacklist = new TokenBlacklistRedis(Options.Create(connStrings));
+            _tokenBlacklist = new TokenBlacklistRedis(Options.Create(connectionsOptions));
 
             var connectAsyncMethod = typeof(RedisConnection).GetMethod("ConnectAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             await (Task)connectAsyncMethod.Invoke(_tokenBlacklist, [default])!;
@@ -109,5 +115,22 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
             var result = await _redisFixture.GetDatabase().StringGetAsync(accountId);
             Assert.False(result.HasValue, "An entry with a given account ID exists.");
         }
+
+        private static readonly PostgreSqlConnectionOptions _placeholderPostgreSqlConnectionOptions = new PostgreSqlConnectionOptions()
+        {
+            Host = "",
+            Port = 0,
+            Database = "",
+            Username = "",
+            Password = ""
+        };
+
+        private static readonly RabbitMqConnectionOptions _placeholderRabbitMqConnectionOptions = new RabbitMqConnectionOptions()
+        {
+            Host = "",
+            Port = 0,
+            Username = "",
+            Password = ""
+        };
     }
 }

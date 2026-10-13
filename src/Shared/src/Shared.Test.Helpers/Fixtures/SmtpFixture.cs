@@ -18,9 +18,9 @@ namespace Shared.Test.Helpers.Fixtures
             await _container.StartAsync();
         }
 
-        public SmtpFixtureOptions GetSmtpOptions()
+        public SmtpFixtureConnectionSettings GetSmtpConnectionSettings()
         {
-            return new SmtpFixtureOptions(
+            return new SmtpFixtureConnectionSettings(
                 Email: "test@test.com",
                 DisplayName: "Test Display Name",
                 Server: _container.Hostname,

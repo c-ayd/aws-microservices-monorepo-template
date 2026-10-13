@@ -14,8 +14,26 @@ using AuthService.Application.Features.AccountEndpoints;
 using AuthService.Application;
 using Shared.Http.DependencyInjection;
 using Shared.Http.Authentication.Constants;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using AuthService.Application.Options;
+using Shared.AspNetCore.Helpers.Kestrel;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var portConfigs = new PortConfigs();
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
+    options.ConfigureHttps(
+        name: "HttpsOnly",
+        certificateOptions.ServerKeyFilePath,
+        certificateOptions.ServerCertificateFilePath,
+        port: builder.Configuration.GetValue<int>("HttpsPort"),
+        HttpProtocols.Http1,
+        portConfigs);
+});
+builder.Services.AddSingleton(portConfigs);
 
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();

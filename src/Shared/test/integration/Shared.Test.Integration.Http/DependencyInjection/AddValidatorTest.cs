@@ -13,11 +13,11 @@ namespace Shared.Test.Integration.Http.DependencyInjection
     {
         public const string ScopedServiceValue = "TestValue";
 
-        private readonly TestHostFixture _testHostFixture;
+        private readonly WebApiFixture _webApiFixture;
 
         public AddValidatorTest(TestHostCollectionCluster collectionCluster)
         {
-            _testHostFixture = collectionCluster.TestHostFixture;
+            _webApiFixture = collectionCluster.WebApiFixture;
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
@@ -33,19 +33,23 @@ namespace Shared.Test.Integration.Http.DependencyInjection
         public async Task AddValidationsFromAssembly_WhenThereIsValidations_ShouldAddThemToDIContainer()
         {
             // Assert
-            var validator = _testHostFixture.Host.Services.GetRequiredService<IValidator<ValidationType1>>();
-            Assert.NotNull(validator);
+            await using (var scope = _webApiFixture.GetScopedService<IValidator<ValidationType1>>(out var validator))
+            {
+                Assert.NotNull(validator);
 
-            var asyncValidator = _testHostFixture.Host.Services.GetRequiredService<IAsyncValidator<ValidationType2>>();
-            Assert.NotNull(asyncValidator);
+                var errors = validator.Validate(new ValidationType1());
+                Assert.Single(errors);
+                Assert.Equal(ScopedServiceValue, errors[0].Code);
+            }
 
-            var errors = validator.Validate(new ValidationType1());
-            Assert.Single(errors);
-            Assert.Equal(ScopedServiceValue, errors[0].Code);
+            await using (var scope = _webApiFixture.GetScopedService<IAsyncValidator<ValidationType2>>(out var asyncValidator))
+            {
+                Assert.NotNull(asyncValidator);
 
-            errors = await asyncValidator.ValidateAsync(new ValidationType2());
-            Assert.Single(errors);
-            Assert.Equal(ScopedServiceValue, errors[0].Code);
+                var errors = await asyncValidator.ValidateAsync(new ValidationType2());
+                Assert.Single(errors);
+                Assert.Equal(ScopedServiceValue, errors[0].Code);
+            }
         }
 
         public class TestScopedService

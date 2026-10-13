@@ -16,11 +16,17 @@
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.14.0" />
     <PackageReference Include="Testcontainers.RabbitMq" Version="4.14.0" />
     <PackageReference Include="Testcontainers.Redis" Version="4.14.0" />
+    <PackageReference Include="Testcontainers.Toxiproxy" Version="4.14.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Shared.Http\Shared.Http.csproj" />
     <ProjectReference Include="..\Shared.Constants\Shared.Constants.csproj" />
+    <ProjectReference Include="..\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
+    <ProjectReference Include="..\Shared.RabbitMq.Helpers\Shared.RabbitMq.Helpers.csproj" />
+    <ProjectReference Include="..\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />
+    <ProjectReference Include="..\Shared.Redis\Shared.Redis.csproj" />
+    <ProjectReference Include="..\Shared.Test.WebApi\Shared.Test.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

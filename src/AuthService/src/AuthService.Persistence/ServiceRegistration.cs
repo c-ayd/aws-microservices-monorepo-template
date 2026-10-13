@@ -3,9 +3,9 @@ using AuthService.Application.Abstractions.DistributedCaches;
 using AuthService.Persistence.DbContexts;
 using AuthService.Persistence.DistributedCaches;
 using AuthService.Application.Options;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
 
 namespace AuthService.Persistence
 {
@@ -13,12 +13,20 @@ namespace AuthService.Persistence
     {
         public static void AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<AuthDbContext>(_ => 
-                _.UseNpgsql(configuration.GetConnectionString(nameof(ConnectionStringsOptions.AuthDb))));
+            services.AddDbContext<AuthDbContext>(builder =>
+            {
+                builder.ConfigureDbContext(configuration
+                    .GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!
+                    .AuthDb);
+            });
             services.AddScoped<IAuthDbContext>(sp => sp.GetRequiredService<AuthDbContext>());
 
-            services.AddDbContext<AuthRejectedMessagesDbContext>(_ =>
-                _.UseNpgsql(configuration.GetConnectionString(nameof(ConnectionStringsOptions.AuthRejectedMessagesDb))));
+            services.AddDbContext<AuthRejectedMessagesDbContext>(builder =>
+            {
+                builder.ConfigureDbContext(configuration
+                    .GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!
+                    .AuthRejectedMessagesDb);
+            });
 
             services.AddSingleton<ITokenBlacklistRedis, TokenBlacklistRedis>();
         }

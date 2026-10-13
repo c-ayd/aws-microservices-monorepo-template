@@ -10,6 +10,8 @@ namespace AuthService.Test.Integration.Persistence.Collections
 
     public class AuthDbContextCollectionCluster : IAsyncLifetime
     {
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
+
         public const string AuthDbName = "auth-db";
 
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -21,10 +23,15 @@ namespace AuthService.Test.Integration.Persistence.Collections
 
         public async Task InitializeAsync()
         {
-            await PostgreSqlFixture.InitializeAsync(new Dictionary<string, Type>()
-            {
-                { AuthDbName, typeof(AuthDbContext) }
-            });
+            await PostgreSqlFixture.InitializeAsync(
+                sslEnabled: true,
+                caBundlePath: CABundlePath,
+                certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
+                certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
+                new Dictionary<string, Type>()
+                {
+                    { AuthDbName, typeof(AuthDbContext) }
+                });
         }
 
         public async Task DisposeAsync()

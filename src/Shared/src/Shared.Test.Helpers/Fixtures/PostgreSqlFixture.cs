@@ -1,6 +1,8 @@
 using DotNet.Testcontainers.Builders;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
+using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
+using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
+using Shared.PostgreSql.Helpers.Options.Extensions;
 using Testcontainers.PostgreSql;
 
 namespace Shared.Test.Helpers.Fixtures
@@ -13,11 +15,40 @@ namespace Shared.Test.Helpers.Fixtures
         private PostgreSqlContainer _container = null!;
         private BidirectionalDictionary<string, Type> _dbContexts = new BidirectionalDictionary<string, Type>();
 
-        public async Task InitializeAsync(Dictionary<string, Type>? dbContexts = null, bool runMigrations = true)
+        private bool _sslEnabled = false;
+        private string? _caBundlePath = null;
+
+        public async Task InitializeAsync(
+            bool sslEnabled,
+            string? caBundlePath = null,
+            string? certificateKeyFilePath = null,
+            string? certificateFilePath = null,
+            Dictionary<string, Type>? dbContexts = null,
+            bool runMigrations = true)
         {
-            _container = new PostgreSqlBuilder("postgres:18.4")
-                .WithWaitStrategy(Wait.ForUnixContainer().UntilCommandIsCompleted("pg_isready"))
-                .Build();
+            var builder = new PostgreSqlBuilder("postgres:18.4")
+                .WithPortBinding(5432, true)
+                .WithUsername("postgres")
+                .WithPassword("postgres")
+                .WithWaitStrategy(Wait.ForUnixContainer().UntilCommandIsCompleted("pg_isready"));
+
+            if (sslEnabled)
+            {
+                _sslEnabled = true;
+                _caBundlePath = Path.Combine(AppContext.BaseDirectory, caBundlePath!);
+                _container = builder
+                    .WithSsl(
+                        Path.Combine(AppContext.BaseDirectory, certificateFilePath!),
+                        Path.Combine(AppContext.BaseDirectory, certificateKeyFilePath!))
+                    .Build();
+            }
+            else
+            {
+                _sslEnabled = false;
+                _caBundlePath = null;
+                _container = builder.Build();
+            }
+            
             await _container.StartAsync();
 
             if (dbContexts != null)
@@ -35,12 +66,22 @@ namespace Shared.Test.Helpers.Fixtures
             }
         }
 
-        public string GetConnectionString(string dbName)
+        public PostgreSqlConnectionOptions GetConnectionOptions(string dbName)
         {
-            return new NpgsqlConnectionStringBuilder(_container.GetConnectionString())
+            return new PostgreSqlConnectionOptions()
             {
-                Database = dbName
-            }.ConnectionString;
+                Host = _container.Hostname,
+                Port = _container.GetMappedPublicPort(5432),
+                Database = dbName,
+                Username = "postgres",
+                Password = "postgres",
+                Ssl = !_sslEnabled ? null : new SslOptions()
+                {
+                    CABundlePath = _caBundlePath!,
+                    ServerName = "localhost"
+                },
+                RetryMechanism = null
+            };
         }
 
         public DbContext CreateDbContext(string dbName)
@@ -59,17 +100,16 @@ namespace Shared.Test.Helpers.Fixtures
         private T CreateDbContext<T>(string dbName, Type dbContextType)
             where T : DbContext
         {
-            var connString = GetConnectionString(dbName);
+            var connectionOptions = GetConnectionOptions(dbName);
 
             var ctor = dbContextType.GetConstructor([
                 typeof(DbContextOptions<>).MakeGenericType(dbContextType)
             ])!;
 
-            var options = ((DbContextOptionsBuilder)Activator.CreateInstance(typeof(DbContextOptionsBuilder<>).MakeGenericType(dbContextType))!)
-                .UseNpgsql(connString)
-                .Options;
+            var optionsBuilder = (DbContextOptionsBuilder)Activator.CreateInstance(typeof(DbContextOptionsBuilder<>).MakeGenericType(dbContextType))!;
+            optionsBuilder.ConfigureDbContext(connectionOptions);
 
-            return (T)ctor.Invoke([options]);
+            return (T)ctor.Invoke([optionsBuilder.Options]);
         }
 
         public async Task DropDatabaseAsync<T>()

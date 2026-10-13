@@ -1,3 +1,4 @@
+using System.Net.Security;
 using System.Reflection;
 using ApiGateway.Web.BackgroundServices;
 using ApiGateway.Web.DistributedCaches;
@@ -5,8 +6,12 @@ using ApiGateway.Web.Middlewares;
 using ApiGateway.Web.Options;
 using ApiGateway.Web.Transforms.Request;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
 using Shared.AspNetCore.Helpers.DependencyInjection;
+using Shared.AspNetCore.Helpers.Kestrel;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
+using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Http.Authentication.Constants;
 using Shared.Http.Response.Middlewares;
 using Shared.Logging.DependencyInjection;
@@ -14,13 +19,38 @@ using Shared.Logging.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var portConfigs = new PortConfigs();
+var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // Since YARP acts like an API gateway, it onyl accepts HTTP/1.1.
+    // gRPC is used only for internal service communication.
+    options.ConfigureHttps(
+        name: "HttpsOnly",
+        certificateOptions.ServerKeyFilePath,
+        certificateOptions.ServerCertificateFilePath,
+        port: builder.Configuration.GetValue<int>("HttpsPort"),
+        HttpProtocols.Http1,
+        portConfigs);
+});
+builder.Services.AddSingleton(portConfigs);
+
 builder.Services.AddSingleton<TokenBlacklistRedis>();
 builder.Services.AddSingleton<RateLimiterRedis>();
 builder.Services.AddHealthChecks();
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddTransforms<ClearReservedHeadersTransform>()
-    .AddTransforms<JwtBearerTransform>();
+    .AddTransforms<JwtBearerTransform>()
+    .ConfigureHttpClient((context, handler) =>
+    {
+        var caBundle = TlsUtility.LoadCertificateChainFromFile(certificateOptions.CABundlePath);
+        handler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+        {
+            return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
+        };
+    });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularWeb", policy =>
@@ -30,6 +60,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
+});
+builder.Services.AddHsts(options =>
+{
+    options.MaxAge = TimeSpan.FromDays(365);
+    options.IncludeSubDomains = builder.Environment.IsProduction();
 });
 
 builder.Services.AddHostedService<RedisBackgroundServices>();
@@ -41,7 +76,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = jwtOptions.Authority;
-        options.RequireHttpsMetadata = false;   // TLS is terminated at the gateway since the Auth Service is in the K8S cluster with no public access.
+        options.RequireHttpsMetadata = true;
 
         options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters()
@@ -60,10 +95,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RoleClaimType = ApiGatewayAuthKeys.Claims.Roles.ClaimType
         };
 
+        var caBundle = TlsUtility.LoadCertificateChainFromFile(certificateOptions.CABundlePath);
         options.BackchannelHttpHandler = new SocketsHttpHandler
         {
             PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2)
+            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+            SslOptions = new SslClientAuthenticationOptions()
+            {
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                {
+                    return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
+                }
+            }
         };
     });
 
@@ -80,6 +123,8 @@ builder.Logging.AddStructuredConsoleLogging(
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseHsts();
 
 app.UseCors("AllowAngularWeb");
 

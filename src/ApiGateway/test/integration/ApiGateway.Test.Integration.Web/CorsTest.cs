@@ -18,7 +18,7 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenRequestIsMadeFromCorsOrigins_ShouldReturnWithProperHeader()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
             var origin = _collectionCluster.ApiGatewayWebApp.GetService<IConfiguration>().GetValue<string>("CorsOrigins:AngularWeb");
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Origin, origin);
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.AccessControlRequestMethod, "GET");
@@ -34,7 +34,7 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenRequestIsNotMadeFromCorsOrigins_ShouldReturnWithMissingHeader()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Origin, "http://localhost:8080");
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.AccessControlRequestMethod, "GET");
 

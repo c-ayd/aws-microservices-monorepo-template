@@ -84,6 +84,15 @@
           "Testcontainers": "4.14.0"
         }
       },
+      "Testcontainers.Toxiproxy": {
+        "type": "Direct",
+        "requested": "[4.14.0, )",
+        "resolved": "4.14.0",
+        "contentHash": "90rsAbQETgMGh23L4uzrKhnHDhGjz8s/VbBR5fyaKYYsfbCvtI1QmLwE0pZw5iE6uFYK9nXjv5BfQVD/eJ6F3A==",
+        "dependencies": {
+          "Testcontainers": "4.14.0"
+        }
+      },
       "BouncyCastle.Cryptography": {
         "type": "Transitive",
         "resolved": "2.7.0",
@@ -578,6 +587,9 @@
         "resolved": "8.0.0",
         "contentHash": "7mu9v0QDv66ar3DpGSZHg9NuNcxDaaAcnMULuZlaTpP9+hwXhrxNGsF5GmLkSHxFdb5bBc1TzeujsRgTrPWi+Q=="
       },
+      "shared.aspnetcore.helpers": {
+        "type": "Project"
+      },
       "shared.constants": {
         "type": "Project"
       },
@@ -586,6 +598,30 @@
         "dependencies": {
           "System.IdentityModel.Tokens.Jwt": "[8.19.2, )"
         }
+      },
+      "shared.postgresql.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+        }
+      },
+      "shared.rabbitmq.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "RabbitMQ.Client": "[7.2.1, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+        }
+      },
+      "shared.redis": {
+        "type": "Project",
+        "dependencies": {
+          "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "StackExchange.Redis": "[3.1.31, )"
+        }
+      },
+      "shared.test.webapi": {
+        "type": "Project"
       }
     }
   }

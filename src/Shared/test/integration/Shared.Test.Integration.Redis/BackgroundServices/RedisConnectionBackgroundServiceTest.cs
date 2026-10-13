@@ -1,5 +1,6 @@
 using Shared.Redis;
 using Shared.Redis.BackgroundService;
+using Shared.Redis.Options.Extensions;
 using Shared.Test.Helpers.Fixtures;
 
 namespace Shared.Test.Integration.Redis.BackgroundServices
@@ -22,7 +23,10 @@ namespace Shared.Test.Integration.Redis.BackgroundServices
 
         public async Task InitializeAsync()
         {
-            await _redisFixture.InitializeAsync();
+            await _redisFixture.InitializeAsync(
+                sslEnabled: true,
+                caBundlePath: "Certs/test-ca-bundle.crt",
+                redisCertificateFolder: "Certs/Redis");
         }
 
         public async Task DisposeAsync()
@@ -34,7 +38,7 @@ namespace Shared.Test.Integration.Redis.BackgroundServices
         public async Task StartAsync_WhenMethodIsCalled_ShouldCreateConnection()
         {
             // Arrange
-            var redisConnection = new TestRedisConnection(_redisFixture.GetConnectionString());
+            var redisConnection = new TestRedisConnection(_redisFixture.GetConnectionOptions());
             var backgroundService = new TestBackgroundService(redisConnection, _logger);
 
             // Act
@@ -48,7 +52,7 @@ namespace Shared.Test.Integration.Redis.BackgroundServices
         public async Task StopAsync_WhenMethodIsCalled_ShouldCloseConnection()
         {
             // Arrange
-            var redisConnection = new TestRedisConnection(_redisFixture.GetConnectionString());
+            var redisConnection = new TestRedisConnection(_redisFixture.GetConnectionOptions());
             var backgroundService = new TestBackgroundService(redisConnection, _logger);
 
             await backgroundService.StartAsync(default);
@@ -77,7 +81,7 @@ namespace Shared.Test.Integration.Redis.BackgroundServices
 
         public class TestRedisConnection : RedisConnection
         {
-            public TestRedisConnection(string connectionString) : base(connectionString)
+            public TestRedisConnection(RedisConnectionOptions connectionOptions) : base(connectionOptions)
             {
             }
 
