@@ -128,11 +128,12 @@ app.UseHsts();
 
 app.UseCors("AllowAngularWeb");
 
-app.UseMiddleware<LoggingMiddleware>();
+app.UseMiddleware<MetricsLoggingMiddleware>();
 
 app.UseMiddleware<AuthErrorResponseMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<AuthScopeLoggingMiddleware>();
 
 app.UseMiddleware<RateLimiterMiddleware>();
 

@@ -732,7 +732,10 @@
         }
       },
       "shared.logging": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Shared.Http": "[1.0.0, )"
+        }
       },
       "shared.postgresql.helpers": {
         "type": "Project",

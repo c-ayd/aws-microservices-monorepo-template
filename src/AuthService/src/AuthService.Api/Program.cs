@@ -63,11 +63,12 @@ builder.Logging.AddStructuredConsoleLogging(
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseMiddleware<LoggingMiddleware>();
+app.UseMiddleware<MetricsLoggingMiddleware>();
 
 app.UseMiddleware<AuthErrorResponseMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<AuthScopeLoggingMiddleware>();
 
 app.UseMiddleware<AccountPreferenceMiddleware>();
 
