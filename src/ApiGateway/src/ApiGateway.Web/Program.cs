@@ -133,6 +133,7 @@ app.UseMiddleware<MetricsLoggingMiddleware>();
 app.UseMiddleware<AuthErrorResponseMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<AuthScopeLoggingMiddleware>();
 
 app.UseMiddleware<RateLimiterMiddleware>();
 
