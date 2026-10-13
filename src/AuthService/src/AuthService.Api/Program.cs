@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using AuthService.Application.Options;
 using Shared.AspNetCore.Helpers.Kestrel;
 using Shared.AspNetCore.Helpers.Kestrel.Structures;
+using Shared.Http.Request;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,9 @@ builder.WebHost.ConfigureKestrel(options =>
         portConfigs);
 });
 builder.Services.AddSingleton(portConfigs);
+
+builder.Services.ConfigureForwardedHeaders(
+    builder.Configuration.GetSection("KnownCidrBlocks").Get<string[]>()!);
 
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();
