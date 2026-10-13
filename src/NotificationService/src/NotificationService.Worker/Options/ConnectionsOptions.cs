@@ -1,4 +1,4 @@
-using Shared.AspNetCore.Helpers;
+using Shared.AspNetCore.Helpers.Options;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 
