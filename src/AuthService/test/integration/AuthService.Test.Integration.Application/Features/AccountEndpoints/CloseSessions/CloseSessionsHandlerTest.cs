@@ -7,6 +7,7 @@ using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Application.Collections;
 using Microsoft.EntityFrameworkCore;
 using Shared.Constants;
+using Shared.Http.Authentication.Constants;
 using Shared.Redis.Extensions;
 using Shared.Test.Generators;
 
@@ -37,8 +38,13 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials("HttpsOnly",
-                account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+                new Dictionary<string, string>()
+                {
+                    { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
+                    { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
+                    { ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() }
+                });
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -62,8 +68,13 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials("HttpsOnly",
-                account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+                new Dictionary<string, string>()
+                {
+                    { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
+                    { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
+                    { ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() }
+                });
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -98,8 +109,13 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithCredentials("HttpsOnly",
-                account.Id.ToString());
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+                new Dictionary<string, string>()
+                {
+                    { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
+                    { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
+                    { ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() }
+                });
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
