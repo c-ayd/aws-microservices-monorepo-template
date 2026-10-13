@@ -6,6 +6,9 @@ import os
 import argparse
 
 def main(args, root_folder):
+    if args.name is None:
+        print('File name is not provided.')
+        return
     if args.output is None:
         print('Output directory is not provided.')
         return
@@ -14,9 +17,10 @@ def main(args, root_folder):
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    generate_rsa_keys(output_path=output_path)
+    generate_rsa_keys(output_path=output_path,
+                      file_name=args.name)
 
-def generate_rsa_keys(output_path):
+def generate_rsa_keys(output_path, file_name):
     private_key = rsa.generate_private_key(
         backend=default_backend(),
         public_exponent=65537,
@@ -34,18 +38,10 @@ def generate_rsa_keys(output_path):
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
 
-    private_pem_oneline = private_pem.decode('utf-8').replace('\n', '')
-    public_pem_oneline = public_pem.decode('utf-8').replace('\n', '')
-
-    with open(os.path.join(output_path, 'rsa-private-key.pem'), 'wb') as file:
+    with open(os.path.join(output_path, f'{file_name}-private.pem'), 'wb') as file:
         file.write(private_pem)
-    with open(os.path.join(output_path, 'rsa-public-key.pem'), 'wb') as file:
+    with open(os.path.join(output_path, f'{file_name}-public.pem'), 'wb') as file:
         file.write(public_pem)
-
-    with open(os.path.join(output_path, 'rsa-private-key-oneline.txt'), 'w') as file:
-        file.write(private_pem_oneline)
-    with open(os.path.join(output_path, 'rsa-public-key-oneline.txt'), 'w') as file:
-        file.write(public_pem_oneline)
 
     print(f'RSA keys are generated.')
 
@@ -53,6 +49,7 @@ if __name__ == '__main__':
     root_folder = Path(__file__).resolve().parent
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--name', type=str)
     parser.add_argument('--output', type=str)
     args = parser.parse_args()
 
