@@ -28,10 +28,10 @@
 
   <ItemGroup>
     <None Include="Collections/appsettings.Extra.json" Link="appsettings.Extra.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test_jwt_k1_private.txt" Link="test_jwt_k1_private.txt" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test_jwt_k1_public.txt" Link="test_jwt_k1_public.txt" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test_jwt_k2_private.txt" Link="test_jwt_k2_private.txt" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test_jwt_k2_public.txt" Link="test_jwt_k2_public.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-k1-private.pem" Link="test-jwt-k1-private.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-k1-public.pem" Link="test-jwt-k1-public.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-k2-private.pem" Link="test-jwt-k2-private.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-k2-public.pem" Link="test-jwt-k2-public.pem" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/test-api-gateway-server.key" Link="Certs/test-api-gateway-server.key" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/test-api-gateway-server.crt" Link="Certs/test-api-gateway-server.crt" CopyToOutputDirectory="PreserveNewest" />

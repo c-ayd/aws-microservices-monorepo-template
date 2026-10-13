@@ -74,14 +74,14 @@ namespace AuthService.Test.Integration.Application.Collections
                         new JwtKeysOptions.KeyInfo()
                         {
                             KeyId = "k1",
-                            PrivateKey = File.ReadAllText("./test_jwt_k1_private.txt"),
-                            PublicKey = File.ReadAllText("./test_jwt_k1_public.txt")
+                            PrivateKey = File.ReadAllText("./test-jwt-k1-private.pem"),
+                            PublicKey = File.ReadAllText("./test-jwt-k1-public.pem")
                         },
                         new JwtKeysOptions.KeyInfo()
                         {
                             KeyId = "k2",
-                            PrivateKey = File.ReadAllText("./test_jwt_k2_private.txt"),
-                            PublicKey = File.ReadAllText("./test_jwt_k2_public.txt")
+                            PrivateKey = File.ReadAllText("./test-jwt-k2-private.pem"),
+                            PublicKey = File.ReadAllText("./test-jwt-k2-public.pem")
                         }
                     }
                 });

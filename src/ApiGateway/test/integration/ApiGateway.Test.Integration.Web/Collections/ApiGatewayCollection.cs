@@ -184,12 +184,12 @@ namespace ApiGateway.Test.Integration.Web.Collections
             });
             endpoints.MapGet("/.well-known/jwks.json", async (context) =>
             {
-                var publicPem = await File.ReadAllTextAsync("./test_jwt_k1_public.txt");
+                var publicPem = await File.ReadAllTextAsync("./test-jwt-k1-public.pem");
                 var rsa = RSA.Create();
                 rsa.ImportFromPem(publicPem);
                 var k1Parameters = rsa.ExportParameters(false);
 
-                publicPem = await File.ReadAllTextAsync("./test_jwt_k2_public.txt");
+                publicPem = await File.ReadAllTextAsync("./test-jwt-k2-public.pem");
                 rsa = RSA.Create();
                 rsa.ImportFromPem(publicPem);
                 var k2Parameters = rsa.ExportParameters(false);
@@ -249,7 +249,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                     }
                 }
 
-                var privatePem = await File.ReadAllTextAsync("./test_jwt_k2_private.txt");
+                var privatePem = await File.ReadAllTextAsync("./test-jwt-k2-private.pem");
                 var rsa = RSA.Create();
                 rsa.ImportFromPem(privatePem);
                 var key = new RsaSecurityKey(rsa)
