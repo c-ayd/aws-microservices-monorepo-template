@@ -243,7 +243,7 @@
           "RabbitMQ.Client": "[7.2.1, )"
         }
       },
-      "shared.redis": {
+      "shared.redis.helpers": {
         "type": "Project",
         "dependencies": {
           "Shared.AspNetCore.Helpers": "[1.0.0, )",

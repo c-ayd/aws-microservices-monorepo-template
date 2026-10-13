@@ -3,7 +3,7 @@ using System.Security.Authentication;
 using DotNet.Testcontainers.Builders;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
-using Shared.Redis.Options.Extensions;
+using Shared.Redis.Helpers.Options.Extensions;
 using StackExchange.Redis;
 using Testcontainers.Redis;
 

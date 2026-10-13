@@ -1,5 +1,5 @@
 using Shared.AspNetCore.Helpers;
-using Shared.Redis.Options.Extensions;
+using Shared.Redis.Helpers.Options.Extensions;
 
 namespace ApiGateway.Web.Options
 {

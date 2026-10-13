@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Shared.Redis.BackgroundService
+namespace Shared.Redis.Helpers.BackgroundServices
 {
     public abstract class RedisConnectionBackgroundService : IHostedService
     {

@@ -7,7 +7,7 @@
     <Project Path="src/Shared.PostgreSql.Helpers/Shared.PostgreSql.Helpers.csproj" />
     <Project Path="src/Shared.RabbitMq.Helpers/Shared.RabbitMq.Helpers.csproj" />
     <Project Path="src/Shared.RabbitMq.Notifications/Shared.RabbitMq.Notifications.csproj" />
-    <Project Path="src/Shared.Redis/Shared.Redis.csproj" />
+    <Project Path="src/Shared.Redis.Helpers/Shared.Redis.Helpers.csproj" />
     <Project Path="src/Shared.Test.Generators/Shared.Test.Generators.csproj" />
     <Project Path="src/Shared.Test.Helpers/Shared.Test.Helpers.csproj" />
     <Project Path="src/Shared.Test.WebApi/Shared.Test.WebApi.csproj" />
@@ -18,7 +18,7 @@
     <Project Path="test/integration/Shared.Test.Integration.Http/Shared.Test.Integration.Http.csproj" />
     <Project Path="test/integration/Shared.Test.Integration.PostgreSql.Helpers/Shared.Test.Integration.PostgreSql.Helpers.csproj" />
     <Project Path="test/integration/Shared.Test.Integration.RabbitMq.Helpers/Shared.Test.Integration.RabbitMq.Helpers.csproj" />
-    <Project Path="test/integration/Shared.Test.Integration.Redis/Shared.Test.Integration.Redis.csproj" />
+    <Project Path="test/integration/Shared.Test.Integration.Redis.Helpers/Shared.Test.Integration.Redis.Helpers.csproj" />
   </Folder>
   <Folder Name="/test/unit/">
     <Project Path="test/unit/Shared.Test.Unit.Crypto/Shared.Test.Unit.Crypto.csproj" />

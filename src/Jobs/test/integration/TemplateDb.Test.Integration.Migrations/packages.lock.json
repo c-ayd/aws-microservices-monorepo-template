@@ -727,7 +727,7 @@
           "RabbitMQ.Client": "[7.2.1, )"
         }
       },
-      "shared.redis": {
+      "shared.redis.helpers": {
         "type": "Project",
         "dependencies": {
           "Shared.AspNetCore.Helpers": "[1.0.0, )",
@@ -748,7 +748,7 @@
           "Shared.Http": "[1.0.0, )",
           "Shared.PostgreSql.Helpers": "[1.0.0, )",
           "Shared.RabbitMq.Helpers": "[1.0.0, )",
-          "Shared.Redis": "[1.0.0, )",
+          "Shared.Redis.Helpers": "[1.0.0, )",
           "Shared.Test.WebApi": "[1.0.0, )",
           "StackExchange.Redis": "[3.1.31, )",
           "Testcontainers": "[4.14.0, )",

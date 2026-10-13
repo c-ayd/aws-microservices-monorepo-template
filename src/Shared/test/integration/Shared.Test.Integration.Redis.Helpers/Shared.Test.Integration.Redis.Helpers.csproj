@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Shared.Redis\Shared.Redis.csproj" />
+    <ProjectReference Include="..\..\..\src\Shared.Redis.Helpers\Shared.Redis.Helpers.csproj" />
     <ProjectReference Include="..\..\..\src\Shared.Test.Generators\Shared.Test.Generators.csproj" />
     <ProjectReference Include="..\..\..\src\Shared.Test.Helpers\Shared.Test.Helpers.csproj" />
   </ItemGroup>

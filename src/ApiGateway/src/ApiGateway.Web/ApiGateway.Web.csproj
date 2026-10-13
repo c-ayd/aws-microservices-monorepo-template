@@ -17,7 +17,7 @@
     <ProjectReference Include="..\..\..\Shared\src\Shared.Logging\Shared.Logging.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.Http\Shared.Http.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Redis\Shared.Redis.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Redis.Helpers\Shared.Redis.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 
-namespace Shared.Redis.Options.Extensions
+namespace Shared.Redis.Helpers.Options.Extensions
 {
     public class RedisConnectionOptions
     {

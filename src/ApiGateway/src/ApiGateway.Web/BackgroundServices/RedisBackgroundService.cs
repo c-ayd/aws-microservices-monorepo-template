@@ -1,6 +1,6 @@
 using ApiGateway.Web.DistributedCaches;
-using Shared.Redis;
-using Shared.Redis.BackgroundService;
+using Shared.Redis.Helpers;
+using Shared.Redis.Helpers.BackgroundServices;
 
 namespace ApiGateway.Web.BackgroundServices
 {
