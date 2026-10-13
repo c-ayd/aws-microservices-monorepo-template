@@ -4,10 +4,11 @@ import json
 import re
 import subprocess
 import time
+import os
 
 def main():
-    src_folder = Path(__file__).resolve().parent.parent / 'src'
-    
+    src_folder = os.path.join(Path(__file__).resolve().parent.parent, 'src')
+
     for i in range(2):
         try:
             delete_lock_files(src_folder)
@@ -26,7 +27,7 @@ def delete_lock_files(root_folder):
         if file.is_file():
             send2trash(str(file))
 
-    print('Deleted all packages.lock.json files.')
+    print('All packages.lock.json files are deleted.')
 
 def delete_bin_folders(root_folder):
     folders = [
@@ -39,7 +40,7 @@ def delete_bin_folders(root_folder):
         if folder.exists():
             send2trash(str(folder))
 
-    print('Deleted all bin folders.')
+    print('All bin folders are deleted.')
 
 def rebuild_projects():
     root_folder = Path(__file__).resolve().parent.parent
