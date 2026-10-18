@@ -15,23 +15,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         }
 
         [Fact]
-        public async Task SendAsync_WhenTemplateDoesNotExist_ShouldThrowException()
-        {
-            // Arrange
-            var awsSes = _collectionCluster.WebApiFixture.GetService<IEmailSender>();
-
-            // Act
-            var exception = Record.ExceptionAsync(async () =>
-            {
-                await awsSes.SendEmailAsync([EmailGenerator.Generate()], StringGenerator.GenerateAlphanumeric(), null);
-            });
-
-            // Assert
-            Assert.NotNull(exception);
-        }
-
-        [Fact]
-        public async Task SendAsync_WhenTemplateExists_ShouldSendEmail()
+        public async Task SendEmailAsync_WhenMethodIsCalled_ShouldSendEmail()
         {
             // Arrange
             var templateName = "aws-ses/test-template";

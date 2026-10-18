@@ -16,23 +16,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         }
 
         [Fact]
-        public async Task EncryptAsync_WhenAliasDoesNotExist_ShouldThrowException()
-        {
-            // Arrange
-            var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
-
-            // Act
-            var exception = Record.ExceptionAsync(async () =>
-            {
-                await awsKms.EncryptAsync(StringGenerator.GenerateAlphanumeric(), [0, 1, 2, 3, 4, 5]);
-            });
-
-            // Assert
-            Assert.NotNull(exception);
-        }
-
-        [Fact]
-        public async Task EncryptAsync_WhenAliasExists_ShouldEncryptValue()
+        public async Task EncryptAsync_WhenMethodIsCalled_ShouldEncryptValue()
         {
             // Arrange
             var alias = "alias/aws-kms/encrypt";
@@ -85,23 +69,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         }
 
         [Fact]
-        public async Task GenerateEncryptionKey_WhenAliasDoesNotExist_ShouldThrowException()
-        {
-            // Arrange
-            var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
-
-            // Act
-            var exception = Record.ExceptionAsync(async () =>
-            {
-                await awsKms.GenerateEncryptionKey(StringGenerator.GenerateAlphanumeric());
-            });
-
-            // Assert
-            Assert.NotNull(exception);
-        }
-
-        [Fact]
-        public async Task GenerateEncryptionKey_WhenAliasExists_ShouldReturnEncryptionKeys()
+        public async Task GenerateEncryptionKey_WhenMethodIsCalled_ShouldReturnEncryptionKeys()
         {
             // Arrange
             var alias = "alias/aws-kms/encryption-key";

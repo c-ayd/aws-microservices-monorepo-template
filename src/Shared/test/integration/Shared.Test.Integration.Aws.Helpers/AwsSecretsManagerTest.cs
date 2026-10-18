@@ -18,23 +18,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         }
 
         [Fact]
-        public async Task GetSecretStringAsync_WhenIdDoesNotExist_ShouldThrowException()
-        {
-            // Arrange
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
-
-            // Act
-            var exception = Record.ExceptionAsync(async () =>
-            {
-                await awsSecretsManager.GetSecretStringAsync(StringGenerator.GenerateAlphanumeric());
-            });
-
-            // Assert
-            Assert.NotNull(exception);
-        }
-
-        [Fact]
-        public async Task GetSecretStringAsync_WhenIdExists_ShouldReturnValue()
+        public async Task GetSecretStringAsync_WhenMethodIsCalled_ShouldReturnValue()
         {
             // Arrange
             var id = "aws-secrets-manager/test-str";
@@ -51,23 +35,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         }
 
         [Fact]
-        public async Task GetSecretBinaryAsync_WhenIdDoesNotExist_ShouldThrowException()
-        {
-            // Arrange
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
-
-            // Act
-            var exception = Record.ExceptionAsync(async () =>
-            {
-                await awsSecretsManager.GetSecretBinaryAsync(StringGenerator.GenerateAlphanumeric());
-            });
-
-            // Assert
-            Assert.NotNull(exception);
-        }
-
-        [Fact]
-        public async Task GetSecretBinaryAsync_WhenIdExists_ShouldReturnValue()
+        public async Task GetSecretBinaryAsync_WhenMethodIsCalled_ShouldReturnValue()
         {
             // Arrange
             var id = "aws-secrets-manager/test-binary";
