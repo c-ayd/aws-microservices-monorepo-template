@@ -71,7 +71,7 @@ namespace Shared.Test.Helpers.Fixtures
             return _container.GetMappedPublicPort(4566);
         }
 
-        public async Task AddSecretString(string name, string value)
+        public async Task AddSecretStringAsync(string name, string value)
         {
             await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
             {
@@ -80,7 +80,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task AddSecretBinary(string name, byte[] value)
+        public async Task AddSecretBinaryAsync(string name, byte[] value)
         {
             await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
             {
@@ -89,7 +89,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task DeleteSecret(string name)
+        public async Task DeleteSecretAsync(string name)
         {
             await _awsSecretsManagerClient.DeleteSecretAsync(new DeleteSecretRequest()
             {
@@ -97,7 +97,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task<string> CreateKek(string? alias)
+        public async Task<string> CreateKekAsync(string? alias)
         {
             var kek = await _awsKmsClient.CreateKeyAsync(new CreateKeyRequest());
 
@@ -113,7 +113,7 @@ namespace Shared.Test.Helpers.Fixtures
             return kek.KeyMetadata.KeyId;
         }
 
-        public async Task DeleteKekAlias(string alias)
+        public async Task DeleteKekAliasAsync(string alias)
         {
             await _awsKmsClient.DeleteAliasAsync(new DeleteAliasRequest()
             {
@@ -121,7 +121,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task CreateSesTemplate(string templateName, string subject, string body)
+        public async Task CreateSesTemplateAsync(string templateName, string subject, string body)
         {
             await _awsSesClient.CreateEmailTemplateAsync(new CreateEmailTemplateRequest
             {
@@ -134,7 +134,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task<List<SesMessage>> GetSesSentEmails()
+        public async Task<List<SesMessage>> GetSesSentEmailsAsync()
         {
             using var client = new HttpClient()
             {
@@ -154,7 +154,7 @@ namespace Shared.Test.Helpers.Fixtures
             return result;
         }
 
-        public async Task CreateBucket(string bucketName)
+        public async Task CreateBucketAsync(string bucketName)
         {
             await _awsS3BucketClient.PutBucketAsync(new PutBucketRequest
             {
@@ -162,7 +162,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task DeleteBucket(string bucketName)
+        public async Task DeleteBucketAsync(string bucketName)
         {
             await _awsS3BucketClient.DeleteBucketAsync(new DeleteBucketRequest()
             {
