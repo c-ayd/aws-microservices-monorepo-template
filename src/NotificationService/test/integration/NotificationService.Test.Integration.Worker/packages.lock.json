@@ -35,6 +35,54 @@
         "resolved": "3.1.4",
         "contentHash": "5mj99LvCqrq3CNi06xYdyIAXOEh+5b33F2nErCzI5zWiDdLHXiPXEWFSUAF8zlIv0ZWqjZNCwHTQeAPYbF3pCg=="
       },
+      "AWSSDK.Core": {
+        "type": "Transitive",
+        "resolved": "4.0.102.11",
+        "contentHash": "K9PP9/qHQ7pqSB0lYwStJrpXQ8P1xc7Fbn3CyPg8EX78p4+yz8dhIiwiRc3aVbVrUZxmPAPRvmZm+ey1euIXGg=="
+      },
+      "AWSSDK.Extensions.NETCore.Setup": {
+        "type": "Transitive",
+        "resolved": "4.0.102.4",
+        "contentHash": "5At3wgEcNrFY0KlX06ewsuyJiiWfdze4xjWs+K814lCISjeNPNUXj8FyEAEYSKkfuR71gajmSt5TXmWCA+V3NQ==",
+        "dependencies": {
+          "AWSSDK.Core": "4.0.102.11",
+          "Microsoft.Extensions.Configuration.Abstractions": "2.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "2.0.0"
+        }
+      },
+      "AWSSDK.KeyManagementService": {
+        "type": "Transitive",
+        "resolved": "4.0.100.18",
+        "contentHash": "oJg9hMTNQWnseqVhmwImlrKRMaSuGWnmdvy1GutnzfeCeZGDOnPwHb9JGz+y3S8mXf+fM0XEj7uul8IVzgKcJw==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.11, 5.0.0)"
+        }
+      },
+      "AWSSDK.S3": {
+        "type": "Transitive",
+        "resolved": "4.0.104.4",
+        "contentHash": "Qi+NicEv1md8Vxm6c40zf5pRsQ9DzPm4UwewjxSk4zbHpdzAMZK8bDZJGdp4Za9/vHP8GTbSdnDuseZQ5h9tmw==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.11, 5.0.0)"
+        }
+      },
+      "AWSSDK.SecretsManager": {
+        "type": "Transitive",
+        "resolved": "4.0.100.19",
+        "contentHash": "IKllTyT3znuyrXTA3lnyBxDbUEq0g9smhy6CanmrHGeh+UdGVKDFN6SviZLlxivkpiEMi43jBOyJkDBnmJZqVQ==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.11, 5.0.0)"
+        }
+      },
+      "AWSSDK.SimpleEmailV2": {
+        "type": "Transitive",
+        "resolved": "4.0.106.4",
+        "contentHash": "ML6vIxQUkCr3dmLLQ3+Jxr7A/6TsAAD1aactl1PIjs2REAHevVzw64BYi4ss28UgzM9dz4kY3WeMAXffeZPGJw==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.11, 5.0.0)"
+        }
+      },
       "BouncyCastle.Cryptography": {
         "type": "Transitive",
         "resolved": "2.7.0",
@@ -692,6 +740,18 @@
       "shared.aspnetcore.helpers": {
         "type": "Project"
       },
+      "shared.aws.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "AWSSDK.Extensions.NETCore.Setup": "[4.0.102.4, )",
+          "AWSSDK.KeyManagementService": "[4.0.100.18, )",
+          "AWSSDK.S3": "[4.0.104.4, )",
+          "AWSSDK.SecretsManager": "[4.0.100.19, )",
+          "AWSSDK.SimpleEmailV2": "[4.0.106.4, )",
+          "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "Shared.Constants": "[1.0.0, )"
+        }
+      },
       "shared.constants": {
         "type": "Project"
       },
@@ -744,6 +804,7 @@
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
           "RabbitMQ.Client": "[7.2.1, )",
           "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "Shared.Aws.Helpers": "[1.0.0, )",
           "Shared.Constants": "[1.0.0, )",
           "Shared.Http": "[1.0.0, )",
           "Shared.PostgreSql.Helpers": "[1.0.0, )",
