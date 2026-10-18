@@ -8,10 +8,7 @@
         "resolved": "4.0.102.4",
         "contentHash": "5At3wgEcNrFY0KlX06ewsuyJiiWfdze4xjWs+K814lCISjeNPNUXj8FyEAEYSKkfuR71gajmSt5TXmWCA+V3NQ==",
         "dependencies": {
-          "AWSSDK.Core": "4.0.102.11",
-          "Microsoft.Extensions.Configuration.Abstractions": "2.0.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "2.0.0"
+          "AWSSDK.Core": "4.0.102.11"
         }
       },
       "AWSSDK.KeyManagementService": {
@@ -55,28 +52,11 @@
         "resolved": "4.0.102.11",
         "contentHash": "K9PP9/qHQ7pqSB0lYwStJrpXQ8P1xc7Fbn3CyPg8EX78p4+yz8dhIiwiRc3aVbVrUZxmPAPRvmZm+ey1euIXGg=="
       },
-      "Microsoft.Extensions.Configuration.Abstractions": {
-        "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "rHFrXqMIvQNq51H8RYTO4IWmDOYh8NUzyqGlh0xHWTP6XYnKk7Ryinys2uDs+Vu88b3AMlM3gBBSs78m6OQpYQ==",
-        "dependencies": {
-          "Microsoft.Extensions.Primitives": "2.0.0"
-        }
+      "shared.aspnetcore.helpers": {
+        "type": "Project"
       },
-      "Microsoft.Extensions.DependencyInjection.Abstractions": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "cjWrLkJXK0rs4zofsK4bSdg+jhDLTaxrkXu4gS6Y7MAlCvRyNNgwY/lJi5RDlQOnSZweHqoyvgvbdvQsRIW+hg=="
-      },
-      "Microsoft.Extensions.Logging.Abstractions": {
-        "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "6ZCllUYGFukkymSTx3Yr0G/ajRxoNJp7/FqSxSB4fGISST54ifBhgu4Nc0ItGi3i6DqwuNd8SUyObmiC++AO2Q=="
-      },
-      "Microsoft.Extensions.Primitives": {
-        "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "ukg53qNlqTrK38WA30b5qhw0GD7y3jdI9PHHASjdKyTcBHTevFM2o23tyk3pWCgAV27Bbkm+CPQ2zUe1ZOuYSA=="
+      "shared.constants": {
+        "type": "Project"
       }
     }
   }
