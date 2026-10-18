@@ -54,9 +54,6 @@
       },
       "shared.aspnetcore.helpers": {
         "type": "Project"
-      },
-      "shared.constants": {
-        "type": "Project"
       }
     }
   }

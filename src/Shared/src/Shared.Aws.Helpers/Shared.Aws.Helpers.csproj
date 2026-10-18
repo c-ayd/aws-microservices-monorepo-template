@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
-    <ProjectReference Include="..\Shared.Constants\Shared.Constants.csproj" />
   </ItemGroup>
 
 </Project>
