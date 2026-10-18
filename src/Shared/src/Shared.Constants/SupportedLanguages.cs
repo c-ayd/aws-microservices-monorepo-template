@@ -14,5 +14,16 @@ namespace Shared.Constants
             .Where(l => l.Name != nameof(SupportedLanguages.DefaultLanguage))
             .Select(f => (string)f.GetValue(null)!)
             .ToList();
+
+        public static string CheckAndGetValidLanguage(string? language)
+        {
+            if (language == null)
+                return DefaultLanguage;
+
+            if (AllLanguages.Contains(language))
+                return language;
+
+            return DefaultLanguage;
+        }
     }
 }
