@@ -748,8 +748,7 @@
           "AWSSDK.S3": "[4.0.104.4, )",
           "AWSSDK.SecretsManager": "[4.0.100.19, )",
           "AWSSDK.SimpleEmailV2": "[4.0.106.4, )",
-          "Shared.AspNetCore.Helpers": "[1.0.0, )",
-          "Shared.Constants": "[1.0.0, )"
+          "Shared.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
       "shared.constants": {
