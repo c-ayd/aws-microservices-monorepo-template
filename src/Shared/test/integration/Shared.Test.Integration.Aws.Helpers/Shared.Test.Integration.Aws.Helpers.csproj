@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Shared.Aws.Helpers\Shared.Aws.Helpers.csproj" />
     <ProjectReference Include="..\..\..\src\Shared.Test.Helpers\Shared.Test.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\src\Shared.Test.Generators\Shared.Test.Generators.csproj" />
   </ItemGroup>
 
   <ItemGroup>
