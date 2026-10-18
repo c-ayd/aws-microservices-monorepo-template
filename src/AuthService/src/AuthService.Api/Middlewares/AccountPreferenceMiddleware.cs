@@ -36,11 +36,7 @@ namespace AuthService.Api.Middlewares
                     .FirstOrDefault();
             }
 
-            if (preferredLanguage == null || !SupportedLanguages.AllLanguages.Contains(preferredLanguage))
-            {
-                preferredLanguage = SupportedLanguages.DefaultLanguage;
-            }
-            context.Items["PreferredLanguage"] = preferredLanguage;
+            context.Items["PreferredLanguage"] = SupportedLanguages.CheckAndGetValidLanguage(preferredLanguage);
         }
     }
 }
