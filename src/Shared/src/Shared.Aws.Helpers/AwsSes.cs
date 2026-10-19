@@ -7,7 +7,7 @@ using Shared.Aws.Helpers.Options;
 
 namespace Shared.Aws.Helpers
 {
-    public class AwsSes : IEmailSender
+    internal class AwsSes : IEmailSender
     {
         private readonly IAmazonSimpleEmailServiceV2 _awsSes;
         private readonly string _fromEmail;
