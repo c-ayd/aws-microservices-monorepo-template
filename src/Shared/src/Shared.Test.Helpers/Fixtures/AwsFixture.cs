@@ -121,6 +121,14 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
+        public async Task SesVerifyEmailAsync(string email)
+        {
+            await _awsSesClient.CreateEmailIdentityAsync(new CreateEmailIdentityRequest()
+            {
+                EmailIdentity = email
+            });
+        }
+
         public async Task CreateSesTemplateAsync(string templateName, string subject, string body)
         {
             await _awsSesClient.CreateEmailTemplateAsync(new CreateEmailTemplateRequest

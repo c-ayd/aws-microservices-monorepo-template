@@ -50,6 +50,7 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
                 configureApp: null,
                 configureEndpoints: null);
             
+            await AwsFixture.SesVerifyEmailAsync("test@test.com");
             WebApiFixture.StartServer();
         }
 
