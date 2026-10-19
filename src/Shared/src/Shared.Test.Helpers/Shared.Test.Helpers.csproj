@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />
     <ProjectReference Include="..\Shared.Redis.Helpers\Shared.Redis.Helpers.csproj" />
     <ProjectReference Include="..\Shared.Test.WebApi\Shared.Test.WebApi.csproj" />
+    <ProjectReference Include="..\Shared.Aws.Helpers\Shared.Aws.Helpers.csproj" />
   </ItemGroup>
 
 </Project>
