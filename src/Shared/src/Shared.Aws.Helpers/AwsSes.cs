@@ -1,23 +1,22 @@
 using System.Text.Json;
 using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 using Shared.Aws.Helpers.Abstractions;
-using Shared.Aws.Helpers.Options;
 
 namespace Shared.Aws.Helpers
 {
     internal class AwsSes : IEmailSender
     {
         private readonly IAmazonSimpleEmailServiceV2 _awsSes;
-        private readonly string _fromEmail;
+        private readonly string? _fromEmail;
 
         public AwsSes(
             IAmazonSimpleEmailServiceV2 awsSes,
-            IOptions<AwsSesOptions> awsSesOptions)
+            IConfiguration configuration)
         {
             _awsSes = awsSes;
-            _fromEmail = awsSesOptions.Value.FromEmailAddress;
+            _fromEmail = configuration["AwsSes:FromEmailAddress"];
         }
 
         public async Task<string> SendEmailAsync(

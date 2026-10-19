@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Shared.Aws.Helpers.DependencyInjection;
-using Shared.Aws.Helpers.Options;
 using Shared.Test.Helpers.Fixtures;
 
 namespace Shared.Test.Integration.Aws.Helpers.Collections
@@ -36,7 +35,7 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
                         new KeyValuePair<string, string?>($"AWS:ServiceURL",
                             $"http://localhost:{AwsFixture.GetPort()}"),
                         
-                        new KeyValuePair<string, string?>($"{AwsSesOptions.Key}:{nameof(AwsSesOptions.FromEmailAddress)}",
+                        new KeyValuePair<string, string?>($"AwsSes:FromEmailAddress",
                             "test@test.com")
                     ]);
                 },
