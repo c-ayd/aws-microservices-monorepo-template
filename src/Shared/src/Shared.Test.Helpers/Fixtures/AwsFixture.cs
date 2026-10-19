@@ -162,6 +162,50 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
+        public async Task PutObjectToBucket(string bucketName, string key, byte[] data)
+        {
+            await _awsS3BucketClient.PutObjectAsync(new PutObjectRequest()
+            {
+                BucketName = bucketName,
+                Key = key,
+                InputStream = new MemoryStream(data, writable: false),
+                AutoCloseStream = true
+            });
+        }
+
+        public async Task<byte[]> GetObjectFromBucket(string bucketName, string key)
+        {
+            using var response = await _awsS3BucketClient.GetObjectAsync(new GetObjectRequest()
+            {
+                BucketName = bucketName,
+                Key = key
+            });
+
+            var memoryStream = new MemoryStream();
+            await response.ResponseStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            return memoryStream.ToArray();
+        }
+
+        public async Task<bool> FileExistsInBucket(string bucketName, string key)
+        {
+            try
+            {
+                await _awsS3BucketClient.GetObjectMetadataAsync(new GetObjectMetadataRequest()
+                {
+                    BucketName = bucketName,
+                    Key = key
+                });
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task DeleteBucketAsync(string bucketName)
         {
             await _awsS3BucketClient.DeleteBucketAsync(new DeleteBucketRequest()
