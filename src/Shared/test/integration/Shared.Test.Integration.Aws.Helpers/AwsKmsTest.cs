@@ -24,7 +24,7 @@ namespace Shared.Test.Integration.Aws.Helpers
 
             var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
 
-            var value = Encoding.UTF8.GetBytes("Test value");
+            var value = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
 
             // Act
             var encryptedValue = await awsKms.EncryptAsync(alias, value);
@@ -58,7 +58,7 @@ namespace Shared.Test.Integration.Aws.Helpers
 
             var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
 
-            var value = Encoding.UTF8.GetBytes("Test value");
+            var value = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
             var encryptedValue = await awsKms.EncryptAsync(alias, value);
 
             // Act
