@@ -6,11 +6,11 @@ namespace Shared.Aws.Helpers.DependencyInjection
 {
     public static partial class DependencyInjection
     {
-        public static void AddAwsS3Bucket(this IServiceCollection services, bool isProduction)
+        public static void AddAwsS3Bucket(this IServiceCollection services)
         {
             services.AddAWSService<IAmazonS3>((config, sp) =>
             {
-                if (!isProduction)
+                if (!AwsConfig.IsProduction)
                 {
                     ((AmazonS3Config)config).ForcePathStyle = true;
                 }

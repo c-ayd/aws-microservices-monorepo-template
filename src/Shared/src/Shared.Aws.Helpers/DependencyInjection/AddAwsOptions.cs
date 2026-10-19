@@ -8,10 +8,12 @@ namespace Shared.Aws.Helpers.DependencyInjection
     {
         public static void AddAwsOptions(this IServiceCollection services, bool isProduction)
         {
+            AwsConfig.IsProduction = isProduction;
+
             services.AddDefaultAWSOptions(sp =>
             {
                 var awsOptions = sp.GetRequiredService<IConfiguration>().GetAWSOptions();
-                if (!isProduction)
+                if (!AwsConfig.IsProduction)
                 {
                     awsOptions.Credentials = new BasicAWSCredentials("test", "test");
                 }

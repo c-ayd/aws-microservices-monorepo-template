@@ -46,7 +46,7 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
                     services.AddAwsSecretsManager();
                     services.AddAwsKms();
                     services.AddAwsSes();
-                    services.AddAwsS3Bucket(false);
+                    services.AddAwsS3Bucket();
                 },
                 configureApp: null,
                 configureEndpoints: null);
