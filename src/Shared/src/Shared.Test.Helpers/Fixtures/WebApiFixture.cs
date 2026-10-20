@@ -13,7 +13,7 @@ namespace Shared.Test.Helpers.Fixtures
     {
         public const string HttpsPortConfigName = "HttpsOnly";
 
-        private Action<IConfigurationBuilder>? _addConfiguration;
+        private Action<IConfigurationBuilder>? _overrideConfiguration;
         private Action<IServiceCollection, IConfiguration>? _configureServices;
         private Action<IApplicationBuilder>? _configureApp;
         private Action<IEndpointRouteBuilder>? _configureEndpoints;
@@ -35,15 +35,20 @@ namespace Shared.Test.Helpers.Fixtures
         }
 
         public async Task InitializeAsync(
-            Action<IConfigurationBuilder>? addConfiguration,
+            Action<IConfigurationBuilder>? overrideConfiguration,
             Action<IServiceCollection, IConfiguration>? configureServices,
             Action<IApplicationBuilder>? configureApp,
             Action<IEndpointRouteBuilder>? configureEndpoints)
         {
-            _addConfiguration = addConfiguration;
+            _overrideConfiguration = overrideConfiguration;
             _configureServices = configureServices;
             _configureApp = configureApp;
             _configureEndpoints = configureEndpoints;
+        }
+
+        protected override void OverrideConfiguration(IConfigurationBuilder configuration)
+        {
+            _overrideConfiguration?.Invoke(configuration);
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -60,11 +65,6 @@ namespace Shared.Test.Helpers.Fixtures
                     port: _port,
                     HttpProtocols.Http1AndHttp2,
                     portConfigs);
-            });
-
-            builder.ConfigureAppConfiguration((context, config) =>
-            {
-                _addConfiguration?.Invoke(config);
             });
 
             builder.ConfigureServices((context, services) =>

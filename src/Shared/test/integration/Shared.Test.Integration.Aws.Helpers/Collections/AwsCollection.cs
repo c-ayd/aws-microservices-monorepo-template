@@ -27,9 +27,8 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
         public async Task InitializeAsync()
         {
             await AwsFixture.InitializeAsync();
-            
             await WebApiFixture.InitializeAsync(
-                addConfiguration: builder =>
+                overrideConfiguration: builder =>
                 {
                     builder.AddInMemoryCollection([
                         new KeyValuePair<string, string?>($"AWS:ServiceURL",

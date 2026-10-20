@@ -24,7 +24,7 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Collections
         public async Task InitializeAsync()
         {
             await WebApiFixture.InitializeAsync(
-                addConfiguration: builder =>
+                overrideConfiguration: builder =>
                 {
                     AddOptionsTest.AddConfiguration(builder);
                 },

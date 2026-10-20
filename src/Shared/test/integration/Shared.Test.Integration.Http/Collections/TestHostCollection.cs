@@ -26,7 +26,7 @@ namespace Shared.Test.Integration.Http.Collections
         public async Task InitializeAsync()
         {
             await WebApiFixture.InitializeAsync(
-                addConfiguration: null,
+                overrideConfiguration: null,
                 configureServices: (services, configuration) =>
                 {
                     ApiGatewayAuthHandlerTest.ConfigureServices(services);
