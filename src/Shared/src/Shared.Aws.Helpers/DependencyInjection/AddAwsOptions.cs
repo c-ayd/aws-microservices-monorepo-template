@@ -1,6 +1,6 @@
-using Amazon.Runtime;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Aws.Helpers.Test;
 
 namespace Shared.Aws.Helpers.DependencyInjection
 {
@@ -15,7 +15,7 @@ namespace Shared.Aws.Helpers.DependencyInjection
                 var awsOptions = sp.GetRequiredService<IConfiguration>().GetAWSOptions();
                 if (!AwsConfig.IsProduction)
                 {
-                    awsOptions.Credentials = new BasicAWSCredentials("test", "test");
+                    awsOptions.Credentials = AwsTestConstants.Credentials;
                 }
 
                 return awsOptions;
