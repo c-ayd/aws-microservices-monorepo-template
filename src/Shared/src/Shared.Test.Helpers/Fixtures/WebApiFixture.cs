@@ -18,18 +18,15 @@ namespace Shared.Test.Helpers.Fixtures
         private Action<IApplicationBuilder>? _configureApp;
         private Action<IEndpointRouteBuilder>? _configureEndpoints;
 
-        private int _port;
         private string _serverKeyFilePath;
         private string _serverCertificateFilePath;
 
         public WebApiFixture(
-            int port,
             string caBundlePath,
             string serverKeyFilePath,
             string serverCertificateFilePath)
             : base(caBundlePath)
         {
-            _port = port;
             _serverKeyFilePath = Path.Combine(AppContext.BaseDirectory, serverKeyFilePath);
             _serverCertificateFilePath = Path.Combine(AppContext.BaseDirectory, serverCertificateFilePath);
         }
@@ -62,7 +59,7 @@ namespace Shared.Test.Helpers.Fixtures
                     HttpsPortConfigName,
                     _serverKeyFilePath,
                     _serverCertificateFilePath,
-                    port: _port,
+                    port: 0,
                     HttpProtocols.Http1AndHttp2,
                     portConfigs);
             });

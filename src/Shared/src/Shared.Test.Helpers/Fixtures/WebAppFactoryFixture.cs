@@ -55,6 +55,12 @@ namespace Shared.Test.Helpers.Fixtures
             builder.UseEnvironment("Development");
         }
 
+        public int GetPort(string portConfigName)
+        {
+            var portConfigs = GetService<PortConfigs>();
+            return ((IPEndPoint)portConfigs.Ports[portConfigName].Configuration.EndPoint).Port;
+        }
+
         public HttpClient CreateHttpClient(string portConfigName)
         {
             HttpClient client;

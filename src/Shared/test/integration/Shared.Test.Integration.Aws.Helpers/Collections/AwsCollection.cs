@@ -18,7 +18,6 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
         {
             AwsFixture = new AwsFixture();
             WebApiFixture = new WebApiFixture(
-                port: 0,
                 caBundlePath: "Certs/test-ca-bundle.crt",
                 serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
                 serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");

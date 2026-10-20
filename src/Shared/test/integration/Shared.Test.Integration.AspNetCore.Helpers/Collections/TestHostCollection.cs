@@ -15,7 +15,6 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Collections
         public TestHostCollectionCluster()
         {
             WebApiFixture = new WebApiFixture(
-                port: 0,
                 caBundlePath: "Certs/test-ca-bundle.crt",
                 serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
                 serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");
