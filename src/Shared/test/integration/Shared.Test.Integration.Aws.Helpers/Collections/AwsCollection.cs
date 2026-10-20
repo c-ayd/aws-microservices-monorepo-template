@@ -18,7 +18,6 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
         {
             AwsFixture = new AwsFixture();
             WebApiFixture = new WebApiFixture(
-                port: 0,
                 caBundlePath: "Certs/test-ca-bundle.crt",
                 serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
                 serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");
@@ -27,9 +26,8 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
         public async Task InitializeAsync()
         {
             await AwsFixture.InitializeAsync();
-            
             await WebApiFixture.InitializeAsync(
-                addConfiguration: builder =>
+                overrideConfiguration: builder =>
                 {
                     builder.AddInMemoryCollection([
                         new KeyValuePair<string, string?>($"AWS:ServiceURL",

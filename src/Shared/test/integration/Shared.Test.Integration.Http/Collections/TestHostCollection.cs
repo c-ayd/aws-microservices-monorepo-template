@@ -17,7 +17,6 @@ namespace Shared.Test.Integration.Http.Collections
         public TestHostCollectionCluster()
         {
             WebApiFixture = new WebApiFixture(
-                port: 0,
                 caBundlePath: "Certs/test-ca-bundle.crt",
                 serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
                 serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");
@@ -26,7 +25,7 @@ namespace Shared.Test.Integration.Http.Collections
         public async Task InitializeAsync()
         {
             await WebApiFixture.InitializeAsync(
-                addConfiguration: null,
+                overrideConfiguration: null,
                 configureServices: (services, configuration) =>
                 {
                     ApiGatewayAuthHandlerTest.ConfigureServices(services);
