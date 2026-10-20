@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 using Amazon.KeyManagementService;
 using Amazon.KeyManagementService.Model;
-using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SecretsManager;
@@ -10,6 +9,7 @@ using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using Shared.Aws.Helpers.Test;
 
 namespace Shared.Test.Helpers.Fixtures
 {
@@ -34,34 +34,33 @@ namespace Shared.Test.Helpers.Fixtures
 
             // Configurations
             _endpoint = $"http://localhost:{GetPort()}";
-            var credentials = new BasicAWSCredentials("test", "test");
 
-            _awsSecretsManagerClient = new AmazonSecretsManagerClient(credentials,
+            _awsSecretsManagerClient = new AmazonSecretsManagerClient(AwsTestConstants.Credentials,
                 new AmazonSecretsManagerConfig
                 {
                     ServiceURL = _endpoint,
-                    AuthenticationRegion = "us-east-1"
+                    AuthenticationRegion = AwsTestConstants.Region
                 });
 
-            _awsKmsClient = new AmazonKeyManagementServiceClient(credentials,
+            _awsKmsClient = new AmazonKeyManagementServiceClient(AwsTestConstants.Credentials,
                 new AmazonKeyManagementServiceConfig
                 {
                     ServiceURL = _endpoint,
-                    AuthenticationRegion = "us-east-1"
+                    AuthenticationRegion = AwsTestConstants.Region
                 });
 
-            _awsSesClient = new AmazonSimpleEmailServiceV2Client(credentials,
+            _awsSesClient = new AmazonSimpleEmailServiceV2Client(AwsTestConstants.Credentials,
                 new AmazonSimpleEmailServiceV2Config
                 {
                     ServiceURL = _endpoint,
-                    AuthenticationRegion = "us-east-1"
+                    AuthenticationRegion = AwsTestConstants.Region
                 });
 
-            _awsS3BucketClient = new AmazonS3Client(credentials,
+            _awsS3BucketClient = new AmazonS3Client(AwsTestConstants.Credentials,
                 new AmazonS3Config
                 {
                     ServiceURL = _endpoint,
-                    AuthenticationRegion = "us-east-1",
+                    AuthenticationRegion = AwsTestConstants.Region,
                     ForcePathStyle = true
                 });
         }
