@@ -9,8 +9,17 @@ using Shared.Logging.DependencyInjection;
 using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
 using Shared.AspNetCore.Helpers.Kestrel;
 using Shared.AspNetCore.Helpers.Kestrel.Structures;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Shared.Aws.Helpers.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAwsOptions(builder.Environment.IsProduction());
+builder.Services.AddAwsSecretsManager();
+await builder.Configuration.AddAwsSecrets([
+    "template/notification-svc/connections",
+    "template/cert/ca-bundle"
+]);
 
 var portConfigs = new PortConfigs();
 builder.WebHost.ConfigureKestrel(options =>
@@ -21,6 +30,7 @@ builder.WebHost.ConfigureKestrel(options =>
     options.ConfigureHttp(
         name: "Http",
         port: builder.Configuration.GetValue<int>("HttpPort"),
+        HttpProtocols.Http1,
         portConfigs);
 });
 builder.Services.AddSingleton(portConfigs);
@@ -29,9 +39,8 @@ builder.Services.AddSingleton<IEmailService, SmtpService>();
 builder.Services.AddSingleton<ITemplateService, TemplateService>();
 builder.Services.AddDbContext<TemplateDbContext>(dbContextBuilder =>
 {
-    dbContextBuilder.ConfigureDbContext(builder.Configuration
-        .GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!
-        .TemplateDb);
+    dbContextBuilder.ConfigureDbContext(builder.Configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.TemplateDb,
+        builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
 });
 builder.Services.AddHealthChecks();
 
