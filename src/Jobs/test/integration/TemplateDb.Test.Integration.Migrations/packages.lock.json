@@ -730,6 +730,7 @@
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.10, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
           "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "Shared.Aws.Helpers": "[1.0.0, )",
           "Shared.Constants": "[1.0.0, )",
           "Shared.Logging": "[1.0.0, )",
           "Shared.PostgreSql.Helpers": "[1.0.0, )",
