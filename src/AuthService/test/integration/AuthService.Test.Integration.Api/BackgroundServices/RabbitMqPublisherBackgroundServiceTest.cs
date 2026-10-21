@@ -6,6 +6,7 @@ using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Api.Collections;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
+using Shared.Aws.Helpers.Abstractions;
 using Shared.Crypto;
 using Shared.RabbitMq.Helpers.Structures;
 using Shared.Test.Generators;
@@ -58,9 +59,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
 
             // Assert
             await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthRejectedMessagesDbContext>();
-            var encrpytionVerions = _collectionCluster.AuthApiWebApp.GetService<IAesGcmEncryptionVersions>();
+            var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages
+                .Include(rm => rm.WrappedDataKey)
+                .ToListAsync();
 
-            var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages.ToListAsync();
             Assert.Equal(rejectedMessages.Count, messagesFromDb.Count);
 
             foreach (var rejectedMessage in rejectedMessages)
@@ -69,7 +71,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 if (message == null)
                     Assert.Fail("One of the messages is not saved to the DB.");
 
-                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, encrpytionVerions.GetEncryptionKey, out var _);
+                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, message.WrappedDataKey.Value);
                 Assert.Equal(rejectedMessage.Body, messageBodyDecrypted);
             }
 

@@ -83,6 +83,14 @@ namespace AuthService.Test.Integration.Application.Collections
                         ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath))
                     }
                 }));
+            await AwsFixture.AddSecretStringAsync("template/auth-svc/encryption", JsonSerializer.Serialize(
+                new
+                {
+                    Encryption = new
+                    {
+                        AwsKmsAlias = "alias/auth-svc"
+                    }
+                }));
             await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {

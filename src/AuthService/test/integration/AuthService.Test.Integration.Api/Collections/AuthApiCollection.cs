@@ -74,7 +74,6 @@ namespace AuthService.Test.Integration.Api.Collections
                         TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
                     }
                 }));
-            
             await AwsFixture.AddSecretStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
                 new
                 {
@@ -82,6 +81,14 @@ namespace AuthService.Test.Integration.Api.Collections
                     {
                         ServerKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerKeyFilePath)),
                         ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath))
+                    }
+                }));
+            await AwsFixture.AddSecretStringAsync("template/auth-svc/encryption", JsonSerializer.Serialize(
+                new
+                {
+                    Encryption = new
+                    {
+                        AwsKmsAlias = "alias/auth-svc"
                     }
                 }));
             await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
