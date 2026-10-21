@@ -2,16 +2,13 @@ using System.Text.Json;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Shared.Aws.Helpers.Test;
 
 namespace Shared.Aws.Helpers.DependencyInjection
 {
     public static partial class DependencyInjection
     {
-        public static async Task AddAwsSecrets(this IConfigurationManager configuration,
-            IServiceCollection services,
-            List<string> ids)
+        public static async Task AddAwsSecrets(this IConfigurationManager configuration, List<string> ids)
         {
             using var awsSecretsManagerClient = AwsConfig.IsProduction ?
                 new AmazonSecretsManagerClient() :

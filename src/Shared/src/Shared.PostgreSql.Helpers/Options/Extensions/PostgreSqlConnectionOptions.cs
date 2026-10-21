@@ -9,7 +9,7 @@ namespace Shared.PostgreSql.Helpers.Options.Extensions
         public required string Database { get; set; }
         public required string Username { get; set; }
         public required string Password { get; set; }
-        public SslOptions? Ssl { get; set; }
+        public required SslOptions Ssl { get; set; }
         public RetryMechanismOptions? RetryMechanism { get; set; }
 
         public class RetryMechanismOptions

@@ -22,7 +22,7 @@ namespace Shared.PostgreSql.Helpers.EntityFramework.Extensions
             };
 
             X509Certificate2Collection? caBundle = null;
-            if (connectionOptions.Ssl != null)
+            if (connectionOptions.Ssl.Enabled)
             {
                 connStringBuilder.SslMode = SslMode.Require;
                 caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
@@ -30,7 +30,7 @@ namespace Shared.PostgreSql.Helpers.EntityFramework.Extensions
 
             builder.UseNpgsql(connStringBuilder.ConnectionString, npgsqlOptions =>
             {
-                if (connectionOptions.Ssl != null)
+                if (connectionOptions.Ssl.Enabled)
                 {
                     npgsqlOptions.ConfigureDataSource(dataSourceBuilder =>
                     {

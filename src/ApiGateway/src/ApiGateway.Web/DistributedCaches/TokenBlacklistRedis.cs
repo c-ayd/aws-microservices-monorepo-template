@@ -12,9 +12,7 @@ namespace ApiGateway.Web.DistributedCaches
             IOptions<CABundleOptions> caBundleOptions)
             : base(
             connectionsOptions.Value.TokenBlacklistRedis,
-            caBundleOptions.Value.Bundles
-                .FirstOrDefault(b => b.Id == caBundleOptions.Value.CurrentId)!
-                .Value)
+            caBundleOptions.Value.Value)
         {
         }
 

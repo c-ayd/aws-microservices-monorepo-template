@@ -26,11 +26,13 @@ namespace Shared.Test.Helpers.Fixtures
         private string? _serverCertificateFileValue;
 
         public WebApiFixture(
+            bool sslEnabled,
             string? caBundlePath,
             string? serverKeyFilePath,
             string? serverCertificateFilePath)
             : base(caBundlePath)
         {
+            _sslEnabled = sslEnabled;
             _serverKeyFilePath = serverKeyFilePath;
             _serverCertificateFilePath = serverCertificateFilePath;
         }
@@ -41,11 +43,10 @@ namespace Shared.Test.Helpers.Fixtures
             Action<IApplicationBuilder>? configureApp,
             Action<IEndpointRouteBuilder>? configureEndpoints)
         {
-            if (_serverKeyFilePath != null && _serverCertificateFilePath != null)
+            if (_sslEnabled)
             {
-                _sslEnabled = true;
-                _serverKeyFileValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverKeyFilePath));
-                _serverCertificateFileValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverCertificateFilePath));
+                _serverKeyFileValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverKeyFilePath!));
+                _serverCertificateFileValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverCertificateFilePath!));
             }
 
             _overrideConfiguration = overrideConfiguration;

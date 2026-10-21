@@ -75,8 +75,9 @@ namespace Shared.Test.Helpers.Fixtures
                 Database = dbName,
                 Username = "postgres",
                 Password = "postgres",
-                Ssl = !_sslEnabled ? null : new SslOptions()
+                Ssl = new SslOptions()
                 {
+                    Enabled = _sslEnabled,
                     ServerName = "localhost"
                 },
                 RetryMechanism = null

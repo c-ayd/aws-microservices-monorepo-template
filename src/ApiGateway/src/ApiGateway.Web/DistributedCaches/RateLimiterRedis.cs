@@ -15,9 +15,7 @@ namespace ApiGateway.Web.DistributedCaches
             ILogger<RateLimiterRedis> logger)
             : base(
             connectionsOptions.Value.RateLimiterRedis,
-            caBundleOptions.Value.Bundles
-                .FirstOrDefault(b => b.Id == caBundleOptions.Value.CurrentId)!
-                .Value)
+            caBundleOptions.Value.Value)
         {
             _logger = logger;
         }

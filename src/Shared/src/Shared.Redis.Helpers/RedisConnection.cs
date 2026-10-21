@@ -27,7 +27,7 @@ namespace Shared.Redis.Helpers
                 AbortOnConnectFail = connectionOptions.AbortOnConnectionFail
             };
 
-            if (connectionOptions.Ssl != null)
+            if (connectionOptions.Ssl.Enabled)
             {
                 var caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
                 

@@ -22,7 +22,7 @@ namespace Shared.RabbitMq.Helpers.Utilities
                 TopologyRecoveryEnabled = false
             };
 
-            if (connectionOptions.Ssl != null)
+            if (connectionOptions.Ssl.Enabled)
             {
                 var caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
                 connectionFactory.Ssl = new SslOption()

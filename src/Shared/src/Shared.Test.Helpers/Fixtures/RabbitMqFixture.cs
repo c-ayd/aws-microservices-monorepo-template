@@ -96,8 +96,9 @@ namespace Shared.Test.Helpers.Fixtures
                 Port = _container.GetMappedPublicPort(_sslEnabled ? 5671 : 5672),
                 Username = "guest",
                 Password = "guest",
-                Ssl = !_sslEnabled ? null : new SslOptions()
+                Ssl = new SslOptions()
                 {
+                    Enabled = _sslEnabled,
                     ServerName = "localhost"
                 }
             };

@@ -42,7 +42,7 @@ namespace Shared.AspNetCore.Helpers.DependencyInjection
                     .FirstOrDefault(m => m.Name == nameof(OptionsConfigurationServiceCollectionExtensions.Configure))!
                     .MakeGenericMethod(type);
 
-                var key = (string?)type.GetProperty(nameof(IOptions.Key), BindingFlags.Public | BindingFlags.Static)!.GetValue(null);
+                var key = (string?)type.GetProperty(nameof(IOptions.Key), BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)!.GetValue(null);
                 if (key == null)
                     throw new OptionsKeyIsNullException(type.Name);
 

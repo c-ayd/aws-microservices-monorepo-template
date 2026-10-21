@@ -22,10 +22,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAwsOptions(builder.Environment.IsProduction());
 builder.Services.AddAwsSecretsManager();
-await builder.Configuration.AddAwsSecrets(builder.Services, [
+await builder.Configuration.AddAwsSecrets([
     "template/api-gateway/connections",
-    "template/certificates/ca-bundle",
-    "template/certificates/api-gateway"
+    "template/api-gateway/certificates",
+    "template/cert/ca-bundle"
 ]);
 
 var portConfigs = new PortConfigs();
@@ -55,10 +55,7 @@ builder.Services.AddReverseProxy()
     .AddTransforms<JwtBearerTransform>()
     .ConfigureHttpClient((context, handler) =>
     {
-        var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Bundles
-            .FirstOrDefault(b => b.Id == caBundleOptions.CurrentId)!
-            .Value);
-        
+        var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Value);
         handler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
         {
             return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
@@ -109,10 +106,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RoleClaimType = ApiGatewayAuthKeys.Claims.Roles.ClaimType
         };
 
-        var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Bundles
-            .FirstOrDefault(b => b.Id == caBundleOptions.CurrentId)!
-            .Value);
-        
+        var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Value);
         options.BackchannelHttpHandler = new SocketsHttpHandler
         {
             PooledConnectionLifetime = TimeSpan.FromMinutes(5),

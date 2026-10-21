@@ -8,6 +8,6 @@ namespace Shared.RabbitMq.Helpers.Options.Extensions
         public required int Port { get; set; }
         public required string Username { get; set; }
         public required string Password { get; set; }
-        public SslOptions? Ssl { get; set; }
+        public required SslOptions Ssl { get; set; }
     }
 }

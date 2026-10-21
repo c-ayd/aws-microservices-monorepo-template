@@ -56,14 +56,17 @@ namespace ApiGateway.Test.Integration.Web.Collections
             TokenBlacklistRedisFixture = new RedisFixture();
             RateLimiterRedis = new RedisFixture();
             AuthServiceFixture = new WebApiFixture(
+                sslEnabled: true,
                 caBundlePath: _caBundlePath,
                 serverKeyFilePath: _webApiServerKeyFilePath,
                 serverCertificateFilePath: _webApiServerCertificateFilePath);
             ProtectedServiceFixture = new WebApiFixture(
+                sslEnabled: true,
                 caBundlePath: _caBundlePath,
                 serverKeyFilePath: _webApiServerKeyFilePath,
                 serverCertificateFilePath: _webApiServerCertificateFilePath);
             AdminServiceFixture = new WebApiFixture(
+                sslEnabled: true,
                 caBundlePath: _caBundlePath,
                 serverKeyFilePath: _webApiServerKeyFilePath,
                 serverCertificateFilePath: _webApiServerCertificateFilePath);
@@ -112,36 +115,31 @@ namespace ApiGateway.Test.Integration.Web.Collections
             var rateLimiterRedisConnectionOptions = RateLimiterRedis.GetConnectionOptions();
 
             await AwsFixture.AddSecretStringAsync("template/api-gateway/connections", JsonSerializer.Serialize(
-            new
-            {
-                Connections = new
+                new
                 {
-                    TokenBlacklistRedis = tokenBlacklistConnectionOptions,
-                    RateLimiterRedis = rateLimiterRedisConnectionOptions
-                }
-            }));
-            await AwsFixture.AddSecretStringAsync("template/certificates/ca-bundle", JsonSerializer.Serialize(
-            new
-            {
-                CABundle = new
-                {
-                    CurrentId = "2026-10",
-                    Bundles = new[]
+                    Connections = new
                     {
-                        new { Id = "2026-10", Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath)) },
-                        new { Id = "2026-06", Value = "No Bundle" }
+                        TokenBlacklistRedis = tokenBlacklistConnectionOptions,
+                        RateLimiterRedis = rateLimiterRedisConnectionOptions
                     }
-                }
-            }));
-            await AwsFixture.AddSecretStringAsync("template/certificates/api-gateway", JsonSerializer.Serialize(
-            new
-            {
-                Certificate = new
+                }));
+            await AwsFixture.AddSecretStringAsync("template/api-gateway/certificates", JsonSerializer.Serialize(
+                new
                 {
-                    ServerKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerKeyFilePath)),
-                    ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificateFilePath))
-                }
-            }));
+                    Certificate = new
+                    {
+                        ServerKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerKeyFilePath)),
+                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificateFilePath))
+                    }
+                }));
+            await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+                new
+                {
+                    CABundle = new
+                    {
+                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
+                    }
+                }));
 
             _awsPort = AwsFixture.GetPort();
             _apiGatewayPort = KestrelHelper.GetFreePort();
@@ -149,12 +147,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
             _protectedServicePort = ProtectedServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
             _adminServicePort = AdminServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
 
-            ApiGatewayWebApp = new ApiGatewayWebAppFactory(
-                new ConnectionsOptions()
-                {
-                    TokenBlacklistRedis = tokenBlacklistConnectionOptions,
-                    RateLimiterRedis = rateLimiterRedisConnectionOptions
-                });
+            ApiGatewayWebApp = new ApiGatewayWebAppFactory();
             ApiGatewayWebApp.StartServer();
         }
 
@@ -173,12 +166,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
         public class ApiGatewayWebAppFactory : WebAppFactoryFixture<Program>
         {
-            private readonly ConnectionsOptions _connectionsOptions;
-
-            public ApiGatewayWebAppFactory(ConnectionsOptions connectionsOptions)
-                : base(_caBundlePath)
+            public ApiGatewayWebAppFactory() : base(_caBundlePath)
             {
-                _connectionsOptions = connectionsOptions;
             }
 
             protected override void OverrideConfiguration(IConfigurationBuilder configuration)
@@ -202,29 +191,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                     new KeyValuePair<string, string?>("ReverseProxy:Clusters:protected-cluster:Destinations:protected-service:Address",
                         $"https://localhost:{_protectedServicePort}"),
                     new KeyValuePair<string, string?>("ReverseProxy:Clusters:admin-cluster:Destinations:admin-service:Address",
-                        $"https://localhost:{_adminServicePort}"),
-
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Host)}",
-                        _connectionsOptions.TokenBlacklistRedis.Host),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Port)}",
-                        _connectionsOptions.TokenBlacklistRedis.Port.ToString()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Password)}",
-                        _connectionsOptions.TokenBlacklistRedis.Password),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.AbortOnConnectionFail)}",
-                        _connectionsOptions.TokenBlacklistRedis.AbortOnConnectionFail.ToString().ToLower()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
-                        _connectionsOptions.TokenBlacklistRedis.Ssl!.ServerName),
-
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.Host)}",
-                        _connectionsOptions.RateLimiterRedis.Host),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.Port)}",
-                        _connectionsOptions.RateLimiterRedis.Port.ToString()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.Password)}",
-                        _connectionsOptions.RateLimiterRedis.Password),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.AbortOnConnectionFail)}",
-                        _connectionsOptions.RateLimiterRedis.AbortOnConnectionFail.ToString().ToLower()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RateLimiterRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
-                        _connectionsOptions.RateLimiterRedis.Ssl!.ServerName)
+                        $"https://localhost:{_adminServicePort}")
                 ]);
             }
         }
