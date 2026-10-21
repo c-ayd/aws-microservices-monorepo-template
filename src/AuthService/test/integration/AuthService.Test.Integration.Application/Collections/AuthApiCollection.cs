@@ -1,11 +1,8 @@
+using System.Text.Json;
 using AuthService.Application.Options;
 using AuthService.Persistence.DbContexts;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
-using Shared.PostgreSql.Helpers.Options.Extensions;
-using Shared.RabbitMq.Helpers.Options.Extensions;
-using Shared.Redis.Helpers.Options.Extensions;
+using Shared.Test.Helpers;
 using Shared.Test.Helpers.Fixtures;
 
 namespace AuthService.Test.Integration.Application.Collections
@@ -15,13 +12,19 @@ namespace AuthService.Test.Integration.Application.Collections
     {
     }
 
-    public class AuthApiCollectionCluster :  IAsyncLifetime
+    public class AuthApiCollectionCluster : IAsyncLifetime
     {
-        public const string CABundlePath = "Certs/test-ca-bundle.crt";
+        private const string _caBundlePath = "Certs/test-ca-bundle.crt";
+        private const string _authServiceServerKeyFilePath = "Certs/test-auth-service-server.key";
+        private const string _authServiceServerCertificateFilePath = "Certs/test-auth-service-server.crt";
 
-        public const string AuthDbName = "auth-db";
-        public const string AuthRejectedMessagesDbName = "auth-rejected-messages-db";
+        private const string _authDbName = "auth-db";
+        private const string _authRejectedMessagesDbName = "auth-rejected-messages-db";
 
+        private static int _awsPort;
+        private static int _authServicePort;
+
+        public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
         public RabbitMqFixture RabbitMqFixture { get; private set; }
         public RedisFixture TokenBlacklistRedisFixture { get; private set; }
@@ -30,6 +33,7 @@ namespace AuthService.Test.Integration.Application.Collections
 
         public AuthApiCollectionCluster()
         {
+            AwsFixture = new AwsFixture();
             PostgreSqlFixture = new PostgreSqlFixture();
             RabbitMqFixture = new RabbitMqFixture();
             TokenBlacklistRedisFixture = new RedisFixture();
@@ -38,34 +42,61 @@ namespace AuthService.Test.Integration.Application.Collections
         public async Task InitializeAsync()
         {
             await Task.WhenAll(
+                AwsFixture.InitializeAsync(),
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: CABundlePath,
+                    caBundlePath: _caBundlePath,
                     certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
                     certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     new Dictionary<string, Type>()
                     {
-                        { AuthDbName, typeof(AuthDbContext) },
-                        { AuthRejectedMessagesDbName, typeof(AuthRejectedMessagesDbContext) }
+                        { _authDbName, typeof(AuthDbContext) },
+                        { _authRejectedMessagesDbName, typeof(AuthRejectedMessagesDbContext) }
                     }),
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: CABundlePath,
+                    caBundlePath: _caBundlePath,
                     rabbitMqCertificateFolder: "Certs/RabbitMq"),
                 TokenBlacklistRedisFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: CABundlePath,
+                    caBundlePath: _caBundlePath,
                     redisCertificateFolder: "Certs/Redis")
             );
 
-            AuthApiWebApp = new AuthApiWebAppFactory(
-                new ConnectionsOptions()
+            await AwsFixture.AddSecretStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
+                new
                 {
-                    AuthDb = PostgreSqlFixture.GetConnectionOptions(AuthDbName),
-                    AuthRejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(AuthRejectedMessagesDbName),
-                    RabbitMq = RabbitMqFixture.GetConnectionOptions(),
-                    TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
-                },
+                    Connections = new
+                    {
+                        AuthDb = PostgreSqlFixture.GetConnectionOptions(_authDbName),
+                        AuthRejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_authRejectedMessagesDbName),
+                        RabbitMq = RabbitMqFixture.GetConnectionOptions(),
+                        TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
+                    }
+                }));
+
+            await AwsFixture.AddSecretStringAsync("template/certs/api-gateway", JsonSerializer.Serialize(
+                new
+                {
+                    Certificate = new
+                    {
+                        ServerKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerKeyFilePath)),
+                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath))
+                    }
+                }));
+            await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+                new
+                {
+                    CABundle = new
+                    {
+                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
+                    }
+                }));
+
+            _awsPort = AwsFixture.GetPort();
+            _authServicePort = KestrelHelper.GetFreePort();
+
+            AuthApiWebApp = new AuthApiWebAppFactory(
                 new JwtKeysOptions()
                 {
                     CurrentKeyId = "k2",
@@ -85,6 +116,8 @@ namespace AuthService.Test.Integration.Application.Collections
                         }
                     }
                 });
+
+            AuthApiWebApp.StartServer();
         }
 
         public async Task DisposeAsync()
@@ -100,80 +133,24 @@ namespace AuthService.Test.Integration.Application.Collections
 
         public class AuthApiWebAppFactory : WebAppFactoryFixture<Program>
         {
-            private readonly ConnectionsOptions _connectionsOptions;
             private readonly JwtKeysOptions _jwtKeysOptions;
 
-            public AuthApiWebAppFactory(
-                ConnectionsOptions connectionsOptions,
-                JwtKeysOptions jwtKeysOptions)
-                : base(CABundlePath)
+            public AuthApiWebAppFactory(JwtKeysOptions jwtKeysOptions) : base(_caBundlePath)
             {
-                _connectionsOptions = connectionsOptions;
                 _jwtKeysOptions = jwtKeysOptions;
             }
 
             protected override void OverrideConfiguration(IConfigurationBuilder configuration)
             {
                 configuration.AddInMemoryCollection([
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Host)}",
-                        _connectionsOptions.AuthDb.Host),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Port)}",
-                        _connectionsOptions.AuthDb.Port.ToString()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Database)}",
-                        _connectionsOptions.AuthDb.Database),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Username)}",
-                        _connectionsOptions.AuthDb.Username),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Password)}",
-                        _connectionsOptions.AuthDb.Password),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
-                        _connectionsOptions.AuthDb.Ssl!.CABundlePath),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
-                        _connectionsOptions.AuthDb.Ssl!.ServerName),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthDb)}:{nameof(PostgreSqlConnectionOptions.RetryMechanism)}",
-                        null),
+                    new KeyValuePair<string, string?>("HttpsPort",
+                        _authServicePort.ToString()),
 
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Host)}",
-                        _connectionsOptions.AuthRejectedMessagesDb.Host),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Port)}",
-                        _connectionsOptions.AuthRejectedMessagesDb.Port.ToString()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Database)}",
-                        _connectionsOptions.AuthRejectedMessagesDb.Database),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Username)}",
-                        _connectionsOptions.AuthRejectedMessagesDb.Username),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Password)}",
-                        _connectionsOptions.AuthRejectedMessagesDb.Password),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
-                        _connectionsOptions.AuthRejectedMessagesDb.Ssl!.CABundlePath),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
-                        _connectionsOptions.AuthRejectedMessagesDb.Ssl!.ServerName),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.AuthRejectedMessagesDb)}:{nameof(PostgreSqlConnectionOptions.RetryMechanism)}",
-                        null),
+                    new KeyValuePair<string, string?>($"{JwtOptions.Key}:{nameof(JwtOptions.Issuer)}",
+                        $"https://localhost:{_authServicePort}"),
 
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Host)}",
-                        _connectionsOptions.RabbitMq.Host),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Port)}",
-                        _connectionsOptions.RabbitMq.Port.ToString()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Username)}",
-                        _connectionsOptions.RabbitMq.Username),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Password)}",
-                        _connectionsOptions.RabbitMq.Password),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
-                        _connectionsOptions.RabbitMq.Ssl!.CABundlePath),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
-                        _connectionsOptions.RabbitMq.Ssl!.ServerName),
-
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Host)}",
-                        _connectionsOptions.TokenBlacklistRedis.Host),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Port)}",
-                        _connectionsOptions.TokenBlacklistRedis.Port.ToString()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Password)}",
-                        _connectionsOptions.TokenBlacklistRedis.Password),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.AbortOnConnectionFail)}",
-                        _connectionsOptions.TokenBlacklistRedis.AbortOnConnectionFail.ToString().ToLower()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
-                        _connectionsOptions.TokenBlacklistRedis.Ssl!.CABundlePath),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TokenBlacklistRedis)}:{nameof(RedisConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
-                        _connectionsOptions.TokenBlacklistRedis.Ssl!.ServerName),
+                    new KeyValuePair<string, string?>($"AWS:ServiceURL",
+                        $"http://localhost:{_awsPort}"),
 
                     new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.CurrentKeyId)}",
                         _jwtKeysOptions.CurrentKeyId),
