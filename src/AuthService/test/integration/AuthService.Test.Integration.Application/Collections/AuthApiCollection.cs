@@ -74,8 +74,7 @@ namespace AuthService.Test.Integration.Application.Collections
                         TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
                     }
                 }));
-
-            await AwsFixture.AddSecretStringAsync("template/certs/api-gateway", JsonSerializer.Serialize(
+            await AwsFixture.AddSecretStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificate = new
