@@ -25,5 +25,6 @@
     <ProjectReference Include="..\..\..\Shared\src\Shared.RabbitMq.Helpers\Shared.RabbitMq.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.Constants\Shared.Constants.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Aws.Helpers\Shared.Aws.Helpers.csproj" />
   </ItemGroup>
 </Project>
