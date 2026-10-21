@@ -20,12 +20,13 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
 
         public PublisherBackgroundService(
             RabbitMqConnectionOptions connectionOptions,
+            string? caBundleValue,
             List<Publisher> publishers,
             TimeSpan retryPublishTime,
             TimeSpan graceTime,
             ILogger logger)
         {
-            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions);
+            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions, caBundleValue);
             _publishers = publishers;
             _retryPublishTime = retryPublishTime;
             _graceTime = graceTime;

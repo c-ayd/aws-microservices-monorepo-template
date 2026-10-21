@@ -784,6 +784,7 @@
           "AuthService.Domain": "[1.0.0, )",
           "Microsoft.EntityFrameworkCore": "[10.0.10, )",
           "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "Shared.Aws.Helpers": "[1.0.0, )",
           "Shared.Constants": "[1.0.0, )",
           "Shared.Crypto": "[1.0.0, )",
           "Shared.Http": "[1.0.0, )",

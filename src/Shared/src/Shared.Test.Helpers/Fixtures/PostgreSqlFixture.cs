@@ -16,7 +16,7 @@ namespace Shared.Test.Helpers.Fixtures
         private BidirectionalDictionary<string, Type> _dbContexts = new BidirectionalDictionary<string, Type>();
 
         private bool _sslEnabled = false;
-        private string? _caBundlePath = null;
+        private string? _caBundleValue = null;
 
         public async Task InitializeAsync(
             bool sslEnabled,
@@ -35,7 +35,7 @@ namespace Shared.Test.Helpers.Fixtures
             if (sslEnabled)
             {
                 _sslEnabled = true;
-                _caBundlePath = Path.Combine(AppContext.BaseDirectory, caBundlePath!);
+                _caBundleValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, caBundlePath!));
                 _container = builder
                     .WithSsl(
                         Path.Combine(AppContext.BaseDirectory, certificateFilePath!),
@@ -45,7 +45,7 @@ namespace Shared.Test.Helpers.Fixtures
             else
             {
                 _sslEnabled = false;
-                _caBundlePath = null;
+                _caBundleValue = null;
                 _container = builder.Build();
             }
             
@@ -75,9 +75,9 @@ namespace Shared.Test.Helpers.Fixtures
                 Database = dbName,
                 Username = "postgres",
                 Password = "postgres",
-                Ssl = !_sslEnabled ? null : new SslOptions()
+                Ssl = new SslOptions()
                 {
-                    CABundlePath = _caBundlePath!,
+                    Enabled = _sslEnabled,
                     ServerName = "localhost"
                 },
                 RetryMechanism = null
@@ -107,7 +107,7 @@ namespace Shared.Test.Helpers.Fixtures
             ])!;
 
             var optionsBuilder = (DbContextOptionsBuilder)Activator.CreateInstance(typeof(DbContextOptionsBuilder<>).MakeGenericType(dbContextType))!;
-            optionsBuilder.ConfigureDbContext(connectionOptions);
+            optionsBuilder.ConfigureDbContext(connectionOptions, _caBundleValue);
 
             return (T)ctor.Invoke([optionsBuilder.Options]);
         }

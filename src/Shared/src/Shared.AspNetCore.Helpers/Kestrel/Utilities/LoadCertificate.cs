@@ -5,27 +5,27 @@ namespace Shared.AspNetCore.Helpers.Kestrel.Utilities
 {
     public static partial class TlsUtility
     {
-        public static X509Certificate2 LoadCertificateFromFile(string keyFilePath, string certificateFilePath)
+        public static X509Certificate2 LoadCertificate(string key, string certificate)
         {
             // On Windows, the certificate's private key is loaded differently
-            X509Certificate2 certificate;
+            X509Certificate2 resultCertificate;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                using var tempCert = X509Certificate2.CreateFromPemFile(certificateFilePath, keyFilePath);
-                certificate = X509CertificateLoader.LoadPkcs12(tempCert.Export(X509ContentType.Pkcs12), "");
+                using var tempCert = X509Certificate2.CreateFromPem(certificate, key);
+                resultCertificate = X509CertificateLoader.LoadPkcs12(tempCert.Export(X509ContentType.Pkcs12), "");
             }
             else
             {
-                certificate = X509Certificate2.CreateFromPemFile(certificateFilePath, keyFilePath);
+                resultCertificate = X509Certificate2.CreateFromPem(certificate, key);
             }
 
-            return certificate;
+            return resultCertificate;
         }
 
-        public static X509Certificate2Collection LoadCertificateChainFromFile(string certificateFilePath, bool skipFirstInChain = false)
+        public static X509Certificate2Collection LoadCertificateChain(string certificate, bool skipFirstInChain = false)
         {
             var certificateChain = new X509Certificate2Collection();
-            certificateChain.ImportFromPemFile(certificateFilePath);
+            certificateChain.ImportFromPem(certificate);
 
             if (skipFirstInChain)
             {

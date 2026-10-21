@@ -15,21 +15,30 @@ using AuthService.Application;
 using Shared.Http.DependencyInjection;
 using Shared.Http.Authentication.Constants;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using AuthService.Api.Options;
 using Shared.AspNetCore.Helpers.Kestrel;
 using Shared.AspNetCore.Helpers.Kestrel.Structures;
 using Shared.Http.Request;
+using Shared.Aws.Helpers.DependencyInjection;
+using AuthService.Application.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAwsOptions(builder.Environment.IsProduction());
+builder.Services.AddAwsSecretsManager();
+await builder.Configuration.AddAwsSecrets([
+    "template/auth-svc/connections",
+    "template/auth-svc/certificates",
+    "template/cert/ca-bundle"
+]);
 
 var portConfigs = new PortConfigs();
 builder.WebHost.ConfigureKestrel(options =>
 {
-    var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
+    var certificatesOptions = builder.Configuration.GetSection(CertificatesOptions.Key).Get<CertificatesOptions>()!;
     options.ConfigureHttps(
         name: "HttpsOnly",
-        certificateOptions.ServerKeyFilePath,
-        certificateOptions.ServerCertificateFilePath,
+        certificatesOptions.ServerKey,
+        certificatesOptions.ServerCertificate,
         port: builder.Configuration.GetValue<int>("HttpsPort"),
         HttpProtocols.Http1,
         portConfigs);

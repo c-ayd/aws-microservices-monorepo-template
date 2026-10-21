@@ -10,8 +10,12 @@ namespace Shared.Test.Integration.Redis.Helpers.BackgroundServices
         IClassFixture<LoggerFixture<RedisConnectionBackgroundServiceTest>>,
         IAsyncLifetime
     {
+        private const string _caBundlePath = "Certs/test-ca-bundle.crt";
+
         private RedisFixture _redisFixture;
         private LoggerFixture<RedisConnectionBackgroundServiceTest> _logger;
+
+        private string _caBundle = null!;
 
         public RedisConnectionBackgroundServiceTest(
             RedisFixture redisFixture,
@@ -25,8 +29,10 @@ namespace Shared.Test.Integration.Redis.Helpers.BackgroundServices
         {
             await _redisFixture.InitializeAsync(
                 sslEnabled: true,
-                caBundlePath: "Certs/test-ca-bundle.crt",
+                caBundlePath: _caBundlePath,
                 redisCertificateFolder: "Certs/Redis");
+
+            _caBundle = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath));
         }
 
         public async Task DisposeAsync()
@@ -38,7 +44,7 @@ namespace Shared.Test.Integration.Redis.Helpers.BackgroundServices
         public async Task StartAsync_WhenMethodIsCalled_ShouldCreateConnection()
         {
             // Arrange
-            var redisConnection = new TestRedisConnection(_redisFixture.GetConnectionOptions());
+            var redisConnection = new TestRedisConnection(_redisFixture.GetConnectionOptions(), _caBundle);
             var backgroundService = new TestBackgroundService(redisConnection, _logger);
 
             // Act
@@ -52,7 +58,7 @@ namespace Shared.Test.Integration.Redis.Helpers.BackgroundServices
         public async Task StopAsync_WhenMethodIsCalled_ShouldCloseConnection()
         {
             // Arrange
-            var redisConnection = new TestRedisConnection(_redisFixture.GetConnectionOptions());
+            var redisConnection = new TestRedisConnection(_redisFixture.GetConnectionOptions(), _caBundle);
             var backgroundService = new TestBackgroundService(redisConnection, _logger);
 
             await backgroundService.StartAsync(default);
@@ -81,7 +87,8 @@ namespace Shared.Test.Integration.Redis.Helpers.BackgroundServices
 
         public class TestRedisConnection : RedisConnection
         {
-            public TestRedisConnection(RedisConnectionOptions connectionOptions) : base(connectionOptions)
+            public TestRedisConnection(RedisConnectionOptions connectionOptions, string caBundleValue)
+                : base(connectionOptions, caBundleValue)
             {
             }
 

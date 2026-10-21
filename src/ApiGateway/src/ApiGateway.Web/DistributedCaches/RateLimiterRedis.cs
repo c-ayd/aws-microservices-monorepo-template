@@ -11,8 +11,11 @@ namespace ApiGateway.Web.DistributedCaches
     
         public RateLimiterRedis(
             IOptions<ConnectionsOptions> connectionsOptions,
+            IOptions<CABundleOptions> caBundleOptions,
             ILogger<RateLimiterRedis> logger)
-            : base(connectionsOptions.Value.RateLimiterRedis)
+            : base(
+            connectionsOptions.Value.RateLimiterRedis,
+            caBundleOptions.Value.Value)
         {
             _logger = logger;
         }

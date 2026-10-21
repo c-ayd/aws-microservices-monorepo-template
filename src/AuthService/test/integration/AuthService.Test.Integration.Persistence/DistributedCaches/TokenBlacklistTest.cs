@@ -2,6 +2,7 @@ using System.Reflection;
 using AuthService.Application.Options;
 using AuthService.Persistence.DistributedCaches;
 using Microsoft.Extensions.Options;
+using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.Redis.Helpers;
@@ -11,6 +12,7 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
 {
     public class TokenBlacklistTest : IClassFixture<RedisFixture>, IAsyncLifetime
     {
+        private readonly string _caBundlePath = "Certs/test-ca-bundle.crt";
         private readonly RedisFixture _redisFixture;
 
         private TokenBlacklistRedis? _tokenBlacklist;
@@ -24,7 +26,7 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
         {
             await _redisFixture.InitializeAsync(
                 sslEnabled: true,
-                caBundlePath: "Certs/test-ca-bundle.crt",
+                caBundlePath: _caBundlePath,
                 redisCertificateFolder: "Certs/Redis");
 
             var connectionsOptions = new ConnectionsOptions()
@@ -35,7 +37,14 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
                 RabbitMq = _placeholderRabbitMqConnectionOptions
             };
 
-            _tokenBlacklist = new TokenBlacklistRedis(Options.Create(connectionsOptions));
+            var caBundleOptions = new CABundleOptions()
+            {
+                Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
+            };
+
+            _tokenBlacklist = new TokenBlacklistRedis(
+                Options.Create(connectionsOptions),
+                Options.Create(caBundleOptions));
 
             var connectAsyncMethod = typeof(RedisConnection).GetMethod("ConnectAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             await (Task)connectAsyncMethod.Invoke(_tokenBlacklist, [default])!;
@@ -122,7 +131,11 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
             Port = 0,
             Database = "",
             Username = "",
-            Password = ""
+            Password = "",
+            Ssl = new SslOptions()
+            {
+                Enabled = false
+            }
         };
 
         private static readonly RabbitMqConnectionOptions _placeholderRabbitMqConnectionOptions = new RabbitMqConnectionOptions()
@@ -130,7 +143,11 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
             Host = "",
             Port = 0,
             Username = "",
-            Password = ""
+            Password = "",
+            Ssl = new SslOptions()
+            {
+                Enabled = false
+            }
         };
     }
 }

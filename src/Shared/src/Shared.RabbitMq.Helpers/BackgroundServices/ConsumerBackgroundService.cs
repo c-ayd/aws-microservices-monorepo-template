@@ -22,13 +22,14 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
 
         public ConsumerBackgroundService(
             RabbitMqConnectionOptions connectionOptions,
+            string? caBundleValue,
             TimeSpan healthCheckTime,
             TimeSpan graceTime,
             string queueName,
             ushort prefetchCount,
             ILogger logger)
         {
-            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions);
+            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions, caBundleValue);
             _healthCheckTime = healthCheckTime;
             _graceTime = graceTime;
             _queueName = queueName;

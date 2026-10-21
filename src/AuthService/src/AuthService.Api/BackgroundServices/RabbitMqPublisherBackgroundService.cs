@@ -18,12 +18,14 @@ namespace AuthService.Api.BackgroundServices
 
         public RabbitMqPublisherBackgroundService(
             IOptions<ConnectionsOptions> connectionsOptions,
+            IOptions<CABundleOptions> caBundleOptions,
             IServiceScopeFactory scopeFactory,
             IAesGcmEncryptionVersions aesGcmEncryptionVersions,
             IEmailService emailService,
             ILogger<RabbitMqPublisherBackgroundService> logger)
             : base(
             connectionsOptions.Value.RabbitMq,
+            caBundleOptions.Value.Value,
             publishers: new List<Publisher>()
             {
                 (Publisher)emailService

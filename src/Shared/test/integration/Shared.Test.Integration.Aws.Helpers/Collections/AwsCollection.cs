@@ -11,13 +11,14 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
 
     public class AwsCollectionCluster : IAsyncLifetime
     {
-        public AwsFixture AwsFixture { get; set; }
-        public WebApiFixture WebApiFixture { get; set; }
+        public AwsFixture AwsFixture { get; private set; }
+        public WebApiFixture WebApiFixture { get; private set; }
 
         public AwsCollectionCluster()
         {
             AwsFixture = new AwsFixture();
             WebApiFixture = new WebApiFixture(
+                sslEnabled: true,
                 caBundlePath: "Certs/test-ca-bundle.crt",
                 serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
                 serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");

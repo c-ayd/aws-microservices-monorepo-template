@@ -25,12 +25,16 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         private readonly RabbitMqFixture _rabbitMqFixture;
         private readonly LoggerFixture<ConsumerBackgroundServiceTest> _loggerFixture;
 
+        private string _caBundle;
+
         public ConsumerBackgroundServiceTest(
             RabbitMqCollectionCluster rabbitMqCollectionCluster,
             LoggerFixture<ConsumerBackgroundServiceTest> loggerFixture)
         {
             _rabbitMqFixture = rabbitMqCollectionCluster.RabbitMqFixture;
             _loggerFixture = loggerFixture;
+
+            _caBundle = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs/test-ca-bundle.crt"));
         }
 
         [Fact]
@@ -39,6 +43,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 TimeSpan.FromSeconds(60),
                 _graceTime,
                 _queueName,
@@ -64,6 +69,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
@@ -105,6 +111,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
@@ -155,6 +162,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
@@ -218,12 +226,13 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
             public TestBackgroundService(
                 RabbitMqConnectionOptions connectionOptions,
+                string caBundleValue,
                 TimeSpan healthCheckTime,
                 TimeSpan graceTime,
                 string queueName,
                 ushort prefetchCount,
                 ILogger logger)
-                : base(connectionOptions, healthCheckTime, graceTime, queueName, prefetchCount, logger)
+                : base(connectionOptions, caBundleValue, healthCheckTime, graceTime, queueName, prefetchCount, logger)
             {
                 ReceivedTcs = new TaskCompletionSource<bool>();
             }

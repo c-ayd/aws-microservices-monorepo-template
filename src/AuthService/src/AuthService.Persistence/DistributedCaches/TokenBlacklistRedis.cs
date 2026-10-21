@@ -9,8 +9,11 @@ namespace AuthService.Persistence.DistributedCaches
     public class TokenBlacklistRedis : RedisConnection, ITokenBlacklistRedis
     {
         public TokenBlacklistRedis(
-            IOptions<ConnectionsOptions> connectionsOptions)
-            : base(connectionsOptions.Value.TokenBlacklistRedis)
+            IOptions<ConnectionsOptions> connectionsOptions,
+            IOptions<CABundleOptions> caBundleOptions)
+            : base(
+            connectionsOptions.Value.TokenBlacklistRedis,
+            caBundleOptions.Value.Value)
         {
         }
 

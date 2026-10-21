@@ -22,11 +22,13 @@ namespace NotificationService.Worker.BackgroundServices
 
         public EmailBackgroundService(
             IOptions<ConnectionsOptions> connectionsOptions,
+            IOptions<CABundleOptions> caBundleOptions,
             ITemplateService templateService,
             IEmailService emailService,
             ILogger<EmailBackgroundService> logger)
             : base(
             connectionsOptions.Value.RabbitMq,
+            caBundleOptions.Value.Value,
             healthCheckTime: TimeSpan.FromSeconds(10),
             graceTime: TimeSpan.FromSeconds(5),
             queueName: EmailConfiguration.QueueName,

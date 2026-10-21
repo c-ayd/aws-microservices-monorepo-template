@@ -17,6 +17,7 @@ namespace Shared.Test.Integration.Http.Collections
         public TestHostCollectionCluster()
         {
             WebApiFixture = new WebApiFixture(
+                sslEnabled: true,
                 caBundlePath: "Certs/test-ca-bundle.crt",
                 serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
                 serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");
