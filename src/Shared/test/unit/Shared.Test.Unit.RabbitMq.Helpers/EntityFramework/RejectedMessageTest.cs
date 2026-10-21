@@ -38,6 +38,7 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
         public void Constructor_WhenPropertiesAreJsonStrings_ShouldConvertVariablesCorrectly(bool addHeaders)
         {
             // Arrange
+            var wrappedDataKey = new WrappedDataKey(Encoding.UTF8.GetBytes("Test key"));
             var body = Encoding.UTF8.GetBytes("Test message!");
             var properties = new BasicProperties(_testProperties);
 
@@ -51,13 +52,13 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var rejectedMessage = new RejectedMessage(_publisherName, _exchangeName, _routingKey, properties, body);
+            var rejectedMessage = new RejectedMessage(wrappedDataKey.Id, _publisherName, _exchangeName, _routingKey, properties, body);
 
             // Assert
             Assert.Equal(_publisherName, rejectedMessage.PublisherName);
             Assert.Equal(_exchangeName, rejectedMessage.ExchangeName);
             Assert.Equal(_routingKey, rejectedMessage.RoutingKey);
-            Assert.True(body.SequenceEqual(rejectedMessage.BodyEncrypted), "The body property differs.");
+            Assert.Equal(body, rejectedMessage.BodyEncrypted);
 
             CheckBasicProperties(rejectedMessage.GetBasicProperties());
         }
@@ -68,6 +69,7 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
         public void Constructor_WhenPropertiesAreByteArrays_ShouldConvertVariablesCorrectly(bool addHeaders)
         {
             // Arrange
+            var wrappedDataKey = new WrappedDataKey(Encoding.UTF8.GetBytes("Test key"));
             var body = Encoding.UTF8.GetBytes("Test message!");
             var properties = new BasicProperties(_testProperties);
 
@@ -81,13 +83,13 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var rejectedMessage = new RejectedMessage(_publisherName, _exchangeName, _routingKey, properties, body);
+            var rejectedMessage = new RejectedMessage(wrappedDataKey.Id, _publisherName, _exchangeName, _routingKey, properties, body);
 
             // Assert
             Assert.Equal(_publisherName, rejectedMessage.PublisherName);
             Assert.Equal(_exchangeName, rejectedMessage.ExchangeName);
             Assert.Equal(_routingKey, rejectedMessage.RoutingKey);
-            Assert.True(body.SequenceEqual(rejectedMessage.BodyEncrypted), "The body property differs.");
+            Assert.Equal(body, rejectedMessage.BodyEncrypted);
 
             CheckBasicProperties(rejectedMessage.GetBasicProperties());
         }
@@ -117,8 +119,8 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             Assert.Equal((string)_testHeaders["Key2"]!, key2Value);
             Assert.Equal((bool)_testHeaders["Key3"]!, key3Value);
             Assert.Equal((double)_testHeaders["Key4"]!, key4Value);
-            Assert.True(((int[])_testHeaders["Key5"]!).SequenceEqual(key5Value), "Key5 header differs.");
-            Assert.True(((byte[])_testHeaders["Key6"]!).SequenceEqual(key6Value), "Key6 header differs.");
+            Assert.Equal((int[])_testHeaders["Key5"]!, key5Value);
+            Assert.Equal((byte[])_testHeaders["Key6"]!, key6Value);
             Assert.Equal(((TestClass)_testHeaders["Key7"]!).IntValue, key7Value.IntValue);
             Assert.Equal(((TestClass)_testHeaders["Key7"]!).StrValue, key7Value.StrValue);
             Assert.Equal(((Dictionary<int, string>)_testHeaders["Key8"]!)[1], key8Value[1]);

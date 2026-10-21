@@ -19,6 +19,10 @@ namespace Shared.RabbitMq.Helpers.EntityFramework
         public string Properties { get; set; }
         public byte[] BodyEncrypted { get; set; }
 
+        // Relationships
+        public Guid WrappedDataKeyId { get; set; }
+        public WrappedDataKey WrappedDataKey { get; set; }
+
         private BasicProperties? _basicProperties = null;
 
         // Reserved for EF Core
@@ -27,12 +31,15 @@ namespace Shared.RabbitMq.Helpers.EntityFramework
         }
 
         public RejectedMessage(
+            Guid wrappedDataKeyId,
             string publisherName,
             string exchangeName,
             string routingKey,
             BasicProperties properties,
             byte[] bodyEncrypted)
         {
+            WrappedDataKeyId = wrappedDataKeyId;
+
             Id = Guid.CreateVersion7();
 
             PublisherName = publisherName;
