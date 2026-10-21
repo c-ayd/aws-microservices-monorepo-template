@@ -1,18 +1,8 @@
-using Shared.AspNetCore.Helpers.Options;
+using Shared.Aws.Helpers.Options;
 
 namespace ApiGateway.Web.Options
 {
-    public class CABundleOptions : IOptions
+    public class CABundleOptions : CABundleOptionsBase
     {
-        public static string Key => "CABundle";
-
-        public required string CurrentId { get; set; }
-        public required List<BundleInfo> Bundles { get; set; }
-
-        public class BundleInfo
-        {
-            public required string Id { get; set; }
-            public required string Value { get; set; }
-        }
     }
 }
