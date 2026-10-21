@@ -1,11 +1,11 @@
 using System.Reflection;
 using System.Text.Json;
 using AuthService.Api.BackgroundServices;
-using AuthService.Application.Abstractions.Crypto;
 using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Api.Collections;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
+using Shared.Aws.Helpers.Abstractions;
 using Shared.Crypto;
 using Shared.RabbitMq.Helpers.Structures;
 using Shared.Test.Generators;
@@ -58,18 +58,18 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
 
             // Assert
             await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthRejectedMessagesDbContext>();
-            var encrpytionVerions = _collectionCluster.AuthApiWebApp.GetService<IAesGcmEncryptionVersions>();
+            var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages
+                .Include(rm => rm.WrappedDataKey)
+                .ToListAsync();
 
-            var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages.ToListAsync();
-            Assert.Equal(rejectedMessages.Count, messagesFromDb.Count);
-
+            var encryptionKey = await _collectionCluster.AuthApiWebApp.GetService<IKeyManagement>().DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
             foreach (var rejectedMessage in rejectedMessages)
             {
                 var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == rejectedMessage.Properties.CorrelationId);
                 if (message == null)
                     Assert.Fail("One of the messages is not saved to the DB.");
 
-                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, encrpytionVerions.GetEncryptionKey, out var _);
+                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, encryptionKey, deleteKey: false);
                 Assert.Equal(rejectedMessage.Body, messageBodyDecrypted);
             }
 

@@ -1,8 +1,9 @@
-using AuthService.Application.Abstractions.Crypto;
+using System.Security.Cryptography;
 using AuthService.Application.Abstractions.MessageBrokers;
 using AuthService.Application.Options;
 using AuthService.Persistence.DbContexts;
 using Microsoft.Extensions.Options;
+using Shared.Aws.Helpers.Abstractions;
 using Shared.Crypto;
 using Shared.RabbitMq.Helpers;
 using Shared.RabbitMq.Helpers.BackgroundServices;
@@ -13,14 +14,16 @@ namespace AuthService.Api.BackgroundServices
 {
     public class RabbitMqPublisherBackgroundService : PublisherBackgroundService
     {
+        private readonly string _awsKmsAlias;
+        private readonly IKeyManagement _keyManagement;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IAesGcmEncryptionVersions _aesGcmEncryptionVersions;
 
         public RabbitMqPublisherBackgroundService(
             IOptions<ConnectionsOptions> connectionsOptions,
             IOptions<CABundleOptions> caBundleOptions,
+            IOptions<EncrpytionOptions> encryptionOptions,
+            IKeyManagement keyManagement,
             IServiceScopeFactory scopeFactory,
-            IAesGcmEncryptionVersions aesGcmEncryptionVersions,
             IEmailService emailService,
             ILogger<RabbitMqPublisherBackgroundService> logger)
             : base(
@@ -34,8 +37,9 @@ namespace AuthService.Api.BackgroundServices
             graceTime: TimeSpan.FromSeconds(5),
             logger)
         {
+            _awsKmsAlias = encryptionOptions.Value.AwsKmsAlias;
+            _keyManagement = keyManagement;
             _scopeFactory = scopeFactory;
-            _aesGcmEncryptionVersions = aesGcmEncryptionVersions;
         }
 
         protected override async Task SaveRejectedMessagesAsync(
@@ -43,28 +47,35 @@ namespace AuthService.Api.BackgroundServices
             bool isShuttingDown,
             CancellationToken cancellationToken = default)
         {
-            var messages = new List<RejectedMessage>();
+            // Encrypt messages
+            var encryptionKey = await _keyManagement.GenerateEncryptionKey(_awsKmsAlias);
+
+            var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
             foreach (var rejectedMessage in rejectedMessages)
             {
-                messages.Add(new RejectedMessage(
+                wrappedDataKey.RejectedMessages.Add(new RejectedMessage(
+                    wrappedDataKey.Id,
                     rejectedMessage.PublisherName,
                     rejectedMessage.ExchangeName,
                     rejectedMessage.RoutingKey,
                     rejectedMessage.Properties,
-                    AesGcmEncryption.Encrypt(rejectedMessage.Body, _aesGcmEncryptionVersions.CurrentVersion, _aesGcmEncryptionVersions.GetEncryptionKey)));
+                    AesGcmEncryption.Encrypt(rejectedMessage.Body, encryptionKey.Dek, deleteKey: false)));
             }
 
+            CryptographicOperations.ZeroMemory(encryptionKey.Dek);
+
+            // Save messages to database
             await using var scope = _scopeFactory.CreateAsyncScope();
             var authRejectedMessagesDbContext = scope.ServiceProvider.GetRequiredService<AuthRejectedMessagesDbContext>();
             
             if (isShuttingDown)
             {
-                await authRejectedMessagesDbContext.AddRangeAsync(messages);
+                await authRejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey);
                 await authRejectedMessagesDbContext.SaveChangesAsync();
             }
             else
             {
-                await authRejectedMessagesDbContext.AddRangeAsync(messages, cancellationToken);
+                await authRejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
                 await authRejectedMessagesDbContext.SaveChangesAsync(cancellationToken);
             }
         }

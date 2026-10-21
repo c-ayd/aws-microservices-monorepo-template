@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="10.0.10" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AuthService.Persistence\AuthService.Persistence.csproj" />
     <ProjectReference Include="..\AuthService.Infrastructure\AuthService.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.Logging\Shared.Logging.csproj" />

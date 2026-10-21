@@ -63,6 +63,8 @@ namespace AuthService.Test.Integration.Application.Collections
                     redisCertificateFolder: "Certs/Redis")
             );
 
+            await AwsFixture.CreateKekAsync("alias/auth-svc");
+
             await AwsFixture.AddSecretStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
                 new
                 {
@@ -81,6 +83,14 @@ namespace AuthService.Test.Integration.Application.Collections
                     {
                         ServerKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerKeyFilePath)),
                         ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath))
+                    }
+                }));
+            await AwsFixture.AddSecretStringAsync("template/auth-svc/encryption", JsonSerializer.Serialize(
+                new
+                {
+                    Encryption = new
+                    {
+                        AwsKmsAlias = "alias/auth-svc"
                     }
                 }));
             await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
