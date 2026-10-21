@@ -81,7 +81,8 @@ namespace Shared.Test.Integration.Redis.Helpers.BackgroundServices
 
         public class TestRedisConnection : RedisConnection
         {
-            public TestRedisConnection(RedisConnectionOptions connectionOptions) : base(connectionOptions)
+            public TestRedisConnection(RedisConnectionOptions connectionOptions, string caBundleValue)
+                : base(connectionOptions, caBundleValue)
             {
             }
 

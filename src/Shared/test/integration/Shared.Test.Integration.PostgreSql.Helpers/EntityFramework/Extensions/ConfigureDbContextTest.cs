@@ -21,7 +21,7 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
             // Arrange
             var connection = _collectionCluster.PostgreSqlFixture.GetConnectionOptions("test-db-1");
             var builder = new DbContextOptionsBuilder<TestDbContext1>();
-            builder.ConfigureDbContext(connection);
+            builder.ConfigureDbContext(connection, caBundleValue);
 
             using var dbContext = new TestDbContext1(builder.Options);
             
@@ -51,7 +51,7 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
                 MaxDelayInSeconds = 3
             };
             var builder = new DbContextOptionsBuilder<TestDbContext3>();
-            builder.ConfigureDbContext(connection);
+            builder.ConfigureDbContext(connection, caBundleValue);
 
             await _collectionCluster.ToxiProxyFixture.AddProxyAsync("DbContextProxy", connection.Host, connection.Port);
             await _collectionCluster.ToxiProxyFixture.BlockTrafficAsync("DbContextProxy", 15);
