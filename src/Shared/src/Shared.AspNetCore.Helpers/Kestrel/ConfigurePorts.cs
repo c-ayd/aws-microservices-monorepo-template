@@ -12,10 +12,13 @@ namespace Shared.AspNetCore.Helpers.Kestrel
         public static void ConfigureHttp(this KestrelServerOptions options,
             string name,
             int port,
+            HttpProtocols protocols,
             PortConfigs portConfigs)
         {
             options.ListenAnyIP(port, config =>
             {
+                config.Protocols = protocols;
+
                 // Since ports conflict with each other in tests when Kestrel is used,
                 // the port is given as 0 during tets and is resolved during runtime.
                 // The config is also saved to the portConfigs variable to find and
@@ -36,8 +39,8 @@ namespace Shared.AspNetCore.Helpers.Kestrel
             HttpProtocols protocols,
             PortConfigs portConfigs)
         {
-            var serverCertificate = TlsUtility.LoadCertificateFromFile(serverKeyFilePath, serverCertificateFilePath);
-            var serverCertificateChain = TlsUtility.LoadCertificateChainFromFile(serverCertificateFilePath, skipFirstInChain: true);
+            var serverCertificate = TlsUtility.LoadCertificate(serverKeyFilePath, serverCertificateFilePath);
+            var serverCertificateChain = TlsUtility.LoadCertificateChain(serverCertificateFilePath, skipFirstInChain: true);
 
             options.ListenAnyIP(port, config =>
             {

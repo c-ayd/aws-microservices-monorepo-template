@@ -8,7 +8,9 @@ namespace Shared.RabbitMq.Helpers.Utilities
 {
     internal static partial class Utility
     {
-        internal static ConnectionFactory SetupConnectionFactory(RabbitMqConnectionOptions connectionOptions)
+        internal static ConnectionFactory SetupConnectionFactory(
+            RabbitMqConnectionOptions connectionOptions,
+            string? caBundleValue)
         {
             var connectionFactory = new ConnectionFactory()
             {
@@ -22,7 +24,7 @@ namespace Shared.RabbitMq.Helpers.Utilities
 
             if (connectionOptions.Ssl != null)
             {
-                var caBundle = TlsUtility.LoadCertificateChainFromFile(connectionOptions.Ssl.CABundlePath);
+                var caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
                 connectionFactory.Ssl = new SslOption()
                 {
                     Enabled = true,

@@ -8,7 +8,9 @@ namespace Shared.PostgreSql.Helpers.EntityFramework.Extensions
 {
     public static partial class EFCoreExtensions
     {
-        public static void ConfigureDbContext(this DbContextOptionsBuilder builder, PostgreSqlConnectionOptions connectionOptions)
+        public static void ConfigureDbContext(this DbContextOptionsBuilder builder,
+            PostgreSqlConnectionOptions connectionOptions,
+            string? caBundleValue = null)
         {
             var connStringBuilder = new NpgsqlConnectionStringBuilder()
             {
@@ -23,7 +25,7 @@ namespace Shared.PostgreSql.Helpers.EntityFramework.Extensions
             if (connectionOptions.Ssl != null)
             {
                 connStringBuilder.SslMode = SslMode.Require;
-                caBundle = TlsUtility.LoadCertificateChainFromFile(connectionOptions.Ssl.CABundlePath);
+                caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
             }
 
             builder.UseNpgsql(connStringBuilder.ConnectionString, npgsqlOptions =>

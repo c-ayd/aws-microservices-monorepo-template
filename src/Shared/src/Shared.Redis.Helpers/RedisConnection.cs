@@ -16,7 +16,9 @@ namespace Shared.Redis.Helpers
         internal ConnectionMultiplexer? Connection { get; private set; }
         private SemaphoreSlim _connectionSemaphore = new SemaphoreSlim(1, 1);
 
-        public RedisConnection(RedisConnectionOptions connectionOptions)
+        public RedisConnection(
+            RedisConnectionOptions connectionOptions,
+            string? caBundleValue = null)
         {
             _configOptions = new ConfigurationOptions()
             {
@@ -27,7 +29,7 @@ namespace Shared.Redis.Helpers
 
             if (connectionOptions.Ssl != null)
             {
-                var caBundle = TlsUtility.LoadCertificateChainFromFile(connectionOptions.Ssl.CABundlePath);
+                var caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
                 
                 _configOptions.Ssl = true;
                 _configOptions.SslClientAuthenticationOptions = _ => new SslClientAuthenticationOptions()
