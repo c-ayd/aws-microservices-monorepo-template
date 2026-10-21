@@ -63,6 +63,8 @@ namespace AuthService.Test.Integration.Api.Collections
                     redisCertificateFolder: "Certs/Redis")
             );
 
+            await AwsFixture.CreateKekAsync("alias/auth-svc");
+
             await AwsFixture.AddSecretStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
                 new
                 {
