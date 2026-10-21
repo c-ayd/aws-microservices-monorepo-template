@@ -12,6 +12,7 @@ using Shared.AspNetCore.Helpers.DependencyInjection;
 using Shared.AspNetCore.Helpers.Kestrel;
 using Shared.AspNetCore.Helpers.Kestrel.Structures;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
+using Shared.Aws.Helpers.DependencyInjection;
 using Shared.Http.Authentication.Constants;
 using Shared.Http.Response.Middlewares;
 using Shared.Logging.DependencyInjection;
@@ -19,16 +20,24 @@ using Shared.Logging.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAwsOptions(builder.Environment.IsProduction());
+builder.Services.AddAwsSecretsManager();
+await builder.Configuration.AddAwsSecrets(builder.Services, [
+    "template/api-gateway/connections",
+    "template/certificates/ca-bundle",
+    "template/certificates/api-gateway"
+]);
+
 var portConfigs = new PortConfigs();
-var certificateOptions = builder.Configuration.GetSection(CertificateOptions.Key).Get<CertificateOptions>()!;
+var certificatesOptions = builder.Configuration.GetSection(CertificatesOptions.Key).Get<CertificatesOptions>()!;
 builder.WebHost.ConfigureKestrel(options =>
 {
     // Since YARP acts like an API gateway, it onyl accepts HTTP/1.1.
     // gRPC is used only for internal service communication.
     options.ConfigureHttps(
         name: "HttpsOnly",
-        certificateOptions.ServerKeyFilePath,
-        certificateOptions.ServerCertificateFilePath,
+        certificatesOptions.ServerKey,
+        certificatesOptions.ServerCertificate,
         port: builder.Configuration.GetValue<int>("HttpsPort"),
         HttpProtocols.Http1,
         portConfigs);
@@ -38,13 +47,18 @@ builder.Services.AddSingleton(portConfigs);
 builder.Services.AddSingleton<TokenBlacklistRedis>();
 builder.Services.AddSingleton<RateLimiterRedis>();
 builder.Services.AddHealthChecks();
+
+var caBundleOptions = builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!;
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddTransforms<ClearReservedHeadersTransform>()
     .AddTransforms<JwtBearerTransform>()
     .ConfigureHttpClient((context, handler) =>
     {
-        var caBundle = TlsUtility.LoadCertificateChainFromFile(certificateOptions.CABundlePath);
+        var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Bundles
+            .FirstOrDefault(b => b.Id == caBundleOptions.CurrentId)!
+            .Value);
+        
         handler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
         {
             return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
@@ -95,7 +109,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             RoleClaimType = ApiGatewayAuthKeys.Claims.Roles.ClaimType
         };
 
-        var caBundle = TlsUtility.LoadCertificateChainFromFile(certificateOptions.CABundlePath);
+        var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Bundles
+            .FirstOrDefault(b => b.Id == caBundleOptions.CurrentId)!
+            .Value);
+        
         options.BackchannelHttpHandler = new SocketsHttpHandler
         {
             PooledConnectionLifetime = TimeSpan.FromMinutes(5),
