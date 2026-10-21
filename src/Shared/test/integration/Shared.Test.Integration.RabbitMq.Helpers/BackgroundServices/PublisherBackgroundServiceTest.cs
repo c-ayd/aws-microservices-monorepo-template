@@ -34,12 +34,16 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         private readonly RabbitMqFixture _rabbitMqFixture;
         private readonly LoggerFixture<PublisherBackgroundServiceTest> _logger;
 
+        private string _caBundle;
+
         public PublisherBackgroundServiceTest(
             RabbitMqCollectionCluster rabbitMqCollectionCluster,
             LoggerFixture<PublisherBackgroundServiceTest> logger)
         {
             _rabbitMqFixture = rabbitMqCollectionCluster.RabbitMqFixture;
             _logger = logger;
+
+            _caBundle = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs/test-ca-bundle.crt"));
         }
 
         [Fact]
@@ -49,6 +53,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -78,6 +83,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -125,6 +131,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -182,6 +189,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -219,6 +227,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
                 _rabbitMqFixture.GetConnectionOptions(),
+                _caBundle,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -365,11 +374,12 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
             public TestBackgroundService(
                 RabbitMqConnectionOptions connectionOptions,
+                string caBundleValue,
                 List<Publisher> publishers,
                 TimeSpan publishRetryTime,
                 TimeSpan graceTime,
                 ILogger logger)
-                : base(connectionOptions, publishers, publishRetryTime, graceTime, logger)
+                : base(connectionOptions, caBundleValue, publishers, publishRetryTime, graceTime, logger)
             {
                 RejectedMessages = new List<Message>();
             }

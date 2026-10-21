@@ -10,9 +10,13 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
     {
         private PostgreSqlCollectionCluster _collectionCluster;
 
+        private string _caBundle;
+
         public ConfigureDbContextTest(PostgreSqlCollectionCluster collectionCluster)
         {
             _collectionCluster = collectionCluster;
+
+            _caBundle = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs/test-ca-bundle.crt"));
         }
 
         [Fact]
@@ -21,7 +25,7 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
             // Arrange
             var connection = _collectionCluster.PostgreSqlFixture.GetConnectionOptions("test-db-1");
             var builder = new DbContextOptionsBuilder<TestDbContext1>();
-            builder.ConfigureDbContext(connection, caBundleValue);
+            builder.ConfigureDbContext(connection, _caBundle);
 
             using var dbContext = new TestDbContext1(builder.Options);
             
@@ -51,7 +55,7 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
                 MaxDelayInSeconds = 3
             };
             var builder = new DbContextOptionsBuilder<TestDbContext3>();
-            builder.ConfigureDbContext(connection, caBundleValue);
+            builder.ConfigureDbContext(connection, _caBundle);
 
             await _collectionCluster.ToxiProxyFixture.AddProxyAsync("DbContextProxy", connection.Host, connection.Port);
             await _collectionCluster.ToxiProxyFixture.BlockTrafficAsync("DbContextProxy", 15);
