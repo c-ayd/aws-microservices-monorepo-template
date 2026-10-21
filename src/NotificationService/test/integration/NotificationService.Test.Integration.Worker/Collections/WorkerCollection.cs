@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Hosting;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using NotificationService.Worker.DbContexts;
 using NotificationService.Worker.Options;
-using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
-using Shared.PostgreSql.Helpers.Options.Extensions;
-using Shared.RabbitMq.Helpers.Options.Extensions;
+using Shared.Test.Helpers;
 using Shared.Test.Helpers.Fixtures;
 
 namespace NotificationService.Test.Integration.Worker.Collections
@@ -16,10 +14,14 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
     public class WorkerCollectionCluster : IAsyncLifetime
     {
-        public const string CABundlePath = "Certs/test-ca-bundle.crt";
+        private const string _caBundlePath = "Certs/test-ca-bundle.crt";
 
-        public const string TemplateDbName = "template-db";
+        private const string _templateDbName = "template-db";
 
+        private static int _awsPort;
+        private static int _notificationServicePort;
+
+        public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
         public RabbitMqFixture RabbitMqFixture { get; private set; }
         public SmtpFixture SmtpFixture { get; private set; }
@@ -28,6 +30,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
         public WorkerCollectionCluster()
         {
+            AwsFixture = new AwsFixture();
             PostgreSqlFixture = new PostgreSqlFixture();
             RabbitMqFixture = new RabbitMqFixture();
             SmtpFixture = new SmtpFixture();
@@ -36,29 +39,46 @@ namespace NotificationService.Test.Integration.Worker.Collections
         public async Task InitializeAsync()
         {
             await Task.WhenAll(
+                AwsFixture.InitializeAsync(),
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: CABundlePath,
+                    caBundlePath: _caBundlePath,
                     certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
                     certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     new Dictionary<string, Type>()
                     {
-                        { TemplateDbName, typeof(TemplateDbContext) }
+                        { _templateDbName, typeof(TemplateDbContext) }
                     }),
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: CABundlePath,
+                    caBundlePath: _caBundlePath,
                     rabbitMqCertificateFolder: "Certs/RabbitMq"),
                 SmtpFixture.InitializeAsync()
             );
 
+            await AwsFixture.AddSecretStringAsync("template/notification-svc/connections", JsonSerializer.Serialize(
+                new
+                {
+                    Connections = new
+                    {
+                        RabbitMq = RabbitMqFixture.GetConnectionOptions(),
+                        TemplateDb = PostgreSqlFixture.GetConnectionOptions(_templateDbName)
+                    }
+                }));
+            await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+                new
+                {
+                   CABundle = new
+                   {
+                       Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
+                   }
+                }));
+
+            _awsPort = AwsFixture.GetPort();
+            _notificationServicePort = KestrelHelper.GetFreePort();
+
             var smtpConnSettings = SmtpFixture.GetSmtpConnectionSettings();
             NotificationWebApp = new NotificationWebAppFactory(
-                new ConnectionsOptions()
-                {
-                    RabbitMq = RabbitMqFixture.GetConnectionOptions(),
-                    TemplateDb = PostgreSqlFixture.GetConnectionOptions(TemplateDbName)
-                },
                 new SmtpOptions()
                 {
                     Username = "",
@@ -85,50 +105,21 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
         public class NotificationWebAppFactory : WebAppFactoryFixture<Program>
         {
-            private readonly ConnectionsOptions _connectionsOptions;
             private readonly SmtpOptions _smtpOptions;
 
-            public NotificationWebAppFactory(
-                ConnectionsOptions connectionsOptions,
-                SmtpOptions smtpOptions)
-                : base(CABundlePath)
+            public NotificationWebAppFactory(SmtpOptions smtpOptions) : base(_caBundlePath)
             {
-                _connectionsOptions = connectionsOptions;
                 _smtpOptions = smtpOptions;
             }
 
             protected override void OverrideConfiguration(IConfigurationBuilder configuration)
             {
                 configuration.AddInMemoryCollection([
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Host)}",
-                        _connectionsOptions.TemplateDb.Host),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Port)}",
-                        _connectionsOptions.TemplateDb.Port.ToString()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Database)}",
-                        _connectionsOptions.TemplateDb.Database),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Username)}",
-                        _connectionsOptions.TemplateDb.Username),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Password)}",
-                        _connectionsOptions.TemplateDb.Password),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
-                        _connectionsOptions.TemplateDb.Ssl!.CABundlePath),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
-                        _connectionsOptions.TemplateDb.Ssl!.ServerName),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.TemplateDb)}:{nameof(PostgreSqlConnectionOptions.RetryMechanism)}",
-                        null),
+                    new KeyValuePair<string, string?>("HttpPort",
+                        _notificationServicePort.ToString()),
 
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Host)}",
-                        _connectionsOptions.RabbitMq.Host),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Port)}",
-                        _connectionsOptions.RabbitMq.Port.ToString()),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Username)}",
-                        _connectionsOptions.RabbitMq.Username),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Password)}",
-                        _connectionsOptions.RabbitMq.Password),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(SslOptions.CABundlePath)}",
-                        _connectionsOptions.RabbitMq.Ssl!.CABundlePath),
-                    new KeyValuePair<string, string?>($"{ConnectionsOptions.Key}:{nameof(ConnectionsOptions.RabbitMq)}:{nameof(RabbitMqConnectionOptions.Ssl)}:{nameof(SslOptions.ServerName)}",
-                        _connectionsOptions.RabbitMq.Ssl!.ServerName),
+                    new KeyValuePair<string, string?>($"AWS:ServiceURL",
+                        $"http://localhost:{_awsPort}"),
 
                     new KeyValuePair<string, string?>($"{SmtpOptions.Key}:{nameof(SmtpOptions.Username)}",
                         _smtpOptions.Username),
