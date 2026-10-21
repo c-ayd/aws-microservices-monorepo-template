@@ -28,6 +28,7 @@ builder.Services.AddAwsSecretsManager();
 await builder.Configuration.AddAwsSecrets([
     "template/auth-svc/connections",
     "template/auth-svc/certificates",
+    "template/auth-svc/encryption",
     "template/cert/ca-bundle"
 ]);
 
