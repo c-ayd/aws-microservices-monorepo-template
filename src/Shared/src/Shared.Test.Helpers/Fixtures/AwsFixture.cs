@@ -36,28 +36,28 @@ namespace Shared.Test.Helpers.Fixtures
             _endpoint = $"http://localhost:{GetPort()}";
 
             _awsSecretsManagerClient = new AmazonSecretsManagerClient(AwsTestConstants.Credentials,
-                new AmazonSecretsManagerConfig
+                new AmazonSecretsManagerConfig()
                 {
                     ServiceURL = _endpoint,
                     AuthenticationRegion = AwsTestConstants.Region
                 });
 
             _awsKmsClient = new AmazonKeyManagementServiceClient(AwsTestConstants.Credentials,
-                new AmazonKeyManagementServiceConfig
+                new AmazonKeyManagementServiceConfig()
                 {
                     ServiceURL = _endpoint,
                     AuthenticationRegion = AwsTestConstants.Region
                 });
 
             _awsSesClient = new AmazonSimpleEmailServiceV2Client(AwsTestConstants.Credentials,
-                new AmazonSimpleEmailServiceV2Config
+                new AmazonSimpleEmailServiceV2Config()
                 {
                     ServiceURL = _endpoint,
                     AuthenticationRegion = AwsTestConstants.Region
                 });
 
             _awsS3BucketClient = new AmazonS3Client(AwsTestConstants.Credentials,
-                new AmazonS3Config
+                new AmazonS3Config()
                 {
                     ServiceURL = _endpoint,
                     AuthenticationRegion = AwsTestConstants.Region,

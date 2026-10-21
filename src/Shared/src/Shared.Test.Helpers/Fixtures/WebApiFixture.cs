@@ -11,24 +11,28 @@ namespace Shared.Test.Helpers.Fixtures
 {
     public class WebApiFixture : WebAppFactoryFixture<Shared.Test.WebApi.Program>
     {
-        public const string HttpsPortConfigName = "HttpsOnly";
+        public const string HttpPortConfigName = "Http";
+        public const string HttpsPortConfigName = "Https";
 
         private Action<IConfigurationBuilder>? _overrideConfiguration;
         private Action<IServiceCollection, IConfiguration>? _configureServices;
         private Action<IApplicationBuilder>? _configureApp;
         private Action<IEndpointRouteBuilder>? _configureEndpoints;
 
-        private string _serverKeyFilePath;
-        private string _serverCertificateFilePath;
+        private bool _sslEnabled = false;
+        private string? _serverKeyFilePath;
+        private string? _serverKeyFileValue;
+        private string? _serverCertificateFilePath;
+        private string? _serverCertificateFileValue;
 
         public WebApiFixture(
-            string caBundlePath,
-            string serverKeyFilePath,
-            string serverCertificateFilePath)
+            string? caBundlePath,
+            string? serverKeyFilePath,
+            string? serverCertificateFilePath)
             : base(caBundlePath)
         {
-            _serverKeyFilePath = Path.Combine(AppContext.BaseDirectory, serverKeyFilePath);
-            _serverCertificateFilePath = Path.Combine(AppContext.BaseDirectory, serverCertificateFilePath);
+            _serverKeyFilePath = serverKeyFilePath;
+            _serverCertificateFilePath = serverCertificateFilePath;
         }
 
         public async Task InitializeAsync(
@@ -37,6 +41,13 @@ namespace Shared.Test.Helpers.Fixtures
             Action<IApplicationBuilder>? configureApp,
             Action<IEndpointRouteBuilder>? configureEndpoints)
         {
+            if (_serverKeyFilePath != null && _serverCertificateFilePath != null)
+            {
+                _sslEnabled = true;
+                _serverKeyFileValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverKeyFilePath));
+                _serverCertificateFileValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverCertificateFilePath));
+            }
+
             _overrideConfiguration = overrideConfiguration;
             _configureServices = configureServices;
             _configureApp = configureApp;
@@ -55,13 +66,24 @@ namespace Shared.Test.Helpers.Fixtures
             var portConfigs = new PortConfigs();
             builder.ConfigureKestrel(options =>
             {
-                options.ConfigureHttps(
-                    HttpsPortConfigName,
-                    _serverKeyFilePath,
-                    _serverCertificateFilePath,
-                    port: 0,
-                    HttpProtocols.Http1AndHttp2,
-                    portConfigs);
+                if (_sslEnabled)
+                {
+                    options.ConfigureHttps(
+                        HttpsPortConfigName,
+                        _serverKeyFileValue!,
+                        _serverCertificateFileValue!,
+                        port: 0,
+                        HttpProtocols.Http1AndHttp2,
+                        portConfigs);
+                }
+                else
+                {
+                    options.ConfigureHttp(
+                        HttpPortConfigName,
+                        port: 0,
+                        HttpProtocols.Http1AndHttp2,
+                        portConfigs);
+                }
             });
 
             builder.ConfigureServices((context, services) =>

@@ -18,7 +18,7 @@ namespace Shared.Test.Helpers.Fixtures
         private ConnectionMultiplexer _connection = null!;
 
         private bool _sslEnabled = false;
-        private string? _caBundlePath = null;
+        private string? _caBundleValue = null;
 
         public async Task InitializeAsync(
             bool sslEnabled,
@@ -31,7 +31,7 @@ namespace Shared.Test.Helpers.Fixtures
             if (sslEnabled)
             {
                 _sslEnabled = true;
-                _caBundlePath = Path.Combine(AppContext.BaseDirectory, caBundlePath!);
+                _caBundleValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, caBundlePath!));
                 _container = builder
                     .WithPortBinding(6380, true)
                     .WithResourceMapping(
@@ -50,7 +50,7 @@ namespace Shared.Test.Helpers.Fixtures
             else
             {
                 _sslEnabled = false;
-                _caBundlePath = null;
+                _caBundleValue = null;
                 _container = builder
                     .WithPortBinding(6379, true)
                     .WithCommand(
@@ -72,7 +72,7 @@ namespace Shared.Test.Helpers.Fixtures
 
             if (sslEnabled)
             {
-                var caBundle = TlsUtility.LoadCertificateChainFromFile(_caBundlePath!);
+                var caBundle = TlsUtility.LoadCertificateChain(_caBundleValue!);
 
                 configOptions.Ssl = true;
                 configOptions.SslClientAuthenticationOptions = _ => new SslClientAuthenticationOptions()
@@ -100,7 +100,6 @@ namespace Shared.Test.Helpers.Fixtures
                 AbortOnConnectionFail = true,  // For tests, it throws an exception immediately when the connection is initially not established
                 Ssl = !_sslEnabled ? null : new SslOptions()
                 {
-                    CABundlePath = _caBundlePath!,
                     ServerName = "localhost"
                 }
             };

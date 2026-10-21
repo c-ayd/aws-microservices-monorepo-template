@@ -22,7 +22,7 @@ namespace Shared.Test.Helpers.Fixtures
         public IChannel Channel { get; private set; } = null!;
 
         private bool _sslEnabled = false;
-        private string? _caBundlePath = null;
+        private string? _caBundleValue = null;
 
         public async Task InitializeAsync(
             bool sslEnabled,
@@ -38,7 +38,7 @@ namespace Shared.Test.Helpers.Fixtures
             if (sslEnabled)
             {
                 _sslEnabled = true;
-                _caBundlePath = Path.Combine(AppContext.BaseDirectory, caBundlePath!);
+                _caBundleValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, caBundlePath!));
                 _container = builder
                     .WithPortBinding(5671, true)
                     .WithResourceMapping(
@@ -49,7 +49,7 @@ namespace Shared.Test.Helpers.Fixtures
             else
             {
                 _sslEnabled = false;
-                _caBundlePath = null;
+                _caBundleValue = null;
                 _container = builder
                     .WithPortBinding(5672, true)
                     .Build();
@@ -68,8 +68,7 @@ namespace Shared.Test.Helpers.Fixtures
 
             if (_sslEnabled)
             {
-                var caBundle = TlsUtility.LoadCertificateChainFromFile(_caBundlePath!);
-
+                var caBundle = TlsUtility.LoadCertificateChain(_caBundleValue!);
                 _connectionFactory.Ssl = new SslOption()
                 {
                     Enabled = true,
@@ -99,7 +98,6 @@ namespace Shared.Test.Helpers.Fixtures
                 Password = "guest",
                 Ssl = !_sslEnabled ? null : new SslOptions()
                 {
-                    CABundlePath = _caBundlePath!,
                     ServerName = "localhost"
                 }
             };

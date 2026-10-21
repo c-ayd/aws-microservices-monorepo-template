@@ -23,9 +23,10 @@ namespace Shared.Test.Helpers.Fixtures
 
         protected List<HttpClient> HttpClients { get; private set; } = new List<HttpClient>();
 
-        public WebAppFactoryFixture(string caBundlePath)
+        public WebAppFactoryFixture(string? caBundlePath)
         {
-            _caBundle = TlsUtility.LoadCertificateChainFromFile(Path.Combine(AppContext.BaseDirectory, caBundlePath));
+            _caBundle = TlsUtility.LoadCertificateChain(
+                File.ReadAllText(Path.Combine(AppContext.BaseDirectory, caBundlePath!)));
 
             // To force WebAppFactory to use Kestrel instead of TestServer, a random port is also
             // opened as plain HTTP. Since there is change that one of the predefined ports might
