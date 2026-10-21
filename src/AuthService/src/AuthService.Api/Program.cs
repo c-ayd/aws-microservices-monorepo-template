@@ -34,11 +34,11 @@ await builder.Configuration.AddAwsSecrets([
 var portConfigs = new PortConfigs();
 builder.WebHost.ConfigureKestrel(options =>
 {
-    var certificateOptions = builder.Configuration.GetSection(CertificatesOptions.Key).Get<CertificatesOptions>()!;
+    var certificatesOptions = builder.Configuration.GetSection(CertificatesOptions.Key).Get<CertificatesOptions>()!;
     options.ConfigureHttps(
         name: "HttpsOnly",
-        certificateOptions.ServerKey,
-        certificateOptions.ServerCertificate,
+        certificatesOptions.ServerKey,
+        certificatesOptions.ServerCertificate,
         port: builder.Configuration.GetValue<int>("HttpsPort"),
         HttpProtocols.Http1,
         portConfigs);
