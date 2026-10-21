@@ -761,6 +761,7 @@
         "dependencies": {
           "Microsoft.AspNetCore.Authentication.JwtBearer": "[10.0.10, )",
           "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "Shared.Aws.Helpers": "[1.0.0, )",
           "Shared.Http": "[1.0.0, )",
           "Shared.Logging": "[1.0.0, )",
           "Shared.Redis.Helpers": "[1.0.0, )",
