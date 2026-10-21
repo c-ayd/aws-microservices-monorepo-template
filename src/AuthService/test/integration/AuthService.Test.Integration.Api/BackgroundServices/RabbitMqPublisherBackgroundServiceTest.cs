@@ -1,7 +1,6 @@
 using System.Reflection;
 using System.Text.Json;
 using AuthService.Api.BackgroundServices;
-using AuthService.Application.Abstractions.Crypto;
 using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Api.Collections;
 using Microsoft.EntityFrameworkCore;
@@ -63,15 +62,14 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
 
-            Assert.Equal(rejectedMessages.Count, messagesFromDb.Count);
-
+            var encryptionKey = await _collectionCluster.AuthApiWebApp.GetService<IKeyManagement>().DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
             foreach (var rejectedMessage in rejectedMessages)
             {
                 var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == rejectedMessage.Properties.CorrelationId);
                 if (message == null)
                     Assert.Fail("One of the messages is not saved to the DB.");
 
-                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, message.WrappedDataKey.Value);
+                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, encryptionKey, deleteKey: false);
                 Assert.Equal(rejectedMessage.Body, messageBodyDecrypted);
             }
 

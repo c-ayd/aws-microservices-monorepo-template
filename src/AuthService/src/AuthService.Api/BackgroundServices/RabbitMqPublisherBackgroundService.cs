@@ -51,10 +51,9 @@ namespace AuthService.Api.BackgroundServices
             var encryptionKey = await _keyManagement.GenerateEncryptionKey(_awsKmsAlias);
 
             var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
-            var messages = new List<RejectedMessage>();
             foreach (var rejectedMessage in rejectedMessages)
             {
-                messages.Add(new RejectedMessage(
+                wrappedDataKey.RejectedMessages.Add(new RejectedMessage(
                     wrappedDataKey.Id,
                     rejectedMessage.PublisherName,
                     rejectedMessage.ExchangeName,
@@ -71,12 +70,12 @@ namespace AuthService.Api.BackgroundServices
             
             if (isShuttingDown)
             {
-                await authRejectedMessagesDbContext.RejectedMessages.AddRangeAsync(messages);
+                await authRejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey);
                 await authRejectedMessagesDbContext.SaveChangesAsync();
             }
             else
             {
-                await authRejectedMessagesDbContext.RejectedMessages.AddRangeAsync(messages, cancellationToken);
+                await authRejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
                 await authRejectedMessagesDbContext.SaveChangesAsync(cancellationToken);
             }
         }
