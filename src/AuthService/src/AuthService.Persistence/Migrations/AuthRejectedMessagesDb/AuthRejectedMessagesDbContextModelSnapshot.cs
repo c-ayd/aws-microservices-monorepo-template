@@ -48,9 +48,45 @@ namespace AuthService.Persistence.Migrations.AuthRejectedMessagesDb
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("WrappedDataKeyId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("WrappedDataKeyId");
+
                     b.ToTable("RejectedMessages");
+                });
+
+            modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.WrappedDataKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Value")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WrappedDataKeys");
+                });
+
+            modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.RejectedMessage", b =>
+                {
+                    b.HasOne("Shared.RabbitMq.Helpers.EntityFramework.WrappedDataKey", "WrappedDataKey")
+                        .WithMany("RejectedMessages")
+                        .HasForeignKey("WrappedDataKeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WrappedDataKey");
+                });
+
+            modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.WrappedDataKey", b =>
+                {
+                    b.Navigation("RejectedMessages");
                 });
 #pragma warning restore 612, 618
         }
