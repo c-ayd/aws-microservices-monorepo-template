@@ -125,8 +125,10 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                     {
                         try
                         {
-                            await SaveRejectedMessagesAsync(_rejectedMessages.Values, isShuttingDown: false, stoppingToken);
-                            _rejectedMessages.Clear();
+                            if (await SaveRejectedMessagesAsync(_rejectedMessages.Values, _rejectedMessages.Count, isShuttingDown: false, stoppingToken))
+                            {
+                                _rejectedMessages.Clear();
+                            }
                         }
                         catch (OperationCanceledException)
                         {
@@ -150,10 +152,13 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
         /// Saves the messages that are rejected.
         /// </summary>
         /// <param name="rejectedMessages">Messages that are attempted to send to RabbitMQ many times but rejected</param>
+        /// <param name="messageCount">Number of the rejected messages</param>
         /// <param name="isShuttingDown">Whether this is the last call for saving the rejected messages</param>
         /// <param name="cancellationToken">Token to cancel the saving process</param>
-        protected abstract Task SaveRejectedMessagesAsync(
+        /// <returns>Returns a bool value representing whether the messages are saved or not.</returns>
+        protected abstract Task<bool> SaveRejectedMessagesAsync(
             IEnumerable<Message> rejectedMessages,
+            int messageCount,
             bool isShuttingDown,
             CancellationToken cancellationToken = default);
 
@@ -179,7 +184,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
             {
                 try
                 {
-                    await SaveRejectedMessagesAsync(_rejectedMessages.Values, isShuttingDown: true);
+                    await SaveRejectedMessagesAsync(_rejectedMessages.Values, _rejectedMessages.Count, isShuttingDown: true);
                 }
                 catch (Exception exception)
                 {
