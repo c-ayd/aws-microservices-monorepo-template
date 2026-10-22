@@ -64,6 +64,8 @@ namespace Shared.Test.Helpers.Fixtures
                     AuthenticationRegion = AwsTestConstants.Region,
                     ForcePathStyle = true
                 });
+
+            await SesVerifyEmailAsync(AwsTestConstants.SesFromEmail);
         }
 
         public int GetPort()
@@ -71,6 +73,7 @@ namespace Shared.Test.Helpers.Fixtures
             return _container.GetMappedPublicPort(4566);
         }
 
+        //~ Begin - AWS Secrets Manager
         public async Task AddSecretStringAsync(string name, string value)
         {
             await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
@@ -96,7 +99,9 @@ namespace Shared.Test.Helpers.Fixtures
                 SecretId = name
             });
         }
+        //~ End
 
+        //~ Begin - AWS KMS
         public async Task<string> CreateKekAsync(string? alias)
         {
             var kek = await _awsKmsClient.CreateKeyAsync(new CreateKeyRequest());
@@ -120,7 +125,9 @@ namespace Shared.Test.Helpers.Fixtures
                 AliasName = alias
             });
         }
+        //~ End
 
+        //~ Begin - AWS SES
         public async Task SesVerifyEmailAsync(string email)
         {
             await _awsSesClient.CreateEmailIdentityAsync(new CreateEmailIdentityRequest()
@@ -161,7 +168,9 @@ namespace Shared.Test.Helpers.Fixtures
 
             return result;
         }
+        //~ End
 
+        //~ Begin - AWS S3 Bucket
         public async Task CreateBucketAsync(string bucketName)
         {
             await _awsS3BucketClient.PutBucketAsync(new PutBucketRequest
@@ -221,6 +230,7 @@ namespace Shared.Test.Helpers.Fixtures
                 BucketName = bucketName
             });
         }
+        //~ End
 
         public async Task DisposeAsync()
         {
