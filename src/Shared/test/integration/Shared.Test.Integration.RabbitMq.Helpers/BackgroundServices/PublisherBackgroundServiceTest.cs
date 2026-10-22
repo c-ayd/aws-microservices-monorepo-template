@@ -384,13 +384,15 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 RejectedMessages = new List<Message>();
             }
 
-            protected override async Task SaveRejectedMessagesAsync(
+            protected override async Task<bool> SaveRejectedMessagesAsync(
                 IEnumerable<Message> rejectedMessages,
+                int messageCount,
                 bool isShuttingDown,
                 CancellationToken cancellationToken = default)
             {
                 RejectedMessages.AddRange(rejectedMessages);
                 IsShuttingDown = isShuttingDown;
+                return true;
             }
         }
 
