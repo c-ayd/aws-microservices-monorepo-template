@@ -3,13 +3,11 @@ namespace Shared.RabbitMq.Notifications.Templates
     public static class EmailTemplates
     {
         /// <summary>
-        /// This template requires the following parameters.
+        /// This template requires the following parameter:
         /// <para>
-        /// Body Parameters:
-        /// <br/>
-        /// {0} - Token value
+        /// Token
         /// </para>
         /// </summary>
-        public const string EmailVerification = "email_verification";
+        public const string EmailVerification = "email-verification";
     }
 }
