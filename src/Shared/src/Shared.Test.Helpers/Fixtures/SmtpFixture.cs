@@ -5,8 +5,9 @@ using Shared.Test.Helpers.Structures;
 
 namespace Shared.Test.Helpers.Fixtures
 {
-    public class SmtpFixture
+    public class SmtpFixture : ContainerFixtureBase
     {
+        protected override IContainer Container => _container;
         private IContainer _container = null!;
 
         public async Task InitializeAsync()

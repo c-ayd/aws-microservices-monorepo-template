@@ -13,8 +13,9 @@ using Shared.Aws.Helpers.Test;
 
 namespace Shared.Test.Helpers.Fixtures
 {
-    public class AwsFixture
+    public class AwsFixture : ContainerFixtureBase
     {
+        protected override IContainer Container => _container;
         private IContainer _container = null!;
 
         private string _endpoint = null!;

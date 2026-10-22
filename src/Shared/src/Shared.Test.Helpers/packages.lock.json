@@ -84,15 +84,6 @@
           "Testcontainers": "4.14.0"
         }
       },
-      "Testcontainers.Toxiproxy": {
-        "type": "Direct",
-        "requested": "[4.14.0, )",
-        "resolved": "4.14.0",
-        "contentHash": "90rsAbQETgMGh23L4uzrKhnHDhGjz8s/VbBR5fyaKYYsfbCvtI1QmLwE0pZw5iE6uFYK9nXjv5BfQVD/eJ6F3A==",
-        "dependencies": {
-          "Testcontainers": "4.14.0"
-        }
-      },
       "AWSSDK.Core": {
         "type": "Transitive",
         "resolved": "4.0.102.11",
