@@ -1,4 +1,5 @@
 using Shared.Aws.Helpers.Abstractions;
+using Shared.Aws.Helpers.Test;
 using Shared.Test.Generators;
 using Shared.Test.Integration.Aws.Helpers.Collections;
 
@@ -42,7 +43,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             Assert.NotNull(messageId);
             Assert.Single(sentEmails);
             Assert.Equal(messageId, sentEmails[0].MessageId);
-            Assert.Equal("test@test.com", sentEmails[0].Source);
+            Assert.Equal(AwsTestConstants.SesFromEmail, sentEmails[0].Source);
             Assert.Equal(to, sentEmails[0].To[0]);
             Assert.Equal("Subject Line, test1", sentEmails[0].Subject);
             Assert.Equal("Body test2 - test3", sentEmails[0].BodyText);

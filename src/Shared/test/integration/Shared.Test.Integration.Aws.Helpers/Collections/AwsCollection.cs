@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Shared.Aws.Helpers.DependencyInjection;
+using Shared.Aws.Helpers.Test;
 using Shared.Test.Helpers.Fixtures;
 
 namespace Shared.Test.Integration.Aws.Helpers.Collections
@@ -35,7 +36,7 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
                             $"http://localhost:{AwsFixture.GetPort()}"),
                         
                         new KeyValuePair<string, string?>($"AwsSes:FromEmailAddress",
-                            "test@test.com")
+                            AwsTestConstants.SesFromEmail)
                     ]);
                 },
                 configureServices: (services, config) =>
@@ -49,7 +50,6 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
                 configureApp: null,
                 configureEndpoints: null);
             
-            await AwsFixture.SES_VerifyEmailAsync("test@test.com");
             WebApiFixture.StartServer();
         }
 

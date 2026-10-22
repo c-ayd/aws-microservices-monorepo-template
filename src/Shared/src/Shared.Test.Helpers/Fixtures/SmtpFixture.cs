@@ -1,6 +1,7 @@
 using System.Text.Json;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
+using Shared.Aws.Helpers.Test;
 using Shared.Test.Helpers.Structures;
 
 namespace Shared.Test.Helpers.Fixtures
@@ -22,7 +23,7 @@ namespace Shared.Test.Helpers.Fixtures
         public SmtpFixtureConnectionSettings GetSmtpConnectionSettings()
         {
             return new SmtpFixtureConnectionSettings(
-                Email: "test@test.com",
+                Email: AwsTestConstants.SesFromEmail,
                 DisplayName: "Test Display Name",
                 Server: _container.Hostname,
                 Port: _container.GetMappedPublicPort(1025),
