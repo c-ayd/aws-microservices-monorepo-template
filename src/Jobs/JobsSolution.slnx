@@ -1,11 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/AuthDb.Migrations/AuthDb.Migrations.csproj" />
-    <Project Path="src/TemplateDb.Migrations/TemplateDb.Migrations.csproj" />
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/integration/">
     <Project Path="test/integration/AuthDb.Test.Integration.Migrations/AuthDb.Test.Integration.Migrations.csproj" />
-    <Project Path="test/integration/TemplateDb.Test.Integration.Migrations/TemplateDb.Test.Integration.Migrations.csproj" />
   </Folder>
 </Solution>

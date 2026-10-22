@@ -1,7 +1,0 @@
-Welcome,
-
-Please click the link below to confirm your email.
-
-{0}
-
-The link expires in {1} hour(s).

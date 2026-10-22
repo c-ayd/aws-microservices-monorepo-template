@@ -1,5 +1,0 @@
-Klicken Sie bitte auf den unten Link um Ihre neue Email zu bestätigen.
-
-{0}
-
-Der Link läuft in {1} Stunden ab.
