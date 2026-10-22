@@ -35,7 +35,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             };
 
             // Act
-            var messageId = await awsSes.SendEmailAsync([to], templateName, templateParams);
+            var messageId = await awsSes.SendEmailAsync(AwsTestConstants.SesFromEmail, [to], templateName, templateParams);
 
             // Assert
             var sentEmails = await _collectionCluster.AwsFixture.SES_GetSentEmailsAsync();
