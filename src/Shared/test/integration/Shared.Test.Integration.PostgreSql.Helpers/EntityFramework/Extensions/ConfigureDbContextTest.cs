@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
-using Shared.PostgreSql.Helpers.Options.Extensions;
 using Shared.Test.Integration.PostgreSql.Helpers.Collections;
 
 namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
@@ -45,22 +44,13 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
         public async Task EnsureCreated_WhenRetryMechanismIsDefined_ShouldRetryMechanismStart()
         {
             // Arrange
-            var connection = _collectionCluster.PostgreSqlFixture.GetConnectionOptions("test-db-3");
-            _collectionCluster.ToxiProxyFixture.GetHostAndPort(out var host, out var port);
-            connection.Host = host;
-            connection.Port = port;
-            connection.RetryMechanism = new PostgreSqlConnectionOptions.RetryMechanismOptions()
-            {
-                MaxRetry = 3,
-                MaxDelayInSeconds = 3
-            };
-            var builder = new DbContextOptionsBuilder<TestDbContext3>();
+            var connection = _collectionCluster.PostgreSqlFixture.GetConnectionOptions("test-db-2");
+            var builder = new DbContextOptionsBuilder<TestDbContext2>();
             builder.ConfigureDbContext(connection, _caBundle);
 
-            await _collectionCluster.ToxiProxyFixture.AddProxyAsync("DbContextProxy", connection.Host, connection.Port);
-            await _collectionCluster.ToxiProxyFixture.BlockTrafficAsync("DbContextProxy", 15);
+            using var dbContext = new TestDbContext2(builder.Options);
 
-            using var dbContext = new TestDbContext3(builder.Options);
+            await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
             bool isFailed = false;
@@ -68,16 +58,14 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
             {
                 await dbContext.Database.EnsureCreatedAsync();
             }
-            catch
+            catch (Exception)
             {
                 isFailed = true;
             }
-            finally
-            {
-                await _collectionCluster.ToxiProxyFixture.RemoveProxyAsync("DbContextProxy");
-            }
 
             // Assert
+            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+
             Assert.True(isFailed, "The process did not fail");
         }
 
@@ -95,15 +83,6 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
             public DbSet<TestEntity> TestEntities { get; set; }
 
             public TestDbContext2(DbContextOptions<TestDbContext2> options) : base(options)
-            {
-            }
-        }
-
-        public class TestDbContext3 : DbContext
-        {
-            public DbSet<TestEntity> TestEntities { get; set; }
-
-            public TestDbContext3(DbContextOptions<TestDbContext3> options) : base(options)
             {
             }
         }
