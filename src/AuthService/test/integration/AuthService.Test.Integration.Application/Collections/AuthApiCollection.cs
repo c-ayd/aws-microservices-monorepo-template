@@ -64,6 +64,7 @@ namespace AuthService.Test.Integration.Application.Collections
             );
 
             await AwsFixture.CreateKekAsync("alias/auth-svc");
+            await AwsFixture.CreateBucketAsync("template-graceful-shutdown");
 
             await AwsFixture.AddSecretStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
                 new
@@ -91,6 +92,14 @@ namespace AuthService.Test.Integration.Application.Collections
                     Encryption = new
                     {
                         AwsKmsAlias = "alias/auth-svc"
+                    }
+                }));
+            await AwsFixture.AddSecretStringAsync("template/auth-svc/storage", JsonSerializer.Serialize(
+                new
+                {
+                    Storage = new
+                    {
+                        AwsS3BucketName = "template-graceful-shutdown"
                     }
                 }));
             await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
