@@ -54,7 +54,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             };
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, isShuttingDown, default])!;
+            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, isShuttingDown, default])!;
 
             // Assert
             await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthRejectedMessagesDbContext>();
