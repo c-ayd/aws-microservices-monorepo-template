@@ -63,7 +63,10 @@ namespace AuthService.Application.Features.AccountEndpoints.Register
                 To: [request.Email!],
                 TemplateId: EmailTemplates.EmailVerification,
                 Language: newAccount.PreferredLanguage,
-                BodyParameters: [emailVerificationTokenValue])
+                Parameters: new Dictionary<string, string>()
+                {
+                    { "Token", emailVerificationTokenValue }
+                })
             );
 
             return JsonResponseBuilder.Success(HttpStatusCode.NoContent);
