@@ -114,7 +114,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
             var tokenBlacklistConnectionOptions = TokenBlacklistRedisFixture.GetConnectionOptions();
             var rateLimiterRedisConnectionOptions = RateLimiterRedis.GetConnectionOptions();
 
-            await AwsFixture.AddSecretStringAsync("template/api-gateway/connections", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -123,7 +123,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                         RateLimiterRedis = rateLimiterRedisConnectionOptions
                     }
                 }));
-            await AwsFixture.AddSecretStringAsync("template/api-gateway/certificates", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificate = new
@@ -132,7 +132,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                         ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificateFilePath))
                     }
                 }));
-            await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new

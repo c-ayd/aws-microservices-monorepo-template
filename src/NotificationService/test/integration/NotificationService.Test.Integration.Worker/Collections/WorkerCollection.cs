@@ -56,7 +56,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
                 SmtpFixture.InitializeAsync()
             );
 
-            await AwsFixture.AddSecretStringAsync("template/notification-svc/connections", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/notification-svc/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -65,7 +65,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
                         TemplateDb = PostgreSqlFixture.GetConnectionOptions(_templateDbName)
                     }
                 }));
-            await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                    CABundle = new
