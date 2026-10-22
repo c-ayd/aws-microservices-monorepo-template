@@ -42,8 +42,9 @@ namespace AuthService.Api.BackgroundServices
             _scopeFactory = scopeFactory;
         }
 
-        protected override async Task SaveRejectedMessagesAsync(
+        protected override async Task<bool> SaveRejectedMessagesAsync(
             IEnumerable<Message> rejectedMessages,
+            int messageCount,
             bool isShuttingDown,
             CancellationToken cancellationToken = default)
         {
@@ -78,6 +79,8 @@ namespace AuthService.Api.BackgroundServices
                 await authRejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
                 await authRejectedMessagesDbContext.SaveChangesAsync(cancellationToken);
             }
+
+            return true;
         }
     }
 }
