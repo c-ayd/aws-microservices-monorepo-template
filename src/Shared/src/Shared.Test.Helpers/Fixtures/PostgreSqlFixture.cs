@@ -1,4 +1,5 @@
 using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
 using Microsoft.EntityFrameworkCore;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
@@ -10,8 +11,9 @@ namespace Shared.Test.Helpers.Fixtures
     /// <summary>
     /// Is a DbContext for test cases requiring a DB with EF Core.
     /// </summary>
-    public class PostgreSqlFixture
+    public class PostgreSqlFixture : ContainerFixtureBase
     {
+        protected override IContainer Container => _container;
         private PostgreSqlContainer _container = null!;
         private BidirectionalDictionary<string, Type> _dbContexts = new BidirectionalDictionary<string, Type>();
 

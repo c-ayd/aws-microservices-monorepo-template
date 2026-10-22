@@ -1,6 +1,7 @@
 using System.Net.Security;
 using System.Security.Authentication;
 using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Redis.Helpers.Options.Extensions;
@@ -12,8 +13,9 @@ namespace Shared.Test.Helpers.Fixtures
     /// <summary>
     /// Is a Redis handler for test cases requiring Redis.
     /// </summary>
-    public class RedisFixture
+    public class RedisFixture : ContainerFixtureBase
     {
+        protected override IContainer Container => _container;
         private RedisContainer _container = null!;
         private ConnectionMultiplexer _connection = null!;
 

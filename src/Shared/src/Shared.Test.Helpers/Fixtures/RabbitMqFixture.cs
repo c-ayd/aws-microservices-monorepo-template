@@ -2,6 +2,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
 using RabbitMQ.Client;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
@@ -13,8 +14,9 @@ namespace Shared.Test.Helpers.Fixtures
     /// <summary>
     /// Is a RabbitMQ handler for test cases requiring RabbitMQ.
     /// </summary>
-    public class RabbitMqFixture
+    public class RabbitMqFixture : ContainerFixtureBase
     {
+        protected override IContainer Container => _container;
         private RabbitMqContainer _container = null!;
 
         private ConnectionFactory _connectionFactory { get; set; } = null!;
