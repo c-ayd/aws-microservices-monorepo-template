@@ -23,7 +23,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             // Arrange
             var id = "aws-secrets-manager/test-str";
             var value = StringGenerator.GenerateAlphanumeric();
-            await _collectionCluster.AwsFixture.AddSecretStringAsync(id, value);
+            await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(id, value);
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
 
@@ -40,7 +40,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             // Arrange
             var id = "aws-secrets-manager/test-binary";
             var value = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
-            await _collectionCluster.AwsFixture.AddSecretBinaryAsync(id, value);
+            await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(id, value);
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
 
