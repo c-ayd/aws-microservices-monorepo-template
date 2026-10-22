@@ -1,11 +1,10 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using NotificationService.Worker.Abstractions;
 using NotificationService.Worker.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Shared.Aws.Helpers.Abstractions;
 using Shared.RabbitMq.Helpers.BackgroundServices;
-using Shared.RabbitMq.Helpers.Structures;
 using Shared.RabbitMq.Notifications.Configurations;
 using Shared.RabbitMq.Notifications.Messages;
 
@@ -16,15 +15,15 @@ namespace NotificationService.Worker.BackgroundServices
         private readonly TimeSpan _retryDelayTime = TimeSpan.FromMinutes(1);
         private const int _maxRetry = 5;
 
-        private readonly ITemplateService _templateService;
-        private readonly IEmailService _emailService;
+        private readonly string _fromEmail;
+        private readonly IEmailSender _emailSender;
         private readonly ILogger<EmailBackgroundService> _logger;
 
         public EmailBackgroundService(
             IOptions<ConnectionsOptions> connectionsOptions,
             IOptions<CABundleOptions> caBundleOptions,
-            ITemplateService templateService,
-            IEmailService emailService,
+            IOptions<SmtpOptions> smtpOptions,
+            IEmailSender emailSender,
             ILogger<EmailBackgroundService> logger)
             : base(
             connectionsOptions.Value.RabbitMq,
@@ -35,8 +34,8 @@ namespace NotificationService.Worker.BackgroundServices
             prefetchCount: 1,
             logger)
         {
-            _templateService = templateService;
-            _emailService = emailService;
+            _fromEmail = smtpOptions.Value.AwsSesFromEmailAddress;
+            _emailSender = emailSender;
             _logger = logger;
         }
 
@@ -155,63 +154,15 @@ namespace NotificationService.Worker.BackgroundServices
 
                 return;
             }
-            
-            // Get email template
-            var template = _templateService.GetEmailTemplate(message.TemplateId, message.Language);
-            if (template == null)
-            {
-                if (args.BasicProperties.Headers == null || !args.BasicProperties.Headers.TryGetValue("Template-Not-Found", out var _))
-                {
-                    // The email template is not found. Wait for another recache process to retry again.
-                    var properties = new BasicProperties(args.BasicProperties);
-                    if (properties.Headers == null)
-                    {
-                        properties.Headers = new Dictionary<string, object?>();
-                    }
-                    properties.Headers.TryAdd("Template-Not-Found", true);
-                    properties.Expiration = ((int)TemplateBackgroundService.CacheDuration.TotalMilliseconds).ToString();
-
-                    await Channel!.BasicPublishAsync(
-                        exchange: EmailConfiguration.RetryExchangeName,
-                        routingKey: EmailConfiguration.RetryRoutingKey,
-                        mandatory: true,
-                        basicProperties: properties,
-                        body: args.Body);
-
-                    await Channel.BasicAckAsync(
-                        deliveryTag: args.DeliveryTag,
-                        multiple: false);
-                }
-                else
-                {
-                    _logger.LogError("The email template could not be found. Template ID-Language: {TemplateId}-{Language}, Correlation ID: {CorrelationId}, Timestamp: {Timestamp}, User ID: {UserId}",
-                        message.TemplateId,
-                        message.Language,
-                        args.BasicProperties.CorrelationId,
-                        args.BasicProperties.Timestamp,
-                        args.BasicProperties.Headers != null && args.BasicProperties.Headers.TryGetValue("UserId", out var userId) ?
-                            userId : null);
-                    
-                    // The message waited for another recache process and the template is still not found.
-                    // Thefore, the message should go to the DLQ.
-                    await Channel!.BasicRejectAsync(
-                        deliveryTag: args.DeliveryTag,
-                        requeue: false);
-                }
-
-                return;
-            }
 
             // Send email
             try
             {
-                await _emailService.SendAsync(
+                await _emailSender.SendEmailAsync(
+                    _fromEmail,
                     message.To,
-                    message.SubjectParameters != null && message.SubjectParameters.Length > 0 ?
-                        string.Format(template.Subject, message.SubjectParameters) : template.Subject,
-                    message.BodyParameters != null && message.BodyParameters.Length > 0 ?
-                        string.Format(template.Body, message.BodyParameters) : template.Body,
-                    template.IsBodyHtml);
+                    templateName: $"{message.TemplateId}-{message.Language}",
+                    message.Parameters);
 
                 await Channel!.BasicAckAsync(
                     deliveryTag: args.DeliveryTag,
