@@ -25,15 +25,16 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task SaveRejectedMessagesAsync_WhenThereAreMessages_ShouldSaveMessageInDb(bool isShuttingDown)
+        public async Task SaveRejectedMessagesAsync_WhenThereAreMessagesAndNoExceptionIsThrown_ShouldSaveMessageInDb(bool isShuttingDown)
         {
             // Arrange
             var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
-            var rejectedMessages = new List<Message>()
+            var rejectedMessages = new List<Message>();
+            for (int i = 0; i < 2; ++i)
             {
-                new Message(
+                rejectedMessages.Add(new Message(
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
@@ -41,17 +42,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                     {
                         CorrelationId = Guid.NewGuid().ToString()
                     },
-                    body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())),
-                new Message(
-                    publisherName: StringGenerator.GenerateAlphanumeric(),
-                    exchangeName: StringGenerator.GenerateAlphanumeric(),
-                    routingKey: StringGenerator.GenerateAlphanumeric(),
-                    properties: new BasicProperties()
-                    {
-                        CorrelationId = Guid.NewGuid().ToString()
-                    },
-                    body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())),
-            };
+                    body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())));
+            }
 
             // Act
             await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, isShuttingDown, default])!;
@@ -75,6 +67,125 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
 
             authRejectedMessagesDbContext.RejectedMessages.RemoveRange(messagesFromDb);
             await authRejectedMessagesDbContext.SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task SaveRejectedMessagesAsync_WhenAppIsNotShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldDoNothing()
+        {
+            // Arrange
+            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
+
+            var rejectedMessages = new List<Message>();
+            for (int i = 0; i < 2; ++i)
+            {
+                rejectedMessages.Add(new Message(
+                    publisherName: StringGenerator.GenerateAlphanumeric(),
+                    exchangeName: StringGenerator.GenerateAlphanumeric(),
+                    routingKey: StringGenerator.GenerateAlphanumeric(),
+                    properties: new BasicProperties()
+                    {
+                        CorrelationId = Guid.NewGuid().ToString()
+                    },
+                    body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())));
+            }
+
+            await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
+
+            // Act
+            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, false, default])!;
+
+            // Assert
+            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+
+            await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthRejectedMessagesDbContext>();
+            var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages
+                .Include(rm => rm.WrappedDataKey)
+                .ToListAsync();
+
+            int counter = 0;
+            foreach (var rejectedMessage in rejectedMessages)
+            {
+                var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == rejectedMessage.Properties.CorrelationId);
+                if (message != null)
+                {
+                    ++counter;
+                }
+            }
+            Assert.Equal(0, counter);
+        }
+
+        [Fact]
+        public async Task SaveRejectedMessagesAsync_WhenAppIsNotShuttinDownAndMessagesExceedMinBatchSizeAndExceptionIsThrown_ShouldSaveMessagesToStorage()
+        {
+            // Arrange
+            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
+
+            var rejectedMessages = new List<Message>();
+            var minBatchSize = (int)typeof(RabbitMqPublisherBackgroundService).GetField("_minNumberOfRejectedMessagesForFallback", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
+            for (int i = 0; i < minBatchSize; ++i)
+            {
+                rejectedMessages.Add(new Message(
+                    publisherName: StringGenerator.GenerateAlphanumeric(),
+                    exchangeName: StringGenerator.GenerateAlphanumeric(),
+                    routingKey: StringGenerator.GenerateAlphanumeric(),
+                    properties: new BasicProperties()
+                    {
+                        CorrelationId = Guid.NewGuid().ToString()
+                    },
+                    body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())));
+            }
+
+            await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
+
+            // Act
+            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, false, default])!;
+
+            // Assert
+            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+
+            var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IStorage>();
+            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-graceful-shutdown", "auth-svc");
+            Assert.Single(fileNames);
+            
+            await awsS3Bucket.DeleteFilesAsync("template-graceful-shutdown", "auth-svc", fileNames);
+        }
+
+        [Fact]
+        public async Task SaveRejectedMessagesAsync_WhenAppIsShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldSaveMessagesToStorage()
+        {
+            // Arrange
+            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
+
+            var rejectedMessages = new List<Message>();
+            for (int i = 0; i < 2; ++i)
+            {
+                rejectedMessages.Add(new Message(
+                    publisherName: StringGenerator.GenerateAlphanumeric(),
+                    exchangeName: StringGenerator.GenerateAlphanumeric(),
+                    routingKey: StringGenerator.GenerateAlphanumeric(),
+                    properties: new BasicProperties()
+                    {
+                        CorrelationId = Guid.NewGuid().ToString()
+                    },
+                    body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())));
+            }
+
+            await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
+
+            // Act
+            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, true, default])!;
+
+            // Assert
+            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+
+            var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IStorage>();
+            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-graceful-shutdown", "auth-svc");
+            Assert.Single(fileNames);
+
+            await awsS3Bucket.DeleteFilesAsync("template-graceful-shutdown", "auth-svc", fileNames);
         }
     }
 }

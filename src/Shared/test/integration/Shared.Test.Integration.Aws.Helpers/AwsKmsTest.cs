@@ -20,7 +20,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         {
             // Arrange
             var alias = "alias/aws-kms/encrypt";
-            await _collectionCluster.AwsFixture.CreateKekAsync(alias);
+            await _collectionCluster.AwsFixture.KMS_CreateKekAsync(alias);
 
             var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
 
@@ -54,7 +54,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         {
             // Arrange
             var alias = "alias/aws-kms/decrypt";
-            await _collectionCluster.AwsFixture.CreateKekAsync(alias);
+            await _collectionCluster.AwsFixture.KMS_CreateKekAsync(alias);
 
             var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
 
@@ -73,7 +73,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         {
             // Arrange
             var alias = "alias/aws-kms/encryption-key";
-            await _collectionCluster.AwsFixture.CreateKekAsync(alias);
+            await _collectionCluster.AwsFixture.KMS_CreateKekAsync(alias);
 
             var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
 

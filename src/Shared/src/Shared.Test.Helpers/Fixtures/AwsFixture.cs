@@ -64,6 +64,8 @@ namespace Shared.Test.Helpers.Fixtures
                     AuthenticationRegion = AwsTestConstants.Region,
                     ForcePathStyle = true
                 });
+
+            await SES_VerifyEmailAsync(AwsTestConstants.SesFromEmail);
         }
 
         public int GetPort()
@@ -71,7 +73,8 @@ namespace Shared.Test.Helpers.Fixtures
             return _container.GetMappedPublicPort(4566);
         }
 
-        public async Task AddSecretStringAsync(string name, string value)
+        //~ Begin - AWS Secrets Manager
+        public async Task SecretsManager_AddStringAsync(string name, string value)
         {
             await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
             {
@@ -80,7 +83,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task AddSecretBinaryAsync(string name, byte[] value)
+        public async Task SecretsManager_AddBinaryAsync(string name, byte[] value)
         {
             await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
             {
@@ -89,15 +92,17 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task DeleteSecretAsync(string name)
+        public async Task SecretsManager_DeleteAsync(string name)
         {
             await _awsSecretsManagerClient.DeleteSecretAsync(new DeleteSecretRequest()
             {
                 SecretId = name
             });
         }
+        //~ End
 
-        public async Task<string> CreateKekAsync(string? alias)
+        //~ Begin - AWS KMS
+        public async Task<string> KMS_CreateKekAsync(string? alias)
         {
             var kek = await _awsKmsClient.CreateKeyAsync(new CreateKeyRequest());
 
@@ -113,15 +118,17 @@ namespace Shared.Test.Helpers.Fixtures
             return kek.KeyMetadata.KeyId;
         }
 
-        public async Task DeleteKekAliasAsync(string alias)
+        public async Task KMS_DeleteAliasAsync(string alias)
         {
             await _awsKmsClient.DeleteAliasAsync(new DeleteAliasRequest()
             {
                 AliasName = alias
             });
         }
+        //~ End
 
-        public async Task SesVerifyEmailAsync(string email)
+        //~ Begin - AWS SES
+        public async Task SES_VerifyEmailAsync(string email)
         {
             await _awsSesClient.CreateEmailIdentityAsync(new CreateEmailIdentityRequest()
             {
@@ -129,7 +136,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task CreateSesTemplateAsync(string templateName, string subject, string body)
+        public async Task SES_CreateTemplateAsync(string templateName, string subject, string body)
         {
             await _awsSesClient.CreateEmailTemplateAsync(new CreateEmailTemplateRequest
             {
@@ -142,7 +149,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task<List<SesMessage>> GetSesSentEmailsAsync()
+        public async Task<List<SesMessage>> SES_GetSentEmailsAsync()
         {
             using var client = new HttpClient()
             {
@@ -161,8 +168,10 @@ namespace Shared.Test.Helpers.Fixtures
 
             return result;
         }
+        //~ End
 
-        public async Task CreateBucketAsync(string bucketName)
+        //~ Begin - AWS S3 Bucket
+        public async Task S3Bucket_CreateBucketAsync(string bucketName)
         {
             await _awsS3BucketClient.PutBucketAsync(new PutBucketRequest
             {
@@ -170,7 +179,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task PutObjectToBucket(string bucketName, string key, byte[] data)
+        public async Task S3Bucket_PutObjectAsync(string bucketName, string key, byte[] data)
         {
             await _awsS3BucketClient.PutObjectAsync(new PutObjectRequest()
             {
@@ -181,7 +190,7 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
-        public async Task<byte[]> GetObjectFromBucket(string bucketName, string key)
+        public async Task<byte[]> S3Bucket_GetObjectAsync(string bucketName, string key)
         {
             using var response = await _awsS3BucketClient.GetObjectAsync(new GetObjectRequest()
             {
@@ -196,7 +205,7 @@ namespace Shared.Test.Helpers.Fixtures
             return memoryStream.ToArray();
         }
 
-        public async Task<bool> FileExistsInBucket(string bucketName, string key)
+        public async Task<bool> S3Bucket_FileExists(string bucketName, string key)
         {
             try
             {
@@ -214,13 +223,14 @@ namespace Shared.Test.Helpers.Fixtures
             }
         }
 
-        public async Task DeleteBucketAsync(string bucketName)
+        public async Task S3Bucket_DeleteBucketAsync(string bucketName)
         {
             await _awsS3BucketClient.DeleteBucketAsync(new DeleteBucketRequest()
             {
                 BucketName = bucketName
             });
         }
+        //~ End
 
         public async Task DisposeAsync()
         {

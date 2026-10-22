@@ -26,10 +26,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAwsOptions(builder.Environment.IsProduction());
 builder.Services.AddAwsSecretsManager();
 builder.Services.AddAwsKms();
+builder.Services.AddAwsS3Bucket();
 await builder.Configuration.AddAwsSecrets([
     "template/auth-svc/connections",
     "template/auth-svc/certificates",
     "template/auth-svc/encryption",
+    "template/auth-svc/storage",
     "template/cert/ca-bundle"
 ]);
 

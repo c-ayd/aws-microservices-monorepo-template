@@ -63,9 +63,10 @@ namespace AuthService.Test.Integration.Api.Collections
                     redisCertificateFolder: "Certs/Redis")
             );
 
-            await AwsFixture.CreateKekAsync("alias/auth-svc");
+            await AwsFixture.KMS_CreateKekAsync("alias/auth-svc");
+            await AwsFixture.S3Bucket_CreateBucketAsync("template-graceful-shutdown");
 
-            await AwsFixture.AddSecretStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -76,7 +77,7 @@ namespace AuthService.Test.Integration.Api.Collections
                         TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
                     }
                 }));
-            await AwsFixture.AddSecretStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificate = new
@@ -85,7 +86,7 @@ namespace AuthService.Test.Integration.Api.Collections
                         ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath))
                     }
                 }));
-            await AwsFixture.AddSecretStringAsync("template/auth-svc/encryption", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/encryption", JsonSerializer.Serialize(
                 new
                 {
                     Encryption = new
@@ -93,7 +94,15 @@ namespace AuthService.Test.Integration.Api.Collections
                         AwsKmsAlias = "alias/auth-svc"
                     }
                 }));
-            await AwsFixture.AddSecretStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/storage", JsonSerializer.Serialize(
+                new
+                {
+                    Storage = new
+                    {
+                        AwsS3BucketName = "template-graceful-shutdown"
+                    }
+                }));
+            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new
@@ -132,6 +141,7 @@ namespace AuthService.Test.Integration.Api.Collections
         public async Task DisposeAsync()
         {
             await Task.WhenAll(
+                AwsFixture.DisposeAsync(),
                 PostgreSqlFixture.DisposeAsync(),
                 RabbitMqFixture.DisposeAsync(),
                 TokenBlacklistRedisFixture.DisposeAsync()

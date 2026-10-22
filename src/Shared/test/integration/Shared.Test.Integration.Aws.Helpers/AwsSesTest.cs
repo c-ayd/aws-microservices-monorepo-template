@@ -22,7 +22,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var templateName = "aws-ses/test-template";
             var subject = "Subject Line, {{param1}}";
             var body = "Body {{param2}} - {{param3}}";
-            await _collectionCluster.AwsFixture.CreateSesTemplateAsync(templateName, subject, body);
+            await _collectionCluster.AwsFixture.SES_CreateTemplateAsync(templateName, subject, body);
 
             var awsSes = _collectionCluster.WebApiFixture.GetService<IEmailSender>();
 
@@ -38,7 +38,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var messageId = await awsSes.SendEmailAsync(AwsTestConstants.SesFromEmail, [to], templateName, templateParams);
 
             // Assert
-            var sentEmails = await _collectionCluster.AwsFixture.GetSesSentEmailsAsync();
+            var sentEmails = await _collectionCluster.AwsFixture.SES_GetSentEmailsAsync();
 
             Assert.NotNull(messageId);
             Assert.Single(sentEmails);
