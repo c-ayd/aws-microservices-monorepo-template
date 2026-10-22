@@ -1,5 +1,0 @@
-Please click the link below to confirm your new email.
-
-{0}
-
-The link expires in {1} hours.

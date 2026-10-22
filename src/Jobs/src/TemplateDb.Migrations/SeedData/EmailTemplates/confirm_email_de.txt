@@ -1,7 +1,0 @@
-Willkommen,
-
-Klicken Sie bitte auf den unten Link um Ihre Email zu bestätigen.
-
-{0}
-
-Dieser Link läuft in {1} Stunden ab.
