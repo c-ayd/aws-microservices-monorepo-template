@@ -95,6 +95,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
         public async Task DisposeAsync()
         {
             await Task.WhenAll(
+                AwsFixture.DisposeAsync(),
                 PostgreSqlFixture.DisposeAsync(),
                 RabbitMqFixture.DisposeAsync(),
                 SmtpFixture.DisposeAsync()

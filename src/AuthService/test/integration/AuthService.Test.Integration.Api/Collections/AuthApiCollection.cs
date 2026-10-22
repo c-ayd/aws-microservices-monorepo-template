@@ -132,6 +132,7 @@ namespace AuthService.Test.Integration.Api.Collections
         public async Task DisposeAsync()
         {
             await Task.WhenAll(
+                AwsFixture.DisposeAsync(),
                 PostgreSqlFixture.DisposeAsync(),
                 RabbitMqFixture.DisposeAsync(),
                 TokenBlacklistRedisFixture.DisposeAsync()

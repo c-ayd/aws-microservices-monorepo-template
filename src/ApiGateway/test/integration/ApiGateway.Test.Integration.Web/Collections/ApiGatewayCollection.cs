@@ -154,6 +154,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
         public async Task DisposeAsync()
         {
             await Task.WhenAll(
+                AwsFixture.DisposeAsync(),
                 TokenBlacklistRedisFixture.DisposeAsync(),
                 RateLimiterRedis.DisposeAsync(),
                 AuthServiceFixture.DisposeWebApiAsync(),
