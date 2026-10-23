@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Shared.RabbitMq.Helpers.EntityFramework;
+using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 
 namespace AuthService.Persistence.DbContexts
 {

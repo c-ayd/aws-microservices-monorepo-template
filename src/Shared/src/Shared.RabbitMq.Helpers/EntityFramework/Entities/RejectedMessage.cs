@@ -4,7 +4,7 @@ using System.Text.Json;
 using RabbitMQ.Client;
 using Shared.RabbitMq.Helpers.JsonConverters;
 
-namespace Shared.RabbitMq.Helpers.EntityFramework
+namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
 {
     /// <summary>
     /// Holds necessary information about a rejected message for Entity Framework Core.
@@ -13,7 +13,6 @@ namespace Shared.RabbitMq.Helpers.EntityFramework
     {
         public Guid Id { get; init; }
 
-        public string PublisherName { get; set; }
         public string ExchangeName { get; set; }
         public string RoutingKey { get; set; }
         public string Properties { get; set; }
@@ -32,7 +31,6 @@ namespace Shared.RabbitMq.Helpers.EntityFramework
 
         public RejectedMessage(
             Guid wrappedDataKeyId,
-            string publisherName,
             string exchangeName,
             string routingKey,
             BasicProperties properties,
@@ -42,7 +40,6 @@ namespace Shared.RabbitMq.Helpers.EntityFramework
 
             Id = Guid.CreateVersion7();
 
-            PublisherName = publisherName;
             ExchangeName = exchangeName;
             RoutingKey = routingKey;
             Properties = JsonSerializer.Serialize(properties, new JsonSerializerOptions()

@@ -10,7 +10,7 @@ using Shared.Aws.Helpers.Abstractions;
 using Shared.Crypto;
 using Shared.RabbitMq.Helpers;
 using Shared.RabbitMq.Helpers.BackgroundServices;
-using Shared.RabbitMq.Helpers.EntityFramework;
+using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 using Shared.RabbitMq.Helpers.Structures;
 
 namespace AuthService.Api.BackgroundServices
@@ -69,7 +69,6 @@ namespace AuthService.Api.BackgroundServices
             {
                 wrappedDataKey.RejectedMessages.Add(new RejectedMessage(
                     wrappedDataKey.Id,
-                    rejectedMessage.PublisherName,
                     rejectedMessage.ExchangeName,
                     rejectedMessage.RoutingKey,
                     rejectedMessage.Properties,

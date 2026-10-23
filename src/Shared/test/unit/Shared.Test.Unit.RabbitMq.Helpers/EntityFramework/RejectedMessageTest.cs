@@ -1,13 +1,12 @@
 using System.Text;
 using System.Text.Json;
 using RabbitMQ.Client;
-using Shared.RabbitMq.Helpers.EntityFramework;
+using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 
 namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
 {
     public class RejectedMessageTest
     {
-        private const string _publisherName = "TestPublisher";
         private const string _exchangeName = "shared.rabbitmq.helpers.rejectedmessage.exchange";
         private const string _routingKey = "shared.rabbitmq.helpers.rejectedmessage.routing";
 
@@ -52,10 +51,9 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var rejectedMessage = new RejectedMessage(wrappedDataKey.Id, _publisherName, _exchangeName, _routingKey, properties, body);
+            var rejectedMessage = new RejectedMessage(wrappedDataKey.Id, _exchangeName, _routingKey, properties, body);
 
             // Assert
-            Assert.Equal(_publisherName, rejectedMessage.PublisherName);
             Assert.Equal(_exchangeName, rejectedMessage.ExchangeName);
             Assert.Equal(_routingKey, rejectedMessage.RoutingKey);
             Assert.Equal(body, rejectedMessage.BodyEncrypted);
@@ -83,10 +81,9 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var rejectedMessage = new RejectedMessage(wrappedDataKey.Id, _publisherName, _exchangeName, _routingKey, properties, body);
+            var rejectedMessage = new RejectedMessage(wrappedDataKey.Id, _exchangeName, _routingKey, properties, body);
 
             // Assert
-            Assert.Equal(_publisherName, rejectedMessage.PublisherName);
             Assert.Equal(_exchangeName, rejectedMessage.ExchangeName);
             Assert.Equal(_routingKey, rejectedMessage.RoutingKey);
             Assert.Equal(body, rejectedMessage.BodyEncrypted);
