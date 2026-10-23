@@ -5,7 +5,7 @@ using Shared.AspNetCore.Helpers.Options;
 using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 
-namespace Initializer.Db
+namespace Initializer.Databases
 {
     public static class Utility
     {

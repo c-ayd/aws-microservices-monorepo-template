@@ -1,7 +1,7 @@
 using Initializer.Databases.Rollouts;
 using Shared.AspNetCore.Helpers.Options;
 
-namespace Initializer.Db.Options
+namespace Initializer.Databases.Options
 {
     public class SeedDataOptions : IOptions
     {

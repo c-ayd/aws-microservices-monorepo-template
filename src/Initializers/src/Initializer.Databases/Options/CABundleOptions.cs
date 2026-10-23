@@ -1,6 +1,6 @@
 using Shared.Aws.Helpers.Options;
 
-namespace Initializer.Db.Options
+namespace Initializer.Databases.Options
 {
     public class CABundleOptions : CABundleOptionsBase
     {

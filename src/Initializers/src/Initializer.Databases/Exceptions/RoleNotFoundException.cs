@@ -1,4 +1,4 @@
-namespace Initializer.Db.Exceptions
+namespace Initializer.Databases.Exceptions
 {
     public class RoleNotFoundException : Exception
     {

@@ -1,7 +1,7 @@
 using Shared.AspNetCore.Helpers.Options;
 using Shared.PostgreSql.Helpers.Options.Extensions;
 
-namespace Initializer.Db.Options
+namespace Initializer.Databases.Options
 {
     public class ConnectionsOptions : IOptions
     {

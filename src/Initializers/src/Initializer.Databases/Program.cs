@@ -1,11 +1,11 @@
 ﻿using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
-using Initializer.Db.Options;
+using Initializer.Databases.Options;
 using Microsoft.EntityFrameworkCore;
 using Shared.Aws.Helpers.Test;
 using Initializer.Databases.Rollouts;
 
-namespace Initializer.Db
+namespace Initializer.Databases
 {
     public class Program
     {

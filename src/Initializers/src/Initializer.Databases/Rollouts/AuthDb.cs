@@ -1,8 +1,7 @@
 using AuthService.Domain.Entities;
 using AuthService.Persistence.DbContexts;
-using Initializer.Db;
-using Initializer.Db.Exceptions;
-using Initializer.Db.Options;
+using Initializer.Databases.Exceptions;
+using Initializer.Databases.Options;
 using Microsoft.EntityFrameworkCore;
 using Shared.Constants;
 using Shared.PostgreSql.Helpers.Options.Extensions;
