@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Initializer.Databases/Initializer.Databases.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+  <Folder Name="/test/integration/">
+    <Project Path="test/integration/Initializer.Test.Integration.Databases/Initializer.Test.Integration.Databases.csproj" />
+  </Folder>
+</Solution>
