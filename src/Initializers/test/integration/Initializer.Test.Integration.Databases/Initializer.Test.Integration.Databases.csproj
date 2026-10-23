@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Initializer.Databases\Initializer.Databases.csproj" />
+    <ProjectReference Include="..\..\..\..\Shared\src\Shared.Test.Helpers\Shared.Test.Helpers.csproj" />
   </ItemGroup>
 
 </Project>
