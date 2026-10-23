@@ -7,4 +7,10 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\src\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Aws.Helpers\Shared.Aws.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Logging\Shared.Logging.csproj" />
+  </ItemGroup>
+
 </Project>

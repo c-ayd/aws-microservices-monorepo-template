@@ -1,41 +1,47 @@
+using System.Reflection;
+using Shared.AspNetCore.Helpers.DependencyInjection;
+using Shared.Logging.DependencyInjection;
+using Shared.AspNetCore.Helpers.Kestrel;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Shared.Aws.Helpers.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddAwsOptions(builder.Environment.IsProduction());
+builder.Services.AddAwsSecretsManager();
+builder.Services.AddAwsS3Bucket();
+await builder.Configuration.AddAwsSecrets([
+    "template/recovery-svc/connections",
+    "template/recovery-svc/secrets",
+    "template/cert/ca-bundle"
+]);
+
+var portConfigs = new PortConfigs();
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // Recovery service does not have to talk with any other services.
+    // Its job is to handle rejected messages for RabbitMQ. The only
+    // exposed endpoint is the health check endpoint, which can be
+    // plain HTTP instead of HTTPS.
+    options.ConfigureHttp(
+        name: "Http",
+        port: builder.Configuration.GetValue<int>("HttpPort"),
+        HttpProtocols.Http1,
+        portConfigs);
+});
+builder.Services.AddSingleton(portConfigs);
+
+builder.Services.AddHealthChecks();
+
+builder.RegisterOptionsFromAssembly(Assembly.GetExecutingAssembly());
+
+builder.Logging.AddStructuredConsoleLogging(
+    builder.Environment.IsProduction(),
+    healthEndpoint: "/health");
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.MapHealthChecks("/health");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
