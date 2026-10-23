@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
+    <ProjectReference Include="..\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />
   </ItemGroup>
 
 </Project>
