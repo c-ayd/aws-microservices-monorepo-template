@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Initializer.Databases/Initializer.Databases.csproj" />
+  </Folder>
+</Solution>
