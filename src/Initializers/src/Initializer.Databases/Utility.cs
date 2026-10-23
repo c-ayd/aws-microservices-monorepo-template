@@ -9,6 +9,30 @@ namespace Initializer.Db
 {
     public static class Utility
     {
+        public static string? GetArgsValue(string[] args, IEnumerable<string> keys)
+        {
+            for (int i = 0; i < args.Length; ++i)
+            {
+                if (keys.Contains(args[i]))
+                {
+                    return args[i + 1];
+                }
+            }
+
+            return null;
+        }
+
+        public static T? DeserializeOptions<T>(string jsonString)
+            where T : class, IOptions
+        {
+            using var jsonDoc = JsonDocument.Parse(jsonString);
+            var key = (string)typeof(T).GetProperty(nameof(IOptions.Key), BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)!.GetValue(null)!;
+            if (!jsonDoc.RootElement.TryGetProperty(key, out var jsonElement))
+                return null;
+
+            return jsonElement.Deserialize<T>();
+        }
+
         public static T CreateDbContext<T>(PostgreSqlConnectionOptions connectionOptions, string? caBundleValue)
         {
             var dbContextType = typeof(T);
