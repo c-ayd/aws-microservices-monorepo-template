@@ -38,6 +38,45 @@ namespace Shared.Aws.Helpers
             return response.SecretString;
         }
 
+        public async Task<Dictionary<string, string>> GetMultipleSecretStringsAsync(
+            IEnumerable<string> ids,
+            bool cache = true,
+            CancellationToken cancellationToken = default)
+        {
+            var secrets = new Dictionary<string, string>();
+            var idsToFetch = new List<string>();
+            foreach (var id in ids)
+            {
+                if (_cacheString.TryGetValue(id, out var value))
+                {
+                    secrets.Add(id, value);
+                }
+                else
+                {
+                    idsToFetch.Add(id);
+                }
+            }
+
+            if (idsToFetch.Count == 0)
+                return secrets;
+
+            var response = await _awsSecretsManager.BatchGetSecretValueAsync(new BatchGetSecretValueRequest()
+            {
+                SecretIdList = idsToFetch
+            }, cancellationToken);
+
+            foreach (var secretValue in response.SecretValues)
+            {
+                secrets.Add(secretValue.Name, secretValue.SecretString);
+                if (cache)
+                {
+                    _cacheString.AddOrUpdate(secretValue.Name, secretValue.SecretString, (key, oldValue) => secretValue.SecretString);
+                }
+            }
+
+            return secrets;
+        }
+
         public async Task<byte[]> GetSecretBinaryAsync(
             string id,
             bool cache = true,
@@ -58,6 +97,46 @@ namespace Shared.Aws.Helpers
             }
 
             return value;
+        }
+
+        public async Task<Dictionary<string, byte[]>> GetMultipleSecretBinariesAsync(
+            IEnumerable<string> ids,
+            bool cache = true,
+            CancellationToken cancellationToken = default)
+        {
+            var secrets = new Dictionary<string, byte[]>();
+            var idsToFetch = new List<string>();
+            foreach (var id in ids)
+            {
+                if (_cacheBinary.TryGetValue(id, out var value))
+                {
+                    secrets.Add(id, value);
+                }
+                else
+                {
+                    idsToFetch.Add(id);
+                }
+            }
+
+            if (idsToFetch.Count == 0)
+                return secrets;
+
+            var response = await _awsSecretsManager.BatchGetSecretValueAsync(new BatchGetSecretValueRequest()
+            {
+                SecretIdList = idsToFetch
+            }, cancellationToken);
+
+            foreach (var secretValue in response.SecretValues)
+            {
+                var value = secretValue.SecretBinary.ToArray();
+                secrets.Add(secretValue.Name, value);
+                if (cache)
+                {
+                    _cacheBinary.AddOrUpdate(secretValue.Name, value, (key, oldValue) => value);
+                }
+            }
+
+            return secrets;
         }
     }
 }
