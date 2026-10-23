@@ -27,9 +27,9 @@
       "problemMatcher": []
     },
     {
-      "label": "Build Jobs",
+      "label": "Build Initializers",
       "type": "shell",
-      "command": "dotnet build src/Jobs/JobsSolution.slnx",
+      "command": "dotnet build src/Initializers/InitializersSolution.slnx",
       "problemMatcher": []
     },
 
