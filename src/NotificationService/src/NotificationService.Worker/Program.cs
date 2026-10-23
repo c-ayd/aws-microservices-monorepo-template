@@ -14,7 +14,7 @@ builder.Services.AddAwsSecretsManager();
 builder.Services.AddAwsSes();
 await builder.Configuration.AddAwsSecrets([
     "template/notification-svc/connections",
-    "template/notification-svc/smtp",
+    "template/notification-svc/secrets",
     "template/cert/ca-bundle"
 ]);
 

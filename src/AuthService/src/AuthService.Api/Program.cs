@@ -30,8 +30,7 @@ builder.Services.AddAwsS3Bucket();
 await builder.Configuration.AddAwsSecrets([
     "template/auth-svc/connections",
     "template/auth-svc/certificates",
-    "template/auth-svc/encryption",
-    "template/auth-svc/storage",
+    "template/auth-svc/secrets",
     "template/cert/ca-bundle"
 ]);
 
