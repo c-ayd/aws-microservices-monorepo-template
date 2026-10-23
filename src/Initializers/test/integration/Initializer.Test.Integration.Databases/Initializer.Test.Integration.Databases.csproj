@@ -24,4 +24,10 @@
     <ProjectReference Include="..\..\..\..\Shared\src\Shared.Test.Helpers\Shared.Test.Helpers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/PostgreSql/test-postgresql-server.key" Link="Certs/PostgreSql/test-postgresql-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/PostgreSql/test-postgresql-server.crt" Link="Certs/PostgreSql/test-postgresql-server.crt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
