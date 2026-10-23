@@ -6,8 +6,7 @@ using AuthService.Application.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
-using Microsoft.EntityFrameworkCore;
-using Shared.PostgreSql.Helpers.Options.Extensions;
+using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 
 namespace AuthService.Persistence
 {
@@ -22,7 +21,7 @@ namespace AuthService.Persistence
             });
             services.AddScoped<IAuthDbContext>(sp => sp.GetRequiredService<AuthDbContext>());
 
-            services.AddDbContext<AuthRejectedMessagesDbContext>(builder =>
+            services.AddDbContext<RejectedMessagesDbContext>(builder =>
             {
                 builder.ConfigureDbContext(configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.AuthRejectedMessagesDb,
                     configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);

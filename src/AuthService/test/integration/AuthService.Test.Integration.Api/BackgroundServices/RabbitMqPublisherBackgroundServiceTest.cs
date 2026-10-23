@@ -1,12 +1,12 @@
 using System.Reflection;
 using System.Text.Json;
 using AuthService.Api.BackgroundServices;
-using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Api.Collections;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using Shared.Aws.Helpers.Abstractions;
 using Shared.Crypto;
+using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 using Shared.RabbitMq.Helpers.Structures;
 using Shared.Test.Generators;
 
@@ -49,7 +49,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, isShuttingDown, default])!;
 
             // Assert
-            await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthRejectedMessagesDbContext>();
+            await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
             var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
@@ -98,7 +98,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
 
-            await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthRejectedMessagesDbContext>();
+            await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
             var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();

@@ -4,12 +4,12 @@ using System.Text;
 using System.Text.Json;
 using AuthService.Application.Abstractions.MessageBrokers;
 using AuthService.Application.Options;
-using AuthService.Persistence.DbContexts;
 using Microsoft.Extensions.Options;
 using Shared.Aws.Helpers.Abstractions;
 using Shared.Crypto;
 using Shared.RabbitMq.Helpers;
 using Shared.RabbitMq.Helpers.BackgroundServices;
+using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 using Shared.RabbitMq.Helpers.Structures;
 
@@ -79,7 +79,7 @@ namespace AuthService.Api.BackgroundServices
 
             // Save messages to database
             await using var scope = _scopeFactory.CreateAsyncScope();
-            var authRejectedMessagesDbContext = scope.ServiceProvider.GetRequiredService<AuthRejectedMessagesDbContext>();
+            var authRejectedMessagesDbContext = scope.ServiceProvider.GetRequiredService<RejectedMessagesDbContext>();
 
             try
             {
