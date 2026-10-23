@@ -49,7 +49,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
                         RabbitMq = RabbitMqFixture.GetConnectionOptions()
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/notification-svc/smtp", JsonSerializer.Serialize(
+            await AwsFixture.SecretsManager_AddStringAsync("template/notification-svc/secrets", JsonSerializer.Serialize(
                 new
                 {
                     Smtp = new
