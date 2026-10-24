@@ -1,3 +1,4 @@
+using System.Reflection;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Microsoft.EntityFrameworkCore;
@@ -136,6 +137,18 @@ namespace Shared.Test.Helpers.Fixtures
             }
 
             await dbContext.Database.MigrateAsync();
+        }
+
+        public async Task DropAllDatabasesAsync()
+        {
+            var dropDatabaseMethod = typeof(PostgreSqlFixture)
+                .GetMethod(nameof(PostgreSqlFixture.DropDatabaseAsync), BindingFlags.Public | BindingFlags.Instance)!;
+
+            foreach (var dbContext in _dbContexts)
+            {
+                var method = dropDatabaseMethod.MakeGenericMethod([dbContext.Value]);
+                method.Invoke(this, null);
+            }
         }
 
         public async Task DisposeAsync()
