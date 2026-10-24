@@ -675,14 +675,6 @@
           "Testcontainers": "4.14.0"
         }
       },
-      "Testcontainers.Toxiproxy": {
-        "type": "Transitive",
-        "resolved": "4.14.0",
-        "contentHash": "90rsAbQETgMGh23L4uzrKhnHDhGjz8s/VbBR5fyaKYYsfbCvtI1QmLwE0pZw5iE6uFYK9nXjv5BfQVD/eJ6F3A==",
-        "dependencies": {
-          "Testcontainers": "4.14.0"
-        }
-      },
       "xunit.abstractions": {
         "type": "Transitive",
         "resolved": "2.0.3",
@@ -757,7 +749,8 @@
         "type": "Project",
         "dependencies": {
           "RabbitMQ.Client": "[7.2.1, )",
-          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+          "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "Shared.PostgreSql.Helpers": "[1.0.0, )"
         }
       },
       "shared.redis.helpers": {
@@ -785,8 +778,7 @@
           "Testcontainers": "[4.14.0, )",
           "Testcontainers.PostgreSql": "[4.14.0, )",
           "Testcontainers.RabbitMq": "[4.14.0, )",
-          "Testcontainers.Redis": "[4.14.0, )",
-          "Testcontainers.Toxiproxy": "[4.14.0, )"
+          "Testcontainers.Redis": "[4.14.0, )"
         }
       },
       "shared.test.webapi": {

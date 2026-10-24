@@ -2,6 +2,7 @@ using System.Text.Json;
 using AuthService.Application.Options;
 using AuthService.Persistence.DbContexts;
 using Microsoft.Extensions.Configuration;
+using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 using Shared.Test.Helpers;
 using Shared.Test.Helpers.Fixtures;
 
@@ -51,7 +52,7 @@ namespace AuthService.Test.Integration.Application.Collections
                     new Dictionary<string, Type>()
                     {
                         { _authDbName, typeof(AuthDbContext) },
-                        { _authRejectedMessagesDbName, typeof(AuthRejectedMessagesDbContext) }
+                        { _authRejectedMessagesDbName, typeof(RejectedMessagesDbContext) }
                     }),
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,

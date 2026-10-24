@@ -1,4 +1,4 @@
-using Shared.RabbitMq.Helpers.EntityFramework;
+using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 
 namespace Shared.RabbitMq.Helpers.Structures
 {
@@ -20,7 +20,6 @@ namespace Shared.RabbitMq.Helpers.Structures
 
         public class Message
         {
-            public string PublisherName { get; set; }
             public string ExchangeName { get; set; }
             public string RoutingKey { get; set; }
             public string Properties { get; set; }
@@ -28,7 +27,6 @@ namespace Shared.RabbitMq.Helpers.Structures
 
             public Message(RejectedMessage rejectedMessage)
             {
-                PublisherName = rejectedMessage.PublisherName;
                 ExchangeName = rejectedMessage.ExchangeName;
                 RoutingKey = rejectedMessage.RoutingKey;
                 Properties = rejectedMessage.Properties;
