@@ -74,5 +74,28 @@ namespace ApiGateway.Test.Integration.Web
 
             Assert.Equal(HttpStatusCode.TooManyRequests, rejectedResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task RateLimiter_WhenRedisIsDown_ShouldAllowTrafficUntilRedisIsUp()
+        {
+            // Arrange
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
+            var token = await tokenResponse.Content.ReadAsStringAsync();
+
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
+
+            // Act
+            await _collectionCluster.RateLimiterRedis.BlockTrafficAsync();
+            var responseRedisDown = await apiGatewayClient.GetAsync("/auth");
+
+            await _collectionCluster.RateLimiterRedis.UnblockTrafficAsync();
+            var responseRedisUp = await apiGatewayClient.GetAsync("/auth");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.NoContent, responseRedisDown.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, responseRedisUp.StatusCode);
+        }
     }
 }
