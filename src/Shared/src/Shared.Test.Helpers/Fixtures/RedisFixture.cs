@@ -28,6 +28,9 @@ namespace Shared.Test.Helpers.Fixtures
             string? caBundlePath = null,
             string? redisCertificateFolder = null)
         {
+            if (IsInitialized)
+                return;
+            
             var builder = new RedisBuilder("redis:8.10")
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Ready to accept connections"));
 
@@ -91,6 +94,8 @@ namespace Shared.Test.Helpers.Fixtures
             }
 
             _connection = await ConnectionMultiplexer.ConnectAsync(configOptions);
+
+            IsInitialized = true;
         }
 
         public RedisConnectionOptions GetConnectionOptions()

@@ -29,6 +29,9 @@ namespace Shared.Test.Helpers.Fixtures
             Dictionary<string, Type>? dbContexts = null,
             bool runMigrations = true)
         {
+            if (IsInitialized)
+                return;
+            
             var builder = new PostgreSqlBuilder("postgres:18.4")
                 .WithPortBinding(5432, true)
                 .WithUsername("postgres")
@@ -67,6 +70,8 @@ namespace Shared.Test.Helpers.Fixtures
                     }
                 }
             }
+
+            IsInitialized = true;
         }
 
         public PostgreSqlConnectionOptions GetConnectionOptions(string dbName)

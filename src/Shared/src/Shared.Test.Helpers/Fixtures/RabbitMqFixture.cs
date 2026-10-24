@@ -32,6 +32,9 @@ namespace Shared.Test.Helpers.Fixtures
             string? caBundlePath = null,
             string? rabbitMqCertificateFolder = null)
         {
+            if (IsInitialized)
+                return;
+            
             var builder = new RabbitMqBuilder("rabbitmq:4.3.4-management")
                 .WithPortBinding(15672, true)
                 .WithEnvironment("RABBITMQ_DEFAULT_USER", "guest")
@@ -89,6 +92,8 @@ namespace Shared.Test.Helpers.Fixtures
             Channel = await Connection.CreateChannelAsync(new CreateChannelOptions(
                 publisherConfirmationsEnabled: true,
                 publisherConfirmationTrackingEnabled: true));
+
+            IsInitialized = true;
         }
 
         public RabbitMqConnectionOptions GetConnectionOptions()

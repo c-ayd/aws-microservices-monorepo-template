@@ -27,6 +27,9 @@ namespace Shared.Test.Helpers.Fixtures
 
         public async Task InitializeAsync()
         {
+            if (IsInitialized)
+                return;
+
             _container = new ContainerBuilder("ministackorg/ministack:latest")
                 .WithPortBinding(4566, true)
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged("Running on"))
@@ -67,6 +70,8 @@ namespace Shared.Test.Helpers.Fixtures
                 });
 
             await SES_VerifyEmailAsync(AwsTestConstants.SesFromEmail);
+
+            IsInitialized = true;
         }
 
         public int GetPort()
