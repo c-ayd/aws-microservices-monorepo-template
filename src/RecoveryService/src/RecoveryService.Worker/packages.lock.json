@@ -152,6 +152,9 @@
           "Shared.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
+      "shared.crypto": {
+        "type": "Project"
+      },
       "shared.http": {
         "type": "Project",
         "dependencies": {
