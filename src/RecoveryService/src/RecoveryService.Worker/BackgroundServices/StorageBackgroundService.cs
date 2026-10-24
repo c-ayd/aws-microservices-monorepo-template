@@ -1,0 +1,123 @@
+using System.Net.Mime;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Options;
+using RecoveryService.Worker.BackgroundServices.SeedWork;
+using RecoveryService.Worker.Options;
+using Shared.Aws.Helpers.Abstractions;
+using Shared.Crypto;
+using Shared.RabbitMq.Helpers.Structures;
+
+namespace RecoveryService.Worker.BackgroundServices
+{
+    public class StorageBackgroundService : RepublishBackgroundServiceBase
+    {
+        private readonly StorageOptions _storageOptions;
+        private readonly IStorage _storage;
+        private readonly IKeyManagement _keyManagement;
+        private readonly ILogger<StorageBackgroundService> _logger;
+
+        public StorageBackgroundService(
+            IOptions<ConnectionsOptions> connectionsOptions,
+            IOptions<CABundleOptions> caBundleOptions,
+            IOptions<StorageOptions> storageOptions,
+            IStorage storage,
+            IKeyManagement keyManagement,
+            ILogger<StorageBackgroundService> logger)
+            : base(
+            connectionsOptions.Value.RabbitMq,
+            caBundleOptions.Value.Value,
+            sleepTime: TimeSpan.FromSeconds(10),
+            logger)
+        {
+            _storageOptions = storageOptions.Value;
+            _storage = storage;
+            _keyManagement = keyManagement;
+            _logger = logger;
+        }
+
+        protected override async Task RepublishAsync(CancellationToken cancellationToken)
+        {
+            foreach (var folder in _storageOptions.Folders)
+            {
+                await RepublishRejectedMessagesInStorageAsync(_storageOptions.AwsS3BucketName, folder, cancellationToken);
+            }
+        }
+
+        private async Task RepublishRejectedMessagesInStorageAsync(
+            string bucketName,
+            string folder,
+            CancellationToken cancellationToken)
+        {
+            var fileNames = await _storage.GetFileNamesUnderFolderAsync(bucketName, folder, cancellationToken);
+            if (fileNames.Count == 0)
+                return;
+
+            foreach (var fileName in fileNames)
+            {
+                var fileContent = await _storage.DownloadFileAsync(bucketName, folder, fileName, cancellationToken);
+                var json = Encoding.UTF8.GetString(fileContent.ToArray());
+                var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(json)!;
+
+                var encryptionKey = await _keyManagement.DecryptAsync(messageFileContent.WrappedDataKey, aad: null, cancellationToken);
+                foreach (var rejectedMessage in messageFileContent.Messages)
+                {
+                    // To spend less time having the encryption key in the memory, the encrpytion process for the entire batch
+                    // needs to be done first. Once the encryption is done, the plain body is saved into the BodyEncrpyted property
+                    // and is used normal message body while republishing these rejected messages.
+                    rejectedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(rejectedMessage.BodyEncrypted, encryptionKey, deleteKey: false);
+                }
+                CryptographicOperations.ZeroMemory(encryptionKey);
+
+                var messagesToRemove = new List<string>();
+                foreach (var rejectedMessage in messageFileContent.Messages)
+                {
+                    try
+                    {
+                        var properties = rejectedMessage.GetBasicProperties();
+                        await Channel!.BasicPublishAsync(
+                            rejectedMessage.ExchangeName,
+                            rejectedMessage.RoutingKey,
+                            mandatory: true,
+                            properties,
+                            rejectedMessage.BodyEncrypted,
+                            cancellationToken);
+
+                        messagesToRemove.Add(properties.CorrelationId!);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.LogError(exception, "Something went wrong. Message: {Message}",
+                            exception.Message);
+                    }
+                }
+
+                if (messageFileContent.Messages.Count == messagesToRemove.Count)
+                {
+                    await _storage.DeleteFileAsync(bucketName, folder, fileName);
+                }
+                else
+                {
+                    // If some messages could not be republished, the remaining messages are saved
+                    // to the same file while overriding the file. So that, they can be processed later.
+                    messageFileContent.Messages = messageFileContent.Messages
+                        .Where(m => !messagesToRemove.Contains(m.GetBasicProperties().CorrelationId!))
+                        .ToList();
+
+                    var jsonString = JsonSerializer.Serialize(messageFileContent);
+                    await _storage.UploadFileAsync(
+                        bucketName,
+                        folder,
+                        fileName,
+                        content: Encoding.UTF8.GetBytes(jsonString),
+                        contentType: MediaTypeNames.Application.Json);
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,61 @@
+using System.Reflection;
+using Shared.AspNetCore.Helpers.DependencyInjection;
+using Shared.Logging.DependencyInjection;
+using Shared.AspNetCore.Helpers.Kestrel;
+using Shared.AspNetCore.Helpers.Kestrel.Structures;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Shared.Aws.Helpers.DependencyInjection;
+using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
+using RecoveryService.Worker.Options;
+using RecoveryService.Worker.BackgroundServices;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAwsOptions(builder.Environment.IsProduction());
+builder.Services.AddAwsSecretsManager();
+builder.Services.AddAwsS3Bucket();
+builder.Services.AddAwsKms();
+await builder.Configuration.AddAwsSecrets([
+    "template/recovery-svc/connections",
+    "template/recovery-svc/secrets",
+    "template/cert/ca-bundle"
+]);
+
+var portConfigs = new PortConfigs();
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // Recovery service does not have to talk with any other services.
+    // Its job is to handle rejected messages for RabbitMQ. The only
+    // exposed endpoint is the health check endpoint, which can be
+    // plain HTTP instead of HTTPS.
+    options.ConfigureHttp(
+        name: "Http",
+        port: builder.Configuration.GetValue<int>("HttpPort"),
+        HttpProtocols.Http1,
+        portConfigs);
+});
+builder.Services.AddSingleton(portConfigs);
+
+builder.Services.AddHostedService<DatabaseBackgroundService>();
+builder.Services.AddHostedService<StorageBackgroundService>();
+
+builder.Services.AddDbContext<RejectedMessagesDbContext>(optionsBuilder =>
+{
+    optionsBuilder.ConfigureDbContext(builder.Configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.RejectedMessagesDb,
+        builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
+});
+
+builder.Services.AddHealthChecks();
+
+builder.RegisterOptionsFromAssembly(Assembly.GetExecutingAssembly());
+
+builder.Logging.AddStructuredConsoleLogging(
+    builder.Environment.IsProduction(),
+    healthEndpoint: "/health");
+
+var app = builder.Build();
+
+app.MapHealthChecks("/health");
+
+app.Run();

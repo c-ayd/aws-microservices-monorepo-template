@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/RecoveryService.Worker/">
+    <Project Path="src/RecoveryService.Worker/RecoveryService.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+  <Folder Name="/test/integration/">
+    <Project Path="test/integration/RecoveryService.Test.Integration.Worker/RecoveryService.Test.Integration.Worker.csproj" />
+  </Folder>
+</Solution>
