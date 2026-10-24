@@ -412,7 +412,8 @@
         "type": "Project",
         "dependencies": {
           "RabbitMQ.Client": "[7.2.1, )",
-          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+          "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "Shared.PostgreSql.Helpers": "[1.0.0, )"
         }
       },
       "shared.rabbitmq.notifications": {

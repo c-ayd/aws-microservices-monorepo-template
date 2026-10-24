@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace AuthService.Persistence.Migrations.AuthRejectedMessagesDb
+namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMig : Migration
@@ -28,7 +28,6 @@ namespace AuthService.Persistence.Migrations.AuthRejectedMessagesDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    PublisherName = table.Column<string>(type: "text", nullable: false),
                     ExchangeName = table.Column<string>(type: "text", nullable: false),
                     RoutingKey = table.Column<string>(type: "text", nullable: false),
                     Properties = table.Column<string>(type: "text", nullable: false),

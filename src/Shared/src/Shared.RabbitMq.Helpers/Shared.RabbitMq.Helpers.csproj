@@ -9,6 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="RabbitMQ.Client" Version="7.2.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
+    <ProjectReference Include="..\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

@@ -38,6 +38,8 @@ namespace Initializer.Databases
             var caBundleOptions = Utility.DeserializeOptions<CABundleOptions>(response.SecretValues.FirstOrDefault(s => s.Name == "template/cert/ca-bundle")!.SecretString)!;
 
             await AuthDb.RolloutAsync(connectionsOptions.AuthDb, caBundleOptions, seedDataOptions.AuthDbSeedData);
+            await RejectedMessagesDb.RolloutAsync(connectionsOptions.RejectedMessagesDb, caBundleOptions);
+            
             return 0;
         }
     }

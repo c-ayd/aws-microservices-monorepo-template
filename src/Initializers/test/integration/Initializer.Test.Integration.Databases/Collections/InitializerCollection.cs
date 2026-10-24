@@ -1,8 +1,9 @@
 using System.Text.Json;
 using AuthService.Persistence.DbContexts;
+using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 using Shared.Test.Helpers.Fixtures;
 
-namespace Initializer.Databases.Test.Integration.Migrations.Collections
+namespace Initializer.Test.Integration.Databases.Collections
 {
     [CollectionDefinition(nameof(InitializerCollection))]
     public class InitializerCollection : ICollectionFixture<InitializerCollectionCluster>
@@ -13,7 +14,8 @@ namespace Initializer.Databases.Test.Integration.Migrations.Collections
     {
         private const string _caBundlePath = "Certs/test-ca-bundle.crt";
 
-        private const string _dbName = "auth-db";
+        private const string _authDbName = "auth-db";
+        private const string _rejectedMessagesDbName = "rejected-messages-db";
 
         public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -35,7 +37,8 @@ namespace Initializer.Databases.Test.Integration.Migrations.Collections
                     certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     dbContexts: new Dictionary<string, Type>()
                     {
-                        { _dbName, typeof(AuthDbContext) }
+                        { _authDbName, typeof(AuthDbContext) },
+                        { _rejectedMessagesDbName, typeof(RejectedMessagesDbContext) }
                     },
                     runMigrations: false)
             );
@@ -45,7 +48,8 @@ namespace Initializer.Databases.Test.Integration.Migrations.Collections
                 {
                     Connections = new
                     {
-                        AuthDb = PostgreSqlFixture.GetConnectionOptions(_dbName),
+                        AuthDb = PostgreSqlFixture.GetConnectionOptions(_authDbName),
+                        RejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_rejectedMessagesDbName)
                     }
                 }));
             await AwsFixture.SecretsManager_AddStringAsync("template/authdb-job/seed-data", JsonSerializer.Serialize(

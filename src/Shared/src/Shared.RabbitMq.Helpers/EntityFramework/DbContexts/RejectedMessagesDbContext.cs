@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using Shared.RabbitMq.Helpers.EntityFramework;
+using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 
-namespace AuthService.Persistence.DbContexts
+namespace Shared.RabbitMq.Helpers.EntityFramework.DbContexts
 {
-    public class AuthRejectedMessagesDbContext : DbContext
+    public class RejectedMessagesDbContext : DbContext
     {
         public DbSet<RejectedMessage> RejectedMessages { get; set; }
         public DbSet<WrappedDataKey> WrappedDataKeys { get; set; }
 
-        public AuthRejectedMessagesDbContext(DbContextOptions<AuthRejectedMessagesDbContext> options) : base(options)
+        public RejectedMessagesDbContext(DbContextOptions<RejectedMessagesDbContext> options) : base(options)
         {
         }
 

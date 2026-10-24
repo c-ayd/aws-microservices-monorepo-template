@@ -82,13 +82,16 @@ namespace Initializer.Databases.Rollouts
                             // The email owner must use the reset password feature to start using their account.
                     SupportedLanguages.DefaultLanguage);
 
-                if (accountDetails.Role != null)
+                if (accountDetails.Roles != null)
                 {
-                    var role = await authDbContext.Roles.FirstOrDefaultAsync(r => r.Name == accountDetails.Role);
-                    if (role == null)
-                        throw new RoleNotFoundException(accountDetails.Role);
+                    foreach (var role in accountDetails.Roles)
+                    {
+                        var roleFromDb = await authDbContext.Roles.FirstOrDefaultAsync(r => r.Name == role);
+                        if (roleFromDb == null)
+                            throw new RoleNotFoundException(role);
 
-                    newAccount.Roles.Add(role);
+                        newAccount.Roles.Add(roleFromDb);
+                    }
                 }
 
                 await authDbContext.Accounts.AddAsync(newAccount);
@@ -108,7 +111,7 @@ namespace Initializer.Databases.Rollouts
             public class AccountDetails
             {
                 public required string Email { get; set; }
-                public string? Role { get; set; }
+                public List<string>? Roles { get; set; }
             }
         }
     }
