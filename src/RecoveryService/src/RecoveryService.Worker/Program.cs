@@ -5,6 +5,9 @@ using Shared.AspNetCore.Helpers.Kestrel;
 using Shared.AspNetCore.Helpers.Kestrel.Structures;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Shared.Aws.Helpers.DependencyInjection;
+using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
+using RecoveryService.Worker.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +34,12 @@ builder.WebHost.ConfigureKestrel(options =>
         portConfigs);
 });
 builder.Services.AddSingleton(portConfigs);
+
+builder.Services.AddDbContext<RejectedMessagesDbContext>(optionsBuilder =>
+{
+    optionsBuilder.ConfigureDbContext(builder.Configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.RejectedMessagesDb,
+        builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
+});
 
 builder.Services.AddHealthChecks();
 
