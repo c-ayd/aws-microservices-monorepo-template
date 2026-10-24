@@ -30,6 +30,12 @@
       "type": "shell",
       "command": "dotnet build src/Initializers/InitializersSolution.slnx",
       "problemMatcher": []
+    },
+    {
+      "label": "Build Recovery Service",
+      "type": "shell",
+      "command": "dotnet build src/RecoveryService/RecoveryServiceSolution.slnx",
+      "problemMatcher": []
     }
   ]
 }
