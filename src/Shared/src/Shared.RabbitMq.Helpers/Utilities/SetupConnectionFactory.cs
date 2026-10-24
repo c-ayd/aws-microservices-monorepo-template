@@ -6,9 +6,9 @@ using Shared.RabbitMq.Helpers.Options.Extensions;
 
 namespace Shared.RabbitMq.Helpers.Utilities
 {
-    internal static partial class Utility
+    public static partial class Utility
     {
-        internal static ConnectionFactory SetupConnectionFactory(
+        public static ConnectionFactory SetupConnectionFactory(
             RabbitMqConnectionOptions connectionOptions,
             string? caBundleValue)
         {
