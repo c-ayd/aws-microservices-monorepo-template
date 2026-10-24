@@ -8,12 +8,14 @@ using Shared.Aws.Helpers.DependencyInjection;
 using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
 using RecoveryService.Worker.Options;
+using RecoveryService.Worker.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAwsOptions(builder.Environment.IsProduction());
 builder.Services.AddAwsSecretsManager();
 builder.Services.AddAwsS3Bucket();
+builder.Services.AddAwsKms();
 await builder.Configuration.AddAwsSecrets([
     "template/recovery-svc/connections",
     "template/recovery-svc/secrets",
@@ -34,6 +36,9 @@ builder.WebHost.ConfigureKestrel(options =>
         portConfigs);
 });
 builder.Services.AddSingleton(portConfigs);
+
+builder.Services.AddHostedService<DatabaseBackgroundService>();
+builder.Services.AddHostedService<StorageBackgroundService>();
 
 builder.Services.AddDbContext<RejectedMessagesDbContext>(optionsBuilder =>
 {
