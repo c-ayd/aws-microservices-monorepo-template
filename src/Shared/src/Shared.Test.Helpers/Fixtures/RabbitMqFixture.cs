@@ -106,6 +106,32 @@ namespace Shared.Test.Helpers.Fixtures
             };
         }
 
+        public async Task DeclareExchangeAsync(string exchangeName, string exchangeType)
+        {
+            await Channel.ExchangeDeclareAsync(
+                exchangeName,
+                exchangeType,
+                durable: true,
+                autoDelete: false);
+        }
+
+        public async Task DeclareQueueAsync(string queueName, string? bindExchangeName = null, string? bindRoutingKey = null)
+        {
+            await Channel.QueueDeclareAsync(
+                queueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false);
+
+            if (bindExchangeName != null && bindRoutingKey != null)
+            {
+                await Channel.QueueBindAsync(
+                    queueName,
+                    bindExchangeName,
+                    bindRoutingKey);
+            }
+        }
+
         public async Task PublishMessageAsync(string exchangeName, string routingKey, BasicProperties properties, byte[] body)
         {
             await Channel.BasicPublishAsync(exchangeName, routingKey, mandatory: true, properties, body);
