@@ -15,7 +15,7 @@ namespace Initializer.Databases.Rollouts
             CABundleOptions cABundleOptions,
             SeedDataOptions? seedDataOptions)
         {
-            using var authDbContext = Utility.CreateDbContext<AuthDbContext>(connectionOptions, cABundleOptions.Value);
+            await using var authDbContext = Utility.CreateDbContext<AuthDbContext>(connectionOptions, cABundleOptions.Value);
 
             // Migrate
             await authDbContext.Database.MigrateAsync();

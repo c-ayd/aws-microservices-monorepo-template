@@ -25,7 +25,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
         public async Task RepublishAsync_WhenThereIsKeyInDbButHasNoMessages_ShouldDeleteKey()
         {
             // Arrange
-            using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
+            await using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
 
             dbContext.WrappedDataKeys.Add(new WrappedDataKey([1, 2, 3, 4, 5]));
             await dbContext.SaveChangesAsync();
@@ -83,7 +83,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                     bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(message), encryptionKey.Dek, deleteKey: false)));
             }
 
-            using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
+            await using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
 
             dbContext.WrappedDataKeys.Add(wrappedDataKey);
             await dbContext.SaveChangesAsync();

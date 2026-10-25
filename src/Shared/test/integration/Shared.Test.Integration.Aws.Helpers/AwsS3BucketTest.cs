@@ -34,7 +34,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
 
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
-            var memoryStream = new MemoryStream(data);
+            await using var memoryStream = new MemoryStream(data);
 
             // Act
             await awsS3Bucket.UploadFileAsync(_bucketName, "upload", "stream.txt", memoryStream);
@@ -73,7 +73,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
 
             // Act
-            using var file = await awsS3Bucket.DownloadFileAsync(_bucketName, "download", "test.txt");
+            await using var file = await awsS3Bucket.DownloadFileAsync(_bucketName, "download", "test.txt");
 
             // Assert
             Assert.Equal(data, file.ToArray());
@@ -90,7 +90,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
 
             // Act
-            using var file = await awsS3Bucket.StreamFileAsync(_bucketName, "download", "stream.txt");
+            await using var file = await awsS3Bucket.StreamFileAsync(_bucketName, "download", "stream.txt");
 
             // Assert
             Assert.Equal(value, await new StreamReader(file).ReadToEndAsync());

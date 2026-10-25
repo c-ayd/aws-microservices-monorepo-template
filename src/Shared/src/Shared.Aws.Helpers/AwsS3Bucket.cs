@@ -63,7 +63,7 @@ namespace Shared.Aws.Helpers
                 Key = $"{folder}/{fileName}"
             }, cancellationToken);
 
-            var memoryStream = new MemoryStream();
+            await using var memoryStream = new MemoryStream();
             await response.ResponseStream.CopyToAsync(memoryStream, cancellationToken);
             memoryStream.Position = 0;
 

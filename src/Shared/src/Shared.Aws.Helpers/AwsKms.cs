@@ -20,10 +20,11 @@ namespace Shared.Aws.Helpers
             Dictionary<string, string>? aad = null,
             CancellationToken cancellationToken = default)
         {
+            await using var memoryStream = new MemoryStream(value, writable: false);
             var response = await _awsKms.EncryptAsync(new EncryptRequest()
             {
                 KeyId = keyIdOrAlias,
-                Plaintext = new MemoryStream(value, writable: false),
+                Plaintext = memoryStream,
                 EncryptionContext = aad
             }, cancellationToken);
 
@@ -35,9 +36,10 @@ namespace Shared.Aws.Helpers
             Dictionary<string, string>? aad = null,
             CancellationToken cancellationToken = default)
         {
+            await using var memoryStream = new MemoryStream(valueEncrypted, writable: false);
             var response = await _awsKms.DecryptAsync(new DecryptRequest()
             {
-                CiphertextBlob = new MemoryStream(valueEncrypted, writable: false),
+                CiphertextBlob = memoryStream,
                 EncryptionContext = aad
             }, cancellationToken);
 

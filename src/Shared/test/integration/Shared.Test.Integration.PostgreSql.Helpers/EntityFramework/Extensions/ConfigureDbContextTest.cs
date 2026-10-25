@@ -26,7 +26,7 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
             var builder = new DbContextOptionsBuilder<TestDbContext1>();
             builder.ConfigureDbContext(connection, _caBundle);
 
-            using var dbContext = new TestDbContext1(builder.Options);
+            await using var dbContext = new TestDbContext1(builder.Options);
             
             // Act
             await dbContext.Database.EnsureCreatedAsync();
@@ -48,7 +48,7 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
             var builder = new DbContextOptionsBuilder<TestDbContext2>();
             builder.ConfigureDbContext(connection, _caBundle);
 
-            using var dbContext = new TestDbContext2(builder.Options);
+            await using var dbContext = new TestDbContext2(builder.Options);
 
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 

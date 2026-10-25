@@ -81,7 +81,7 @@ namespace AuthService.Api.BackgroundServices
 
             // Save messages to database
             await using var scope = _scopeFactory.CreateAsyncScope();
-            var droppedMessagesDbContext = scope.ServiceProvider.GetRequiredService<DroppedMessagesDbContext>();
+            await using var droppedMessagesDbContext = scope.ServiceProvider.GetRequiredService<DroppedMessagesDbContext>();
 
             try
             {

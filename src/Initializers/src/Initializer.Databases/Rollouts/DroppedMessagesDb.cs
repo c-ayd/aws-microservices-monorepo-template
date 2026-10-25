@@ -9,7 +9,7 @@ namespace Initializer.Databases.Rollouts
     {
         public static async Task RolloutAsync(PostgreSqlConnectionOptions connectionOptions, CABundleOptions cABundleOptions)
         {
-            using var droppedMessagesDbContext = Utility.CreateDbContext<DroppedMessagesDbContext>(connectionOptions, cABundleOptions.Value);
+            await using var droppedMessagesDbContext = Utility.CreateDbContext<DroppedMessagesDbContext>(connectionOptions, cABundleOptions.Value);
             await droppedMessagesDbContext.Database.MigrateAsync();
         }
     }
