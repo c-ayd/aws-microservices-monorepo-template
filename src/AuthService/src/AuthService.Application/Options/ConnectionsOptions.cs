@@ -10,7 +10,7 @@ namespace AuthService.Application.Options
         public static string Key => "Connections";
 
         public required PostgreSqlConnectionOptions AuthDb { get; set; }
-        public required PostgreSqlConnectionOptions AuthRejectedMessagesDb { get; set; }
+        public required PostgreSqlConnectionOptions RejectedMessagesDb { get; set; }
         public required RabbitMqConnectionOptions RabbitMq { get; set; }
         public required RedisConnectionOptions TokenBlacklistRedis { get; set; }
     }

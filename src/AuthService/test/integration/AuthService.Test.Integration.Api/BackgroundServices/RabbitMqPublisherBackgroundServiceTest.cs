@@ -49,8 +49,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, isShuttingDown, default])!;
 
             // Assert
-            await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
-            var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages
+            await using var rejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
+            var messagesFromDb = await rejectedMessagesDbContext.RejectedMessages
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
 
@@ -65,8 +65,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 Assert.Equal(rejectedMessage.Body, messageBodyDecrypted);
             }
 
-            authRejectedMessagesDbContext.RejectedMessages.RemoveRange(messagesFromDb);
-            await authRejectedMessagesDbContext.SaveChangesAsync();
+            rejectedMessagesDbContext.RejectedMessages.RemoveRange(messagesFromDb);
+            await rejectedMessagesDbContext.SaveChangesAsync();
         }
 
         [Fact]
@@ -98,8 +98,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
 
-            await using var authRejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
-            var messagesFromDb = await authRejectedMessagesDbContext.RejectedMessages
+            await using var rejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
+            var messagesFromDb = await rejectedMessagesDbContext.RejectedMessages
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
 

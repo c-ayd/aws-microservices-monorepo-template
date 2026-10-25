@@ -5,9 +5,6 @@ import argparse
 import os
 
 def main(args, root_folder):
-    #if len(args.certs) < 1:
-    #    print('Only one certificate is provided.')
-    #    return
     if args.name is None:
         print('Name is not provided.')
         return
