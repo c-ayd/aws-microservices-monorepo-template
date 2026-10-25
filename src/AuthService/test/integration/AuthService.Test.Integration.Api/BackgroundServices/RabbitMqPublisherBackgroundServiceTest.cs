@@ -55,14 +55,14 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
 
-            var encryptionKey = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>().DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
+            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>().DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
             foreach (var droppedMessage in droppedMessages)
             {
                 var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
                 if (message == null)
                     Assert.Fail("One of the messages is not saved to the DB.");
 
-                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, encryptionKey, deleteKey: false);
+                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, dataKeyPlaintext, deleteKey: false);
                 Assert.Equal(droppedMessage.Body, messageBodyDecrypted);
             }
 

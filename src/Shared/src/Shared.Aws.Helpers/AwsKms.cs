@@ -46,7 +46,7 @@ namespace Shared.Aws.Helpers
             return response.Plaintext.ToArray();
         }
 
-        public async Task<EncryptionKey> GenerateEncryptionKeyAsync(
+        public async Task<DataKey> GenerateDataKeyAsync(
             string keyIdOrAlias,
             int numberOfBytes = 32,
             Dictionary<string, string>? aad = null,
@@ -59,7 +59,7 @@ namespace Shared.Aws.Helpers
                 EncryptionContext = aad
             }, cancellationToken);
 
-            return new EncryptionKey(
+            return new DataKey(
                 response.Plaintext.ToArray(),
                 response.CiphertextBlob.ToArray()
             );

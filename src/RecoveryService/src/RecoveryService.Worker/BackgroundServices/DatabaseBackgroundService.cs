@@ -64,15 +64,15 @@ namespace RecoveryService.Worker.BackgroundServices
                 return;
             }
 
-            var encryptionKey = await _awsKms.DecryptAsync(wrappedDataKey.Value, aad: null, cancellationToken);
+            var dataKeyPlaintext = await _awsKms.DecryptAsync(wrappedDataKey.Value, aad: null, cancellationToken);
             foreach (var droppedMessage in wrappedDataKey.DroppedMessages)
             {
                 // To spend less time having the encryption key in the memory, the encrpytion process for the entire batch
                 // needs to be done first. Once the encryption is done, the plain body is saved into the BodyEncrpyted property
                 // and is used normal message body while republishing these dropped messages.
-                droppedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(droppedMessage.BodyEncrypted, encryptionKey, deleteKey: false);
+                droppedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(droppedMessage.BodyEncrypted, dataKeyPlaintext, deleteKey: false);
             }
-            CryptographicOperations.ZeroMemory(encryptionKey);
+            CryptographicOperations.ZeroMemory(dataKeyPlaintext);
 
             var messagesToRemove = new List<Guid>();
             foreach (var droppedMessage in wrappedDataKey.DroppedMessages)

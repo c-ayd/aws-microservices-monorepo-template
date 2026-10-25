@@ -78,12 +78,12 @@ namespace Shared.Test.Integration.Aws.Helpers
             var awsKms = _collectionCluster.WebApiFixture.GetService<IAwsKms>();
 
             // Act
-            var encryptionKey = await awsKms.GenerateEncryptionKeyAsync(alias);
-            var dek = await awsKms.DecryptAsync(encryptionKey.DekEncrypted);
+            var dataKey = await awsKms.GenerateDataKeyAsync(alias);
+            var dataKeyPlaintext = await awsKms.DecryptAsync(dataKey.Encrypted);
 
             // Assert
-            Assert.Equal(encryptionKey.Dek, dek);
-            Assert.NotNull(encryptionKey.DekEncrypted);
+            Assert.Equal(dataKey.Plaintext, dataKeyPlaintext);
+            Assert.NotNull(dataKey.Encrypted);
         }
     }
 }

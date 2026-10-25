@@ -62,9 +62,9 @@ namespace AuthService.Api.BackgroundServices
             CancellationToken cancellationToken = default)
         {
             // Encrypt messages
-            var encryptionKey = await _awsKms.GenerateEncryptionKeyAsync(_awsKmsAlias);
+            var dataKey = await _awsKms.GenerateDataKeyAsync(_awsKmsAlias);
 
-            var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
+            var wrappedDataKey = new WrappedDataKey(dataKey.Encrypted);
             foreach (var droppedMessage in droppedMessages)
             {
                 wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
@@ -74,10 +74,10 @@ namespace AuthService.Api.BackgroundServices
                     droppedMessage.ExchangeName,
                     droppedMessage.RoutingKey,
                     droppedMessage.Properties,
-                    AesGcmEncryption.Encrypt(droppedMessage.Body, encryptionKey.Dek, deleteKey: false)));
+                    AesGcmEncryption.Encrypt(droppedMessage.Body, dataKey.Plaintext, deleteKey: false)));
             }
 
-            CryptographicOperations.ZeroMemory(encryptionKey.Dek);
+            CryptographicOperations.ZeroMemory(dataKey.Plaintext);
 
             // Save messages to database
             await using var scope = _scopeFactory.CreateAsyncScope();
