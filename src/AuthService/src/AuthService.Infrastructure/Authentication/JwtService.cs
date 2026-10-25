@@ -28,17 +28,16 @@ namespace AuthService.Infrastructure.Authentication
             var accessTokenExpirationDate = now.AddMinutes(_jwtOptions.AccessTokenLifespanInMinutes);
             var refreshTokenExpirationDate = now.AddDays(_jwtOptions.RefreshTokenLifespanInDays);
 
+            var privateKey = _jwtKeyService.GetActivePrivateKey();
             var token = new JwtSecurityToken(
                 issuer: _jwtOptions.Issuer,
                 audience: _jwtOptions.Audience,
                 claims: claims ?? Enumerable.Empty<Claim>(),
                 notBefore: notBefore?.UtcDateTime,
                 expires: accessTokenExpirationDate.UtcDateTime,
-                signingCredentials: new SigningCredentials(
-                    _jwtKeyService.GetPrivateKey(_jwtKeyService.CurrentKeyId)!.Key,
-                    SecurityAlgorithms.RsaSha256)
+                signingCredentials: new SigningCredentials(privateKey.Key, SecurityAlgorithms.RsaSha256)
             );
-            token.Header["kid"] = _jwtKeyService.CurrentKeyId;
+            token.Header["kid"] = privateKey.Id;
 
             return new JwtDto(
                 AccessToken: new JwtSecurityTokenHandler().WriteToken(token),

@@ -40,7 +40,7 @@ namespace AuthService.Test.Unit.Infrastructure.Authentication
 
                 ValidAudience = _jwtOptions.Audience,
                 ValidIssuer = _jwtOptions.Issuer,
-                IssuerSigningKey = _jwtKeyService.GetPublicKey(_jwtKeyService.CurrentKeyId)!.Key,
+                IssuerSigningKey = _jwtKeyService.GetActivePublicKey().Key,
 
                 NameClaimType = ApiGatewayAuthKeys.Claims.Id.ClaimType,
                 RoleClaimType = ApiGatewayAuthKeys.Claims.Roles.ClaimType

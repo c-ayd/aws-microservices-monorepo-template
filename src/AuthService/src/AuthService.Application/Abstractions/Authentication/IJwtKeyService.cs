@@ -7,10 +7,8 @@ namespace AuthService.Application.Abstractions.Authentication
     /// </summary>
     public interface IJwtKeyService
     {
-        string CurrentKeyId { get; }
-
-        JwtKeyDto? GetPublicKey(string keyId);
-        JwtKeyDto? GetPrivateKey(string keyId);
+        JwtKeyDto GetActivePublicKey();
+        JwtKeyDto GetActivePrivateKey();
         IReadOnlyCollection<JwtKeyDto> GetAllPublicKeys();
         IReadOnlyCollection<JwtKeyDto> GetAllPrivateKeys();
     }

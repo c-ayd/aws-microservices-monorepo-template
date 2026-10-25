@@ -12,6 +12,8 @@ namespace AuthService.Application.Options
         public class KeyInfo
         {
             public required string KeyId { get; set; }
+            public required long ExpirationTime { get; set; }
+            public required long NotBeforeTime { get; set; }
             public required string PrivateKey { get; set; }
             public required string PublicKey { get; set; }
         }
