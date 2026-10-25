@@ -74,7 +74,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 _queueName,
                 1,
                 _loggerFixture);
-            await InitializeBackgroundService(backgroundService);
+            await InitializeBackgroundServiceAsync(backgroundService);
 
             var messageCount = await _rabbitMqFixture.GetMessageCountAsync(_queueName);
             if (messageCount != 0)
@@ -116,7 +116,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 _queueName,
                 1,
                 _loggerFixture);
-            await InitializeBackgroundService(backgroundService);
+            await InitializeBackgroundServiceAsync(backgroundService);
 
             var messageCount = await _rabbitMqFixture.GetMessageCountAsync(_queueName);
             if (messageCount != 0)
@@ -124,11 +124,11 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
             if (isConnectionClosed)
             {
-                await CloseConnection(backgroundService);
+                await CloseConnectionAsync(backgroundService);
             }
             else if (isChannelClosed)
             {
-                await CloseChannel(backgroundService);
+                await CloseChannelAsync(backgroundService);
             }
 
             var message = StringGenerator.GeneratePrintableAscii();
@@ -164,7 +164,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 _queueName,
                 1,
                 _loggerFixture);
-            await InitializeBackgroundService(backgroundService);
+            await InitializeBackgroundServiceAsync(backgroundService);
 
             // Act
             await backgroundService.StopAsync(default);
@@ -174,7 +174,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             Assert.False(backgroundService.Channel!.IsOpen, "The channel is still open.");
         }
 
-        private async Task InitializeBackgroundService(TestBackgroundService backgroundService)
+        private async Task InitializeBackgroundServiceAsync(TestBackgroundService backgroundService)
         {
             var initializeConnectionMethodInfo = typeof(ConsumerBackgroundService).GetMethod("InitializeConnectionAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             await (Task)initializeConnectionMethodInfo.Invoke(backgroundService, [default])!;
@@ -186,7 +186,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             return (IConnection)fieldInfo.GetValue(backgroundService)!;
         }
 
-        private async Task CloseConnection(TestBackgroundService backgroundService)
+        private async Task CloseConnectionAsync(TestBackgroundService backgroundService)
         {
             var connection = GetConnection(backgroundService);
             if (connection != null)
@@ -195,7 +195,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             }
         }
 
-        private async Task CloseChannel(TestBackgroundService backgroundService)
+        private async Task CloseChannelAsync(TestBackgroundService backgroundService)
         {
             if (backgroundService.Channel != null)
             {

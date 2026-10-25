@@ -15,7 +15,7 @@ namespace AuthService.Application.Features.AccountEndpoints.CloseSessions
 {
     public class CloseSessionsHandler
     {
-        public static async Task<IResult> Handle(
+        public static async Task<IResult> HandleAsync(
             CloseSessionsRequest request,
             HttpContext context,
             IAuthDbContext authDbContext,

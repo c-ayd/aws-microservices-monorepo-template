@@ -18,7 +18,7 @@ namespace AuthService.Application.Features.AccountEndpoints.Register
 {
     public class RegisterHandler
     {
-        public static async Task<IResult> Handle(
+        public static async Task<IResult> HandleAsync(
             RegisterRequest request,
             IAuthDbContext authDbContext,
             IPasswordHasher passwordHasher,

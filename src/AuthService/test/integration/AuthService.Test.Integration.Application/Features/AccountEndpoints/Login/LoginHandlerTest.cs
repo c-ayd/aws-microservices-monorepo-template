@@ -28,7 +28,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenAccountDoesNotExist_ShouldReturnBadRequest()
+        public async Task HandleAsync_WhenAccountDoesNotExist_ShouldReturnBadRequest()
         {
             // Arrange
             var request = new LoginRequest(
@@ -45,7 +45,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenAccountIsBanned_ShouldReturnForbidden()
+        public async Task HandleAsync_WhenAccountIsBanned_ShouldReturnForbidden()
         {
             // Arrange
             var email = EmailGenerator.Generate();
@@ -69,7 +69,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenAccountIsLocked_ShouldReturnLocked()
+        public async Task HandleAsync_WhenAccountIsLocked_ShouldReturnLocked()
         {
             // Arrange
             var email = EmailGenerator.Generate();
@@ -103,7 +103,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenPasswordIsWrong_ShouldReturnBadRequest()
+        public async Task HandleAsync_WhenPasswordIsWrong_ShouldReturnBadRequest()
         {
             // Arrange
             var email = EmailGenerator.Generate();
@@ -137,7 +137,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         [InlineData(0)]
         [InlineData(1)]
         [InlineData(2)]
-        public async Task Handle_WhenPasswordIsWrongAndAccountIsLocked_ShouldReturnLocked(int additionalFailedAttempts)
+        public async Task HandleAsync_WhenPasswordIsWrongAndAccountIsLocked_ShouldReturnLocked(int additionalFailedAttempts)
         {
             // Arrange
             var email = EmailGenerator.Generate();
@@ -180,7 +180,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task Handle_WhenCredentialsAreCorrect_ShouldCreateSessionAndSetCookiesAndReturnOk(bool hasRoles)
+        public async Task HandleAsync_WhenCredentialsAreCorrect_ShouldCreateSessionAndSetCookiesAndReturnOk(bool hasRoles)
         {
             // Arrange
             var email = EmailGenerator.Generate();
@@ -244,7 +244,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenAccountIsLockedButLockedDateIsInPast_ShouldReturnOk()
+        public async Task HandleAsync_WhenAccountIsLockedButLockedDateIsInPast_ShouldReturnOk()
         {
             // Arrange
             var email = EmailGenerator.Generate();

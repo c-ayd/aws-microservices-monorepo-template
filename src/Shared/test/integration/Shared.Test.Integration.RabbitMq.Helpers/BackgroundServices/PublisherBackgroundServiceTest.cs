@@ -100,7 +100,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             GetDroppedMessages(publisher).TryAdd(droppedMessage.GetHashCode(), droppedMessage);
 
             var acknowledgeEventTcs = new TaskCompletionSource<bool>();
-            await InitializeBackgroundServiceAndPublisher(
+            await InitializeBackgroundServiceAndPublisherAsync(
                 backgroundService,
                 publisher,
                 acknowledgeEvent: async (obj, args) =>
@@ -150,7 +150,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
             int counter = 1;
             var notAcknowledgeEventTcs = new TaskCompletionSource<bool>();
-            await InitializeBackgroundServiceAndPublisher(
+            await InitializeBackgroundServiceAndPublisherAsync(
                 backgroundService,
                 publisher,
                 notAcknowledgeEvent: async (obj, args) =>
@@ -196,15 +196,15 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 _logger
             );
 
-            await InitializeBackgroundServiceAndPublisher(backgroundService, publisher);
+            await InitializeBackgroundServiceAndPublisherAsync(backgroundService, publisher);
 
             if (isConnectionClosed)
             {
-                await CloseConnection(backgroundService);
+                await CloseConnectionAsync(backgroundService);
             }
             else if (isChannelClosed)
             {
-                await CloseChannel(publisher);
+                await CloseChannelAsync(publisher);
             }
 
             // Act
@@ -257,7 +257,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             GetDroppedMessages(publisher).TryAdd(droppedMessage.GetHashCode(), droppedMessage);
             GetRejectedMessages(backgroundService).TryAdd(rejectedMessage.GetHashCode(), rejectedMessage);
 
-            await InitializeBackgroundServiceAndPublisher(backgroundService, publisher);
+            await InitializeBackgroundServiceAndPublisherAsync(backgroundService, publisher);
 
             // Act
             await backgroundService.StopAsync(default);
@@ -273,7 +273,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             Assert.False(publisher.Channel!.IsOpen, "The channel is still open.");
         }
 
-        private async Task InitializeBackgroundServiceAndPublisher(
+        private async Task InitializeBackgroundServiceAndPublisherAsync(
             TestBackgroundService backgroundService,
             TestPublisher publisher,
             AsyncEventHandler<BasicAckEventArgs>? acknowledgeEvent = null,
@@ -293,11 +293,11 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 publisherConfirmationsEnabled: true,
                 publisherConfirmationTrackingEnabled: false));
 
-            var acknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleAcknowledgedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var acknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleAcknowledgedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainAcknowledgeEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicAckEventArgs>), publisher, acknowledgeMethodInfo);
-            var notAcknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleNotAcknowledgedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var notAcknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleNotAcknowledgedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainNotAcknowledgeEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicNackEventArgs>), publisher, notAcknowledgeMethodInfo);
-            var returnMethodInfo = typeof(Publisher).GetMethod("HandleReturnedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var returnMethodInfo = typeof(Publisher).GetMethod("HandleReturnedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainReturnEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicReturnEventArgs>), publisher, returnMethodInfo);
 
             channel.BasicAcksAsync += (AsyncEventHandler<BasicAckEventArgs>)mainAcknowledgeEvent;
@@ -320,7 +320,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             return (IConnection)fieldInfo.GetValue(backgroundService)!;
         }
 
-        private async Task CloseConnection(TestBackgroundService backgroundService)
+        private async Task CloseConnectionAsync(TestBackgroundService backgroundService)
         {
             var connection = GetConnection(backgroundService);
             if (connection != null)
@@ -329,7 +329,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             }
         }
 
-        private async Task CloseChannel(TestPublisher publisher)
+        private async Task CloseChannelAsync(TestPublisher publisher)
         {
             if (publisher.Channel != null)
             {

@@ -205,7 +205,7 @@ namespace Shared.Test.Helpers.Fixtures
             return memoryStream.ToArray();
         }
 
-        public async Task<bool> S3Bucket_FileExists(string bucketName, string key)
+        public async Task<bool> S3Bucket_FileExistsAsync(string bucketName, string key)
         {
             try
             {

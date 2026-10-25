@@ -19,7 +19,7 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
 {
     public class LoginHandler
     {
-        public static async Task<IResult> Handle(
+        public static async Task<IResult> HandleAsync(
             LoginRequest request,
             IAuthDbContext authDbContext,
             IPasswordHasher passwordHasher,

@@ -25,7 +25,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenNotAuthenticated_ShouldReturnUnauthorized()
+        public async Task HandleAsync_WhenNotAuthenticated_ShouldReturnUnauthorized()
         {
             // Arrange
             var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
@@ -38,7 +38,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenAuthenticatedAndThereIsNoCookies_ShouldNotDeleteSessionAndReturnNoContent()
+        public async Task HandleAsync_WhenAuthenticatedAndThereIsNoCookies_ShouldNotDeleteSessionAndReturnNoContent()
         {
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
@@ -72,7 +72,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenAuthenticatedAndCookieValuesAreAltered_ShouldNotDeleteSessionAndReturnNoContent()
+        public async Task HandleAsync_WhenAuthenticatedAndCookieValuesAreAltered_ShouldNotDeleteSessionAndReturnNoContent()
         {
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
@@ -114,7 +114,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public async Task Handle_WhenAuthenticatedAndCookieValuesDoNotMatch_ShouldNotDeleteSessionAndReturnNoContent(bool matchSessionId, bool matchRefreshToken)
+        public async Task HandleAsync_WhenAuthenticatedAndCookieValuesDoNotMatch_ShouldNotDeleteSessionAndReturnNoContent(bool matchSessionId, bool matchRefreshToken)
         {
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
@@ -155,7 +155,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         }
 
         [Fact]
-        public async Task Handle_WhenAuthenticatedAndCookieValuesMatch_ShouldDeleteSessionAndReturnNoContent()
+        public async Task HandleAsync_WhenAuthenticatedAndCookieValuesMatch_ShouldDeleteSessionAndReturnNoContent()
         {
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();

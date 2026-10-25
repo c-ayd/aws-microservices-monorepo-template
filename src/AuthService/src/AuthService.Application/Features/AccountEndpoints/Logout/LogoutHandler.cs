@@ -13,7 +13,7 @@ namespace AuthService.Application.Features.AccountEndpoints.Logout
 {
     public class LogoutHandler
     {
-        public static async Task<IResult> Handle(
+        public static async Task<IResult> HandleAsync(
             HttpContext context,
             IHashVersions hashVersions,
             IAuthDbContext authDbContext)

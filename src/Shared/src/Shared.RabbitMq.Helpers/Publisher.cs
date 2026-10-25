@@ -47,9 +47,9 @@ namespace Shared.RabbitMq.Helpers
                 publisherConfirmationsEnabled: true,
                 publisherConfirmationTrackingEnabled: false));
 
-            Channel.BasicAcksAsync += HandleAcknowledgedMessages;
-            Channel.BasicNacksAsync += HandleNotAcknowledgedMessages;
-            Channel.BasicReturnAsync += HandleReturnedMessages;
+            Channel.BasicAcksAsync += HandleAcknowledgedMessagesAsync;
+            Channel.BasicNacksAsync += HandleNotAcknowledgedMessagesAsync;
+            Channel.BasicReturnAsync += HandleReturnedMessagesAsync;
 
             // Since the channel was closed and is renewed now, the events for the current pending messages will not fired.
             // The delivery tags will also start from 1 again, meaning the delivery tags in the pending messages become
@@ -151,7 +151,7 @@ namespace Shared.RabbitMq.Helpers
             }
         }
 
-        private async Task HandleAcknowledgedMessages(object obj, BasicAckEventArgs args)
+        private async Task HandleAcknowledgedMessagesAsync(object obj, BasicAckEventArgs args)
         {
             if (args.Multiple)
             {
@@ -167,7 +167,7 @@ namespace Shared.RabbitMq.Helpers
             }
         }
 
-        private async Task HandleNotAcknowledgedMessages(object obj, BasicNackEventArgs args)
+        private async Task HandleNotAcknowledgedMessagesAsync(object obj, BasicNackEventArgs args)
         {
             if (args.Multiple)
             {
@@ -188,7 +188,7 @@ namespace Shared.RabbitMq.Helpers
             }
         }
 
-        private async Task HandleReturnedMessages(object obj, BasicReturnEventArgs args)
+        private async Task HandleReturnedMessagesAsync(object obj, BasicReturnEventArgs args)
         {
             var properties = new BasicProperties(args.BasicProperties);
             var message = new Message(Name, args.Exchange, args.RoutingKey, properties, args.Body.ToArray());

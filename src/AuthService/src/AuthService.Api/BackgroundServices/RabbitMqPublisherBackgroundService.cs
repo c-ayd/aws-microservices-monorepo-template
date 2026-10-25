@@ -62,7 +62,7 @@ namespace AuthService.Api.BackgroundServices
             CancellationToken cancellationToken = default)
         {
             // Encrypt messages
-            var encryptionKey = await _keyManagement.GenerateEncryptionKey(_awsKmsAlias);
+            var encryptionKey = await _keyManagement.GenerateEncryptionKeyAsync(_awsKmsAlias);
 
             var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
             foreach (var rejectedMessage in rejectedMessages)

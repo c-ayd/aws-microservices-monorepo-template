@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAwsOptions(builder.Environment.IsProduction());
 builder.Services.AddAwsSecretsManager();
 builder.Services.AddAwsSes();
-await builder.Configuration.AddAwsSecrets([
+await builder.Configuration.AddAwsSecretsAsync([
     "template/notification-svc/connections",
     "template/notification-svc/secrets",
     "template/cert/ca-bundle"

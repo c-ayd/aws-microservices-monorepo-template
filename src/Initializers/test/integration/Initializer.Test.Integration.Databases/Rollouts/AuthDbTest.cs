@@ -34,7 +34,7 @@ namespace Initializer.Test.Integration.Databases
 
         public async Task InitializeAsync()
         {
-            await Utility.InitializePostgreSqlFixture(_postgreSqlFixture);
+            await Utility.InitializePostgreSqlFixtureAsync(_postgreSqlFixture);
             _connectionOptions = _postgreSqlFixture.GetConnectionOptions("auth-db");
         }
 

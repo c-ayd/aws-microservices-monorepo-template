@@ -69,7 +69,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         }
 
         [Fact]
-        public async Task GenerateEncryptionKey_WhenMethodIsCalled_ShouldReturnEncryptionKeys()
+        public async Task GenerateEncryptionKeyAsync_WhenMethodIsCalled_ShouldReturnEncryptionKeys()
         {
             // Arrange
             var alias = "alias/aws-kms/encryption-key";
@@ -78,7 +78,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
 
             // Act
-            var encryptionKey = await awsKms.GenerateEncryptionKey(alias);
+            var encryptionKey = await awsKms.GenerateEncryptionKeyAsync(alias);
             var dek = await awsKms.DecryptAsync(encryptionKey.DekEncrypted);
 
             // Assert

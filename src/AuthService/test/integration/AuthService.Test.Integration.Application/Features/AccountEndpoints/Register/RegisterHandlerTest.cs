@@ -25,7 +25,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
         }
 
         [Fact]
-        public async Task Handle_WhenAccountWithEmailExists_ShouldReturnConflict()
+        public async Task HandleAsync_WhenAccountWithEmailExists_ShouldReturnConflict()
         {
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
@@ -46,7 +46,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
         }
 
         [Fact]
-        public async Task Handle_WhenAccountDoesNotExist_ShouldCreateAccountAndTokenAndReturnNoContent()
+        public async Task HandleAsync_WhenAccountDoesNotExist_ShouldCreateAccountAndTokenAndReturnNoContent()
         {
             // Arrange
             var tokenLifespan = TimeSpan.FromHours(_collectionCluster.AuthApiWebApp.GetOptions<TokenLifespansOptions>().EmailVerificationLifespanInHours).TotalMinutes;
