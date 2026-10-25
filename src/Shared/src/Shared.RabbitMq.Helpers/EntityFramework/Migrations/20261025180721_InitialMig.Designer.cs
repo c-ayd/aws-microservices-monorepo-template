@@ -12,7 +12,7 @@ using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
 {
     [DbContext(typeof(DroppedMessagesDbContext))]
-    [Migration("20261025172308_InitialMig")]
+    [Migration("20261025180721_InitialMig")]
     partial class InitialMig
     {
         /// <inheritdoc />
@@ -43,7 +43,15 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PublisherName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("RoutingKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServiceName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -62,6 +70,9 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("Value")
                         .IsRequired()

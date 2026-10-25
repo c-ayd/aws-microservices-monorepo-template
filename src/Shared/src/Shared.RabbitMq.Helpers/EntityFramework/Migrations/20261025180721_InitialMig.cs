@@ -16,6 +16,7 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Value = table.Column<byte[]>(type: "bytea", nullable: false)
                 },
                 constraints: table =>
@@ -28,6 +29,8 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ServiceName = table.Column<string>(type: "text", nullable: false),
+                    PublisherName = table.Column<string>(type: "text", nullable: false),
                     ExchangeName = table.Column<string>(type: "text", nullable: false),
                     RoutingKey = table.Column<string>(type: "text", nullable: false),
                     Properties = table.Column<string>(type: "text", nullable: false),

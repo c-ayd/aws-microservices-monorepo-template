@@ -40,7 +40,15 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PublisherName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("RoutingKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServiceName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -59,6 +67,9 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<byte[]>("Value")
                         .IsRequired()
