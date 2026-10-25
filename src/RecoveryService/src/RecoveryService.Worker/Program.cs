@@ -26,7 +26,7 @@ var portConfigs = new PortConfigs();
 builder.WebHost.ConfigureKestrel(options =>
 {
     // Recovery service does not have to talk with any other services.
-    // Its job is to handle rejected messages for RabbitMQ. The only
+    // Its job is to handle dropped messages for RabbitMQ. The only
     // exposed endpoint is the health check endpoint, which can be
     // plain HTTP instead of HTTPS.
     options.ConfigureHttp(
@@ -40,9 +40,9 @@ builder.Services.AddSingleton(portConfigs);
 builder.Services.AddHostedService<DatabaseBackgroundService>();
 builder.Services.AddHostedService<StorageBackgroundService>();
 
-builder.Services.AddDbContext<RejectedMessagesDbContext>(optionsBuilder =>
+builder.Services.AddDbContext<DroppedMessagesDbContext>(optionsBuilder =>
 {
-    optionsBuilder.ConfigureDbContext(builder.Configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.RejectedMessagesDb,
+    optionsBuilder.ConfigureDbContext(builder.Configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.DroppedMessagesDb,
         builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
 });
 

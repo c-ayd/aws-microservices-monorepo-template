@@ -15,7 +15,7 @@ namespace Initializer.Test.Integration.Databases.Collections
         private const string _caBundlePath = "Certs/test-ca-bundle.crt";
 
         private const string _authDbName = "auth-db";
-        private const string _rejectedMessagesDbName = "rejected-messages-db";
+        private const string _droppedMessagesDbName = "dropped-messages-db";
 
         public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -38,7 +38,7 @@ namespace Initializer.Test.Integration.Databases.Collections
                     dbContexts: new Dictionary<string, Type>()
                     {
                         { _authDbName, typeof(AuthDbContext) },
-                        { _rejectedMessagesDbName, typeof(RejectedMessagesDbContext) }
+                        { _droppedMessagesDbName, typeof(DroppedMessagesDbContext) }
                     },
                     runMigrations: false)
             );
@@ -49,7 +49,7 @@ namespace Initializer.Test.Integration.Databases.Collections
                     Connections = new
                     {
                         AuthDb = PostgreSqlFixture.GetConnectionOptions(_authDbName),
-                        RejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_rejectedMessagesDbName)
+                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_droppedMessagesDbName)
                     }
                 }));
             await AwsFixture.SecretsManager_AddStringAsync("template/authdb-job/seed-data", JsonSerializer.Serialize(

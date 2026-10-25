@@ -21,9 +21,9 @@ namespace AuthService.Persistence
             });
             services.AddScoped<IAuthDbContext>(sp => sp.GetRequiredService<AuthDbContext>());
 
-            services.AddDbContext<RejectedMessagesDbContext>(builder =>
+            services.AddDbContext<DroppedMessagesDbContext>(builder =>
             {
-                builder.ConfigureDbContext(configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.RejectedMessagesDb,
+                builder.ConfigureDbContext(configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.DroppedMessagesDb,
                     configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
             });
 

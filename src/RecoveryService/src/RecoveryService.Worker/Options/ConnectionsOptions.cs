@@ -8,7 +8,7 @@ namespace RecoveryService.Worker.Options
     {
         public static string Key => "Connections";
 
-        public required PostgreSqlConnectionOptions RejectedMessagesDb { get; set; }
+        public required PostgreSqlConnectionOptions DroppedMessagesDb { get; set; }
         public required RabbitMqConnectionOptions RabbitMq { get; set; }
     }
 }

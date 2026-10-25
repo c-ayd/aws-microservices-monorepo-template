@@ -38,26 +38,26 @@ namespace RecoveryService.Worker.BackgroundServices
         protected override async Task RepublishAsync(CancellationToken cancellationToken)
         {
             await using var scope = _scopeFactory.CreateAsyncScope();
-            await using var dbContext = scope.ServiceProvider.GetRequiredService<RejectedMessagesDbContext>();
+            await using var dbContext = scope.ServiceProvider.GetRequiredService<DroppedMessagesDbContext>();
 
-            await HandleRejectedMessagesInDbAsync(dbContext, cancellationToken);
+            await HandleDroppedMessagesInDbAsync(dbContext, cancellationToken);
         }
 
-        private async Task HandleRejectedMessagesInDbAsync(RejectedMessagesDbContext dbContext, CancellationToken cancellationToken)
+        private async Task HandleDroppedMessagesInDbAsync(DroppedMessagesDbContext dbContext, CancellationToken cancellationToken)
         {
-            // Check if there is any rejected messages bounded to a wrapped data key. If not,
+            // Check if there is any dropped messages bounded to a wrapped data key. If not,
             // the background service goes to sleep for a short period of time.
             if (await dbContext.WrappedDataKeys.CountAsync() == 0)
                 return;
 
             var wrappedDataKey = await dbContext.WrappedDataKeys
-                .Include(wdk => wdk.RejectedMessages
+                .Include(wdk => wdk.DroppedMessages
                     .Take(_batchSize))
                 .FirstAsync(cancellationToken);
 
-            // Check if the wrapped data key has any rejected messages. If not, the key is deleted
+            // Check if the wrapped data key has any dropped messages. If not, the key is deleted
             // from the DB and the background service goes to sleep for a short period of time.
-            if (wrappedDataKey.RejectedMessages.Count == 0)
+            if (wrappedDataKey.DroppedMessages.Count == 0)
             {
                 dbContext.WrappedDataKeys.Remove(wrappedDataKey);
                 await dbContext.SaveChangesAsync();
@@ -65,29 +65,29 @@ namespace RecoveryService.Worker.BackgroundServices
             }
 
             var encryptionKey = await _keyManagement.DecryptAsync(wrappedDataKey.Value, aad: null, cancellationToken);
-            foreach (var rejectedMessage in wrappedDataKey.RejectedMessages)
+            foreach (var droppedMessage in wrappedDataKey.DroppedMessages)
             {
                 // To spend less time having the encryption key in the memory, the encrpytion process for the entire batch
                 // needs to be done first. Once the encryption is done, the plain body is saved into the BodyEncrpyted property
-                // and is used normal message body while republishing these rejected messages.
-                rejectedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(rejectedMessage.BodyEncrypted, encryptionKey, deleteKey: false);
+                // and is used normal message body while republishing these dropped messages.
+                droppedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(droppedMessage.BodyEncrypted, encryptionKey, deleteKey: false);
             }
             CryptographicOperations.ZeroMemory(encryptionKey);
 
             var messagesToRemove = new List<Guid>();
-            foreach (var rejectedMessage in wrappedDataKey.RejectedMessages)
+            foreach (var droppedMessage in wrappedDataKey.DroppedMessages)
             {
                 try
                 {
                     await Channel!.BasicPublishAsync(
-                        rejectedMessage.ExchangeName,
-                        rejectedMessage.RoutingKey,
+                        droppedMessage.ExchangeName,
+                        droppedMessage.RoutingKey,
                         mandatory: true,
-                        rejectedMessage.GetBasicProperties(),
-                        rejectedMessage.BodyEncrypted,
+                        droppedMessage.GetBasicProperties(),
+                        droppedMessage.BodyEncrypted,
                         cancellationToken);
 
-                    messagesToRemove.Add(rejectedMessage.Id);
+                    messagesToRemove.Add(droppedMessage.Id);
                 }
                 catch (OperationCanceledException)
                 {
@@ -100,18 +100,18 @@ namespace RecoveryService.Worker.BackgroundServices
                 }
             }
 
-            if (wrappedDataKey.RejectedMessages.Count == messagesToRemove.Count &&
-                wrappedDataKey.RejectedMessages.Count < _batchSize)
+            if (wrappedDataKey.DroppedMessages.Count == messagesToRemove.Count &&
+                wrappedDataKey.DroppedMessages.Count < _batchSize)
             {
-                // If all rejected messages are handled and the number of messaages is lower than the batch size,
-                // this means that there is no more rejected messages under the wrapped data key. The key can be
+                // If all dropped messages are handled and the number of messaages is lower than the batch size,
+                // this means that there is no more dropped messages under the wrapped data key. The key can be
                 // deleted directly here, which causes the cascade deletion.
                 dbContext.WrappedDataKeys.Remove(wrappedDataKey);
                 await dbContext.SaveChangesAsync();
             }
             else
             {
-                await dbContext.RejectedMessages
+                await dbContext.DroppedMessages
                     .Where(rm => messagesToRemove.Contains(rm.Id))
                     .ExecuteDeleteAsync();
             }

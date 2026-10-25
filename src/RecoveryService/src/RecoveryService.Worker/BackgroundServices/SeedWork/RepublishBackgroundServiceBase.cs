@@ -58,13 +58,13 @@ namespace RecoveryService.Worker.BackgroundServices.SeedWork
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.LogWarning("The recovering rejected messages from database process is cancelled.");
+                    _logger.LogWarning("The recovering dropped messages from database process is cancelled.");
 
                     throw;
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, "Something went wrong while recovering rejected messages from the DB. The process will rerun in {SleepTime} seconds. Message: {Message}",
+                    _logger.LogError(exception, "Something went wrong while recovering dropped messages from the DB. The process will rerun in {SleepTime} seconds. Message: {Message}",
                         _sleepTime.TotalSeconds,
                         exception.Message);
                 }

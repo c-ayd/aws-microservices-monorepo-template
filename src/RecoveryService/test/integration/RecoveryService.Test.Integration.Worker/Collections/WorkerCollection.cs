@@ -20,7 +20,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
         public const string RoutingKey = "test.recovery.send";
         public const string QueueName = "test.recovery.queue";
 
-        private const string _rejectedMessagesDbName = "rejected-messages-db";
+        private const string _droppedMessagesDbName = "dropped-messages-db";
 
         private static int _awsPort;
         private static int _recoveryServicePort;
@@ -49,7 +49,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
                     certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     dbContexts: new Dictionary<string, Type>()
                     {
-                        { _rejectedMessagesDbName, typeof(RejectedMessagesDbContext) }
+                        { _droppedMessagesDbName, typeof(DroppedMessagesDbContext) }
                     }),
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
@@ -68,7 +68,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
                 {
                     Connections = new
                     {
-                        RejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_rejectedMessagesDbName),
+                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_droppedMessagesDbName),
                         RabbitMq = RabbitMqFixture.GetConnectionOptions()
                     }
                 }));

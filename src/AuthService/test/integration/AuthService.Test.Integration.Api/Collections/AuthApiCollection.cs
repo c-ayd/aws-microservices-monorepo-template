@@ -20,7 +20,7 @@ namespace AuthService.Test.Integration.Api.Collections
         private const string _authServiceServerCertificateFilePath = "Certs/test-auth-service-server.crt";
 
         private const string _authDbName = "auth-db";
-        private const string _rejectedMessagesDbName = "rejected-messages-db";
+        private const string _droppedMessagesDbName = "dropped-messages-db";
 
         private static int _awsPort;
         private static int _authServicePort;
@@ -52,7 +52,7 @@ namespace AuthService.Test.Integration.Api.Collections
                     new Dictionary<string, Type>()
                     {
                         { _authDbName, typeof(AuthDbContext) },
-                        { _rejectedMessagesDbName, typeof(RejectedMessagesDbContext) }
+                        { _droppedMessagesDbName, typeof(DroppedMessagesDbContext) }
                     }),
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
@@ -73,7 +73,7 @@ namespace AuthService.Test.Integration.Api.Collections
                     Connections = new
                     {
                         AuthDb = PostgreSqlFixture.GetConnectionOptions(_authDbName),
-                        RejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_rejectedMessagesDbName),
+                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_droppedMessagesDbName),
                         RabbitMq = RabbitMqFixture.GetConnectionOptions(),
                         TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
                     }

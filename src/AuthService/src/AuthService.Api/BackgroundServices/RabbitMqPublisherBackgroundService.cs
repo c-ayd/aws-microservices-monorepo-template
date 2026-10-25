@@ -67,7 +67,7 @@ namespace AuthService.Api.BackgroundServices
             var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
             foreach (var droppedMessage in droppedMessages)
             {
-                wrappedDataKey.RejectedMessages.Add(new RejectedMessage(
+                wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
                     droppedMessage.ExchangeName,
                     droppedMessage.RoutingKey,
@@ -79,18 +79,18 @@ namespace AuthService.Api.BackgroundServices
 
             // Save messages to database
             await using var scope = _scopeFactory.CreateAsyncScope();
-            var rejectedMessagesDbContext = scope.ServiceProvider.GetRequiredService<RejectedMessagesDbContext>();
+            var droppedMessagesDbContext = scope.ServiceProvider.GetRequiredService<DroppedMessagesDbContext>();
 
             try
             {
-                await rejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
-                await rejectedMessagesDbContext.SaveChangesAsync(cancellationToken);
+                await droppedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
+                await droppedMessagesDbContext.SaveChangesAsync(cancellationToken);
 
                 return true;
             }
             catch (OperationCanceledException)
             {
-                _logger.LogWarning("The saving rejected messages operation is cancelled.");
+                _logger.LogWarning("The saving dropped messages operation is cancelled.");
 
                 // Since the operation is cancelled, it should not even check anything later.
                 return false;
@@ -104,7 +104,7 @@ namespace AuthService.Api.BackgroundServices
 
             // S3 Bucket is used as the fallback mechanism. Even if the saving messages to the database process fails,
             // if the application is not shutting down then there will be another chance to save these messages to the DB.
-            // The only exception is when the rejected messages count is too large. In this case, the rejected messages are
+            // The only exception is when the dropped messages count is too large. In this case, the dropped messages are
             // saved to the related S3 Bucket regardless of the application state.
             if (!isShuttingDown && messageCount < _minNumberOfDroppedMessagesForFallback)
                 return false;

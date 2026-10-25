@@ -38,7 +38,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             var message = "Test message";
             for (int i = 0; i < 100; ++i)
             {
-                wrappedDataKey.RejectedMessages.Add(new RejectedMessage(
+                wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
                     exchangeName: "test.recovery",
                     routingKey: "test.recovery.send",
@@ -80,7 +80,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             }
 
             var numberOfMessagesInRabbitMq = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.QueueName);
-            Assert.Equal((uint)wrappedDataKey.RejectedMessages.Count, numberOfMessagesInRabbitMq);
+            Assert.Equal((uint)wrappedDataKey.DroppedMessages.Count, numberOfMessagesInRabbitMq);
 
             var messageFromRabbit = await _collectionCluster.RabbitMqFixture.GetNextMessageAsync(WorkerCollectionCluster.QueueName);
             Assert.Equal(message, Encoding.UTF8.GetString(messageFromRabbit!.Body.ToArray()));
