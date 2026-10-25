@@ -32,11 +32,11 @@ namespace Shared.Aws.Helpers
         }
         
         public async Task<byte[]> DecryptAsync(
-            byte[] valueEncrypted,
+            byte[] encryptedValue,
             Dictionary<string, string>? aad = null,
             CancellationToken cancellationToken = default)
         {
-            await using var memoryStream = new MemoryStream(valueEncrypted, writable: false);
+            await using var memoryStream = new MemoryStream(encryptedValue, writable: false);
             var response = await _awsKms.DecryptAsync(new DecryptRequest()
             {
                 CiphertextBlob = memoryStream,
