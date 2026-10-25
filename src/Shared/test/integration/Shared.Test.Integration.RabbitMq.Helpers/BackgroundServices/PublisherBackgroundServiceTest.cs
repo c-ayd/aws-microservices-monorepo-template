@@ -125,7 +125,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         }
 
         [Fact]
-        public async Task ExecuteAsync_WhenThereIsMessagesThatExceedRetryLimit_ShouldRemovedFromDroppedAndPutMessageIntoRejectedAndCallSaveRejectedMessagesMethod()
+        public async Task ExecuteAsync_WhenThereIsMessagesThatExceedRetryLimit_ShouldRemoveMessageFromPublisherAndPutItInBackgroundServiceAndCallSaveDroppedMessagesMethod()
         {
             // Arrange
             var publisher = new TestPublisher();
@@ -167,7 +167,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             var executeTask = Task.Run(() => ExecuteAsync(backgroundService, cts.Token));
 
             var result = await notAcknowledgeEventTcs.Task.WaitAsync(_timeoutTime);
-            await Task.Delay(_timeoutTime);     // Wait for the next the message to be in the rejected messages
+            await Task.Delay(_timeoutTime); // Wait for the next the message to be in the dropped messages
             await cts.CancelAsync();
 
             // Assert
@@ -175,8 +175,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
             Assert.Empty(GetDroppedMessages(publisher));
 
-            Assert.Single(backgroundService.RejectedMessages);
-            Assert.Contains(droppedMessage.GetHashCode(), backgroundService.RejectedMessages.Select(m => m.GetHashCode()));
+            Assert.Single(backgroundService.DroppedMessages);
+            Assert.Contains(droppedMessage.GetHashCode(), backgroundService.DroppedMessages.Select(m => m.GetHashCode()));
             Assert.False(backgroundService.IsShuttingDown, "The shutdown parameter was given as true.");
         }
 
@@ -221,7 +221,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         }
 
         [Fact]
-        public async Task StopAsync_WhenApplicationShutsDown_ShouldCombineLeftOverMessagesAndCallSaveRejectedMessagesAndCloseConnectionAndChannels()
+        public async Task StopAsync_WhenApplicationShutsDown_ShouldCombineLeftOverMessagesAndCallSaveDroppedMessagesAndCloseConnectionAndChannels()
         {
             // Arrange
             var publisher = new TestPublisher();
@@ -246,7 +246,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 _normalRouting,
                 new BasicProperties() { CorrelationId = Guid.NewGuid().ToString() },
                 JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
-            var rejectedMessage = new Message(
+            var droppedMessageInBackgroundService = new Message(
                 "TestPublisher",
                 _normalExchange,
                 _normalRouting,
@@ -255,7 +255,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
             GetPendingMessages(publisher).TryAdd(0, pendingMessage);
             GetDroppedMessages(publisher).TryAdd(droppedMessage.GetHashCode(), droppedMessage);
-            GetRejectedMessages(backgroundService).TryAdd(rejectedMessage.GetHashCode(), rejectedMessage);
+            GetDroppedMessages(backgroundService).TryAdd(droppedMessageInBackgroundService.GetHashCode(), droppedMessageInBackgroundService);
 
             await InitializeBackgroundServiceAndPublisherAsync(backgroundService, publisher);
 
@@ -263,10 +263,10 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             await backgroundService.StopAsync(default);
 
             // Assert
-            Assert.Equal(3, backgroundService.RejectedMessages.Count);
-            Assert.Contains(pendingMessage.GetHashCode(), backgroundService.RejectedMessages.Select(m => m.GetHashCode()));
-            Assert.Contains(droppedMessage.GetHashCode(), backgroundService.RejectedMessages.Select(m => m.GetHashCode()));
-            Assert.Contains(rejectedMessage.GetHashCode(), backgroundService.RejectedMessages.Select(m => m.GetHashCode()));
+            Assert.Equal(3, backgroundService.DroppedMessages.Count);
+            Assert.Contains(pendingMessage.GetHashCode(), backgroundService.DroppedMessages.Select(m => m.GetHashCode()));
+            Assert.Contains(droppedMessage.GetHashCode(), backgroundService.DroppedMessages.Select(m => m.GetHashCode()));
+            Assert.Contains(droppedMessageInBackgroundService.GetHashCode(), backgroundService.DroppedMessages.Select(m => m.GetHashCode()));
 
             Assert.True(backgroundService.IsShuttingDown, "The shutdown parameter was given as true.");
             Assert.False(GetConnection(backgroundService).IsOpen, "The connection is still open.");
@@ -361,15 +361,15 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             propertyInfo.SetValue(message, value);
         }
 
-        private Dictionary<int, Message> GetRejectedMessages(TestBackgroundService backgroundService)
+        private Dictionary<int, Message> GetDroppedMessages(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(PublisherBackgroundService).GetField("_rejectedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var fieldInfo = typeof(PublisherBackgroundService).GetField("_droppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (Dictionary<int, Message>)fieldInfo.GetValue(backgroundService)!;
         }
 
         private class TestBackgroundService : PublisherBackgroundService
         {
-            public List<Message> RejectedMessages { get; private set; }
+            public List<Message> DroppedMessages { get; private set; }
             public bool IsShuttingDown { get; private set; }
 
             public TestBackgroundService(
@@ -381,16 +381,16 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 ILogger logger)
                 : base(connectionOptions, caBundleValue, publishers, publishRetryTime, graceTime, logger)
             {
-                RejectedMessages = new List<Message>();
+                DroppedMessages = new List<Message>();
             }
 
-            protected override async Task<bool> SaveRejectedMessagesAsync(
-                IEnumerable<Message> rejectedMessages,
+            protected override async Task<bool> SaveDroppedMessagesAsync(
+                IEnumerable<Message> droppedMessages,
                 int messageCount,
                 bool isShuttingDown,
                 CancellationToken cancellationToken = default)
             {
-                RejectedMessages.AddRange(rejectedMessages);
+                DroppedMessages.AddRange(droppedMessages);
                 IsShuttingDown = isShuttingDown;
                 return true;
             }

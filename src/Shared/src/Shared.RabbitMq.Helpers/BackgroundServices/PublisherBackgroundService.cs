@@ -120,25 +120,25 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                         await publisher.PublishMessageAsync(message.Value, stoppingToken);
                     }
 
-                    // Save the messages that are rejected many times
+                    // Save the messages that are dropped many times
                     if (_droppedMessages.Count > 0)
                     {
                         try
                         {
-                            if (await SaveRejectedMessagesAsync(_droppedMessages.Values, _droppedMessages.Count, isShuttingDown: false, stoppingToken))
+                            if (await SaveDroppedMessagesAsync(_droppedMessages.Values, _droppedMessages.Count, isShuttingDown: false, stoppingToken))
                             {
                                 _droppedMessages.Clear();
                             }
                         }
                         catch (OperationCanceledException)
                         {
-                            _logger.LogWarning("The saving rejected messages operation is cancelled. The process will rerun in the StopAsync method.");
+                            _logger.LogWarning("The saving dropped messages operation is cancelled. The process will rerun in the StopAsync method.");
                             
                             throw;
                         }
                         catch (Exception exception)
                         {
-                            _logger.LogError(exception, "Something went wrong while saving the rejected messages for {PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
+                            _logger.LogError(exception, "Something went wrong while saving the dropped messages for {PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
                                 publisher.Name,
                                 _retryPublishTime.TotalSeconds,
                                 exception.Message);
@@ -149,15 +149,15 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
         }
 
         /// <summary>
-        /// Saves the messages that are rejected.
+        /// Saves the messages that are dropped.
         /// </summary>
-        /// <param name="rejectedMessages">Messages that are attempted to send to RabbitMQ many times but rejected</param>
-        /// <param name="messageCount">Number of the rejected messages</param>
-        /// <param name="isShuttingDown">Whether this is the last call for saving the rejected messages</param>
+        /// <param name="droppedMessages">Messages that are attempted to send to RabbitMQ many times but dropped</param>
+        /// <param name="messageCount">Number of the dropped messages</param>
+        /// <param name="isShuttingDown">Whether this is the last call for saving the dropped messages</param>
         /// <param name="cancellationToken">Token to cancel the saving process</param>
         /// <returns>Returns a bool value representing whether the messages are saved or not.</returns>
-        protected abstract Task<bool> SaveRejectedMessagesAsync(
-            IEnumerable<Message> rejectedMessages,
+        protected abstract Task<bool> SaveDroppedMessagesAsync(
+            IEnumerable<Message> droppedMessages,
             int messageCount,
             bool isShuttingDown,
             CancellationToken cancellationToken = default);
@@ -167,7 +167,8 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
             // Wait for a small amount of time in case RabbitMQ fires some events
             await Task.Delay(_graceTime);
 
-            // Add the last messages that are pending or are dropped to the rejected messages
+            // Add the last messages that are pending or are dropped in the publishers
+            // to the background service's dropped messages
             foreach (var publisher in _publishers)
             {
                 foreach (var message in publisher.PendingMessages)
@@ -184,11 +185,11 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
             {
                 try
                 {
-                    await SaveRejectedMessagesAsync(_droppedMessages.Values, _droppedMessages.Count, isShuttingDown: true);
+                    await SaveDroppedMessagesAsync(_droppedMessages.Values, _droppedMessages.Count, isShuttingDown: true);
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogCritical(exception, "Something went wrong while saving the rejected messages for the last time. Message: {Message}",
+                    _logger.LogCritical(exception, "Something went wrong while saving the dropped messages for the last time. Message: {Message}",
                         exception.Message);
                 }
             }

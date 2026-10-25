@@ -25,10 +25,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task SaveRejectedMessagesAsync_WhenThereAreMessagesAndNoExceptionIsThrown_ShouldSaveMessageInDb(bool isShuttingDown)
+        public async Task SaveDroppedMessagesAsync_WhenThereAreMessagesAndNoExceptionIsThrown_ShouldSaveMessageInDb(bool isShuttingDown)
         {
             // Arrange
-            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
             var rejectedMessages = new List<Message>();
@@ -46,7 +46,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             }
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, isShuttingDown, default])!;
+            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, isShuttingDown, default])!;
 
             // Assert
             await using var rejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
@@ -70,10 +70,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         }
 
         [Fact]
-        public async Task SaveRejectedMessagesAsync_WhenAppIsNotShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldDoNothing()
+        public async Task SaveDroppedMessagesAsync_WhenAppIsNotShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldDoNothing()
         {
             // Arrange
-            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
             var rejectedMessages = new List<Message>();
@@ -93,7 +93,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, false, default])!;
+            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, false, default])!;
 
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
@@ -116,10 +116,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         }
 
         [Fact]
-        public async Task SaveRejectedMessagesAsync_WhenAppIsNotShuttinDownAndMessagesExceedMinBatchSizeAndExceptionIsThrown_ShouldSaveMessagesToStorage()
+        public async Task SaveDroppedMessagesAsync_WhenAppIsNotShuttinDownAndMessagesExceedMinBatchSizeAndExceptionIsThrown_ShouldSaveMessagesToStorage()
         {
             // Arrange
-            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
             var rejectedMessages = new List<Message>();
@@ -140,7 +140,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, false, default])!;
+            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, false, default])!;
 
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
@@ -153,10 +153,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         }
 
         [Fact]
-        public async Task SaveRejectedMessagesAsync_WhenAppIsShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldSaveMessagesToStorage()
+        public async Task SaveDroppedMessagesAsync_WhenAppIsShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldSaveMessagesToStorage()
         {
             // Arrange
-            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
             var rejectedMessages = new List<Message>();
@@ -176,7 +176,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, true, default])!;
+            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, true, default])!;
 
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
