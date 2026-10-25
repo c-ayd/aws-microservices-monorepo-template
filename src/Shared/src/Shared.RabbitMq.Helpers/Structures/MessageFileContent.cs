@@ -49,6 +49,9 @@ namespace Shared.RabbitMq.Helpers.Structures
 
             public Message(DroppedMessage droppedMessage)
             {
+                ServiceName = droppedMessage.ServiceName;
+                PublisherName = droppedMessage.PublisherName;
+
                 ExchangeName = droppedMessage.ExchangeName;
                 RoutingKey = droppedMessage.RoutingKey;
                 Properties = droppedMessage.Properties;
