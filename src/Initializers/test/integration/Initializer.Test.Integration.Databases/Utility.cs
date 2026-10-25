@@ -6,7 +6,7 @@ namespace Initializer.Test.Integration.Databases
 {
     public static class Utility
     {
-        public static async Task InitializePostgreSqlFixture(PostgreSqlFixture postgreSqlFixture)
+        public static async Task InitializePostgreSqlFixtureAsync(PostgreSqlFixture postgreSqlFixture)
         {
             await postgreSqlFixture.InitializeAsync(
                 sslEnabled: true,

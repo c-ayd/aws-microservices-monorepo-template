@@ -8,7 +8,7 @@ namespace AuthService.Application.Features.AccountEndpoints.GetSessions
 {
     public class GetSessionsHandler
     {
-        public static async Task<IResult> Handle(
+        public static async Task<IResult> HandleAsync(
             HttpContext context,
             IAuthDbContext authDbContext,
             CancellationToken cancellationToken)

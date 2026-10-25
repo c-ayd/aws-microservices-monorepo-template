@@ -27,7 +27,7 @@ builder.Services.AddAwsOptions(builder.Environment.IsProduction());
 builder.Services.AddAwsSecretsManager();
 builder.Services.AddAwsKms();
 builder.Services.AddAwsS3Bucket();
-await builder.Configuration.AddAwsSecrets([
+await builder.Configuration.AddAwsSecretsAsync([
     "template/auth-svc/connections",
     "template/auth-svc/certificates",
     "template/auth-svc/secrets",

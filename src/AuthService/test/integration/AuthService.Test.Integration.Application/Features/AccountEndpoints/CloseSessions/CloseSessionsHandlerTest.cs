@@ -26,7 +26,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
         }
 
         [Fact]
-        public async Task Handle_WhenPasswordIsWrong_ShouldReturnForbidden()
+        public async Task HandleAsync_WhenPasswordIsWrong_ShouldReturnForbidden()
         {
             // Arrange
             var passwordHasher = _collectionCluster.AuthApiWebApp.GetService<IPasswordHasher>();
@@ -54,7 +54,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
         }
 
         [Fact]
-        public async Task Handle_WhenPasswordIsCorrectAndThereIsNoSession_ShouldDoNothingAndAddTokensToBlacklistAndReturnNoContent()
+        public async Task HandleAsync_WhenPasswordIsCorrectAndThereIsNoSession_ShouldDoNothingAndAddTokensToBlacklistAndReturnNoContent()
         {
             // Arrange
             var password = PasswordGenerator.GenerateValid();
@@ -91,7 +91,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
         }
 
         [Fact]
-        public async Task Handle_WhenPasswordIsCorrectAndThereAreSessions_ShouldDeleteSessionsAndAddTokensToBlacklistAndReturnNoContent()
+        public async Task HandleAsync_WhenPasswordIsCorrectAndThereAreSessions_ShouldDeleteSessionsAndAddTokensToBlacklistAndReturnNoContent()
         {
             // Arrange
             var password = PasswordGenerator.GenerateValid();

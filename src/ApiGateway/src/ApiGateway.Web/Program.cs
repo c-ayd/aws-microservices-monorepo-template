@@ -22,7 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAwsOptions(builder.Environment.IsProduction());
 builder.Services.AddAwsSecretsManager();
-await builder.Configuration.AddAwsSecrets([
+await builder.Configuration.AddAwsSecretsAsync([
     "template/api-gateway/connections",
     "template/api-gateway/certificates",
     "template/cert/ca-bundle"

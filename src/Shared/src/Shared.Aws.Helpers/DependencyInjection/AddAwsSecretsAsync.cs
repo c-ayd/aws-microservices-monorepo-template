@@ -8,7 +8,7 @@ namespace Shared.Aws.Helpers.DependencyInjection
 {
     public static partial class DependencyInjection
     {
-        public static async Task AddAwsSecrets(this IConfigurationManager configuration, List<string> ids)
+        public static async Task AddAwsSecretsAsync(this IConfigurationManager configuration, List<string> ids)
         {
             using var awsSecretsManagerClient = AwsConfig.IsProduction ?
                 new AmazonSecretsManagerClient() :

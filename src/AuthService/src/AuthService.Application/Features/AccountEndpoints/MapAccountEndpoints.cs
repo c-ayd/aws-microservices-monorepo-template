@@ -15,21 +15,21 @@ namespace AuthService.Application.Features.AccountEndpoints
         {
             var group = app.MapGroup("/accounts");
 
-            group.MapPost("/register", RegisterHandler.Handle)
+            group.MapPost("/register", RegisterHandler.HandleAsync)
                 .AddValidation<RegisterRequest>();
             
-            group.MapPost("/login", LoginHandler.Handle)
+            group.MapPost("/login", LoginHandler.HandleAsync)
                 .AddValidation<LoginRequest>();
 
-            group.MapDelete("/logout", LogoutHandler.Handle)
+            group.MapDelete("/logout", LogoutHandler.HandleAsync)
                 .RequireAuthorization();    // Since the endpoint deletes open session, it requires authorization.
 
-            group.MapGet("/sessions", GetSessionsHandler.Handle)
+            group.MapGet("/sessions", GetSessionsHandler.HandleAsync)
                 .RequireAuthorization();
-            group.MapPost("/session/{sessionId}/close", CloseSessionHandler.Handle)
+            group.MapPost("/session/{sessionId}/close", CloseSessionHandler.HandleAsync)
                 .RequireAuthorization()
                 .AddValidation<CloseSessionRequest>();
-            group.MapPost("/sessions/close", CloseSessionsHandler.Handle)
+            group.MapPost("/sessions/close", CloseSessionsHandler.HandleAsync)
                 .RequireAuthorization()
                 .AddValidation<CloseSessionsRequest>();
         }

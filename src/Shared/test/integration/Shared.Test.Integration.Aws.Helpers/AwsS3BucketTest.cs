@@ -109,7 +109,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             await awsS3Bucket.DeleteFileAsync(_bucketName, "delete", "test.txt");
 
             // Assert
-            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExists(_bucketName, "delete/test.txt"));
+            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExistsAsync(_bucketName, "delete/test.txt"));
         }
 
         [Fact]
@@ -125,7 +125,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             await awsS3Bucket.DeleteFilesAsync(_bucketName, "delete", ["test2.txt", "file.txt"]);
 
             // Assert
-            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExists(_bucketName, "delete/test2.txt"));
+            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExistsAsync(_bucketName, "delete/test2.txt"));
         }
 
         [Fact]
@@ -142,8 +142,8 @@ namespace Shared.Test.Integration.Aws.Helpers
             await awsS3Bucket.DeleteFilesAsync(_bucketName, ["delete/test3.txt", "delete2/test.txt", "file.txt"]);
 
             // Assert
-            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExists(_bucketName, "delete/test3.txt"));
-            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExists(_bucketName, "delete2/test.txt"));
+            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExistsAsync(_bucketName, "delete/test3.txt"));
+            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExistsAsync(_bucketName, "delete2/test.txt"));
         }
 
         [Theory]

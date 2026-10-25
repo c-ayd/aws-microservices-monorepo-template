@@ -26,7 +26,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Get
         }
 
         [Fact]
-        public async Task Handle_WhenNotAuthenticated_ShouldReturnUnauthorized()
+        public async Task HandleAsync_WhenNotAuthenticated_ShouldReturnUnauthorized()
         {
             // Arrange
             var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
@@ -39,7 +39,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Get
         }
 
         [Fact]
-        public async Task Handle_WhenAuthenticatedAndThereAreSessions_ShouldReturnOkWithNotExpiredSessions()
+        public async Task HandleAsync_WhenAuthenticatedAndThereAreSessions_ShouldReturnOkWithNotExpiredSessions()
         {
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();

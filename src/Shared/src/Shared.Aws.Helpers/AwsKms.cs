@@ -44,7 +44,7 @@ namespace Shared.Aws.Helpers
             return response.Plaintext.ToArray();
         }
 
-        public async Task<EncryptionKey> GenerateEncryptionKey(
+        public async Task<EncryptionKey> GenerateEncryptionKeyAsync(
             string keyIdOrAlias,
             int numberOfBytes = 32,
             Dictionary<string, string>? aad = null,
