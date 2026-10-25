@@ -16,7 +16,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
         private readonly ILogger _logger;
 
         private IConnection? _connection;
-        private Dictionary<int, Message> _rejectedMessages;
+        private Dictionary<int, Message> _droppedMessages;
 
         public PublisherBackgroundService(
             RabbitMqConnectionOptions connectionOptions,
@@ -32,7 +32,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
             _graceTime = graceTime;
             _logger = logger;
 
-            _rejectedMessages = new Dictionary<int, Message>();
+            _droppedMessages = new Dictionary<int, Message>();
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -111,7 +111,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                     {
                         if (message.Value.RetryCount >= publisher.MaxRetry)
                         {
-                            _rejectedMessages.TryAdd(message.Value.GetHashCode(), message.Value);
+                            _droppedMessages.TryAdd(message.Value.GetHashCode(), message.Value);
                             publisher.DroppedMessages.TryRemove(message.Key, out var _);
                             continue;
                         }
@@ -121,13 +121,13 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                     }
 
                     // Save the messages that are rejected many times
-                    if (_rejectedMessages.Count > 0)
+                    if (_droppedMessages.Count > 0)
                     {
                         try
                         {
-                            if (await SaveRejectedMessagesAsync(_rejectedMessages.Values, _rejectedMessages.Count, isShuttingDown: false, stoppingToken))
+                            if (await SaveRejectedMessagesAsync(_droppedMessages.Values, _droppedMessages.Count, isShuttingDown: false, stoppingToken))
                             {
-                                _rejectedMessages.Clear();
+                                _droppedMessages.Clear();
                             }
                         }
                         catch (OperationCanceledException)
@@ -172,19 +172,19 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
             {
                 foreach (var message in publisher.PendingMessages)
                 {
-                    _rejectedMessages.TryAdd(message.Value.GetHashCode(), message.Value);
+                    _droppedMessages.TryAdd(message.Value.GetHashCode(), message.Value);
                 }
                 foreach (var message in publisher.DroppedMessages)
                 {
-                    _rejectedMessages.TryAdd(message.Value.GetHashCode(), message.Value);
+                    _droppedMessages.TryAdd(message.Value.GetHashCode(), message.Value);
                 }
             }
 
-            if (_rejectedMessages.Count > 0)
+            if (_droppedMessages.Count > 0)
             {
                 try
                 {
-                    await SaveRejectedMessagesAsync(_rejectedMessages.Values, _rejectedMessages.Count, isShuttingDown: true);
+                    await SaveRejectedMessagesAsync(_droppedMessages.Values, _droppedMessages.Count, isShuttingDown: true);
                 }
                 catch (Exception exception)
                 {
