@@ -31,6 +31,9 @@ namespace Shared.RabbitMq.Helpers.Structures
 
         public class Message
         {
+            public string ServiceName { get; set; }
+            public string PublisherName { get; set; }
+
             public string ExchangeName { get; set; }
             public string RoutingKey { get; set; }
             public string Properties { get; set; }

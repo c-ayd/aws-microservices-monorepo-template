@@ -51,7 +51,7 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var droppedMessage = new DroppedMessage(wrappedDataKey.Id, _exchangeName, _routingKey, properties, body);
+            var droppedMessage = new DroppedMessage(wrappedDataKey.Id, "TestService", "TestPublisher", _exchangeName, _routingKey, properties, body);
 
             // Assert
             Assert.Equal(_exchangeName, droppedMessage.ExchangeName);
@@ -81,7 +81,7 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var droppedMessage = new DroppedMessage(wrappedDataKey.Id, _exchangeName, _routingKey, properties, body);
+            var droppedMessage = new DroppedMessage(wrappedDataKey.Id, "TestService", "TestPublisher", _exchangeName, _routingKey, properties, body);
 
             // Assert
             Assert.Equal(_exchangeName, droppedMessage.ExchangeName);

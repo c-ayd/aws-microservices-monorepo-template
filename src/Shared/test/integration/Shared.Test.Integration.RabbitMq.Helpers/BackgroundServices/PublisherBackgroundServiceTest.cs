@@ -91,6 +91,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             );
 
             var droppedMessage = new Message(
+                "TestService",
                 "TestPublisher",
                 _normalExchange,
                 _normalRouting,
@@ -139,6 +140,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             );
 
             var droppedMessage = new Message(
+                "TestService",
                 "TestPublisher",
                 _rejectExchange,
                 _rejectRouting,
@@ -235,18 +237,21 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             );
 
             var pendingMessage = new Message(
+                "TestService",
                 "TestPublisher",
                 _normalExchange,
                 _normalRouting,
                 new BasicProperties() { CorrelationId = Guid.NewGuid().ToString() },
                 JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             var droppedMessage = new Message(
+                "TestService",
                 "TestPublisher",
                 _normalExchange,
                 _normalRouting,
                 new BasicProperties() { CorrelationId = Guid.NewGuid().ToString() },
                 JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             var droppedMessageInBackgroundService = new Message(
+                "TestService",
                 "TestPublisher",
                 _normalExchange,
                 _normalRouting,
@@ -398,7 +403,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private class TestPublisher : Publisher
         {
-            public TestPublisher() : base("TestPublisher", _maxRetry)
+            public TestPublisher() : base("TestService", "TestPublisher", _maxRetry)
             {
             }
 

@@ -100,8 +100,9 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                     }
                     catch (Exception exception)
                     {
-                        _logger.LogError(exception, "Something went wrong while checking the connection and channel for {PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
-                            publisher.Name,
+                        _logger.LogError(exception, "Something went wrong while checking the connection and channel for {ServiceName}-{PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
+                            publisher.ServiceName,
+                            publisher.PublisherName,
                             _retryPublishTime.TotalSeconds,
                             exception.Message);
                     }
@@ -138,8 +139,9 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                         }
                         catch (Exception exception)
                         {
-                            _logger.LogError(exception, "Something went wrong while saving the dropped messages for {PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
-                                publisher.Name,
+                            _logger.LogError(exception, "Something went wrong while saving the dropped messages for {ServiceName}-{PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
+                                publisher.ServiceName,
+                                publisher.PublisherName,
                                 _retryPublishTime.TotalSeconds,
                                 exception.Message);
                         }

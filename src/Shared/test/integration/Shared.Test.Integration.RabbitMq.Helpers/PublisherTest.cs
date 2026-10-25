@@ -288,7 +288,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
 
         private class TestPublisher : Publisher
         {
-            public TestPublisher() : base("TestPublisher", 3)
+            public TestPublisher() : base("TestService", "TestPublisher", 3)
             {
             }
 

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using AuthService.Application.Abstractions.MessageBrokers;
+using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using Shared.RabbitMq.Helpers;
 using Shared.RabbitMq.Notifications.Configurations;
@@ -12,7 +13,8 @@ namespace AuthService.Infrastructure.MessageBrokers
     {
         private const int _maxRetryForMessages = 3;
 
-        public EmailService() : base(nameof(EmailService), _maxRetryForMessages)
+        public EmailService(IHostEnvironment hostEnvironment) 
+            : base(hostEnvironment.ApplicationName, nameof(EmailService), _maxRetryForMessages)
         {
         }
 
