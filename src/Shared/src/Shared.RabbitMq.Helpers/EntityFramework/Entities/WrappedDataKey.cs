@@ -5,6 +5,8 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
     public class WrappedDataKey
     {
         public Guid Id { get; set; }
+        public DateTimeOffset CreatedDate { get; set; }
+
         public byte[] Value { get; set; }
 
         // Relationships
@@ -18,6 +20,7 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
         public WrappedDataKey(byte[] value)
         {
             Id = Guid.CreateVersion7();
+            CreatedDate = DateTimeOffset.UtcNow;
             
             Value = value;
         }
