@@ -73,7 +73,7 @@ namespace AuthService.Test.Integration.Api.Collections
                     Connections = new
                     {
                         AuthDb = PostgreSqlFixture.GetConnectionOptions(_authDbName),
-                        AuthRejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_rejectedMessagesDbName),
+                        RejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_rejectedMessagesDbName),
                         RabbitMq = RabbitMqFixture.GetConnectionOptions(),
                         TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
                     }

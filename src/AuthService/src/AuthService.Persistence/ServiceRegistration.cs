@@ -23,7 +23,7 @@ namespace AuthService.Persistence
 
             services.AddDbContext<RejectedMessagesDbContext>(builder =>
             {
-                builder.ConfigureDbContext(configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.AuthRejectedMessagesDb,
+                builder.ConfigureDbContext(configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.RejectedMessagesDb,
                     configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
             });
 

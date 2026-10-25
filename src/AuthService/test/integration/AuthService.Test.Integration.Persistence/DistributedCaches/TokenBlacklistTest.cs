@@ -33,7 +33,7 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
             {
                 TokenBlacklistRedis = _redisFixture.GetConnectionOptions(),
                 AuthDb = _placeholderPostgreSqlConnectionOptions,
-                AuthRejectedMessagesDb = _placeholderPostgreSqlConnectionOptions,
+                RejectedMessagesDb = _placeholderPostgreSqlConnectionOptions,
                 RabbitMq = _placeholderRabbitMqConnectionOptions
             };
 
