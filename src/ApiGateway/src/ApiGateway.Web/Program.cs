@@ -109,8 +109,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Value);
         options.BackchannelHttpHandler = new SocketsHttpHandler
         {
-            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
             SslOptions = new SslClientAuthenticationOptions()
             {
                 RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
