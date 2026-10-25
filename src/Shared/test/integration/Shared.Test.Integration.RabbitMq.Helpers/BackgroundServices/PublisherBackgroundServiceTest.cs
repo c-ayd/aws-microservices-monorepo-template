@@ -293,11 +293,11 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 publisherConfirmationsEnabled: true,
                 publisherConfirmationTrackingEnabled: false));
 
-            var acknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleAcknowledgedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var acknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleAcknowledgedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainAcknowledgeEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicAckEventArgs>), publisher, acknowledgeMethodInfo);
-            var notAcknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleNotAcknowledgedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var notAcknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleNotAcknowledgedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainNotAcknowledgeEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicNackEventArgs>), publisher, notAcknowledgeMethodInfo);
-            var returnMethodInfo = typeof(Publisher).GetMethod("HandleReturnedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var returnMethodInfo = typeof(Publisher).GetMethod("HandleReturnedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainReturnEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicReturnEventArgs>), publisher, returnMethodInfo);
 
             channel.BasicAcksAsync += (AsyncEventHandler<BasicAckEventArgs>)mainAcknowledgeEvent;
