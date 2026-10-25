@@ -5,7 +5,7 @@ using Shared.Aws.Helpers.Structures;
 
 namespace Shared.Aws.Helpers
 {
-    internal class AwsKms : IKeyManagement
+    internal class AwsKms : IAwsKms
     {
         private readonly IAmazonKeyManagementService _awsKms;
 
@@ -32,11 +32,11 @@ namespace Shared.Aws.Helpers
         }
         
         public async Task<byte[]> DecryptAsync(
-            byte[] valueEncrypted,
+            byte[] encryptedValue,
             Dictionary<string, string>? aad = null,
             CancellationToken cancellationToken = default)
         {
-            await using var memoryStream = new MemoryStream(valueEncrypted, writable: false);
+            await using var memoryStream = new MemoryStream(encryptedValue, writable: false);
             var response = await _awsKms.DecryptAsync(new DecryptRequest()
             {
                 CiphertextBlob = memoryStream,
@@ -46,7 +46,7 @@ namespace Shared.Aws.Helpers
             return response.Plaintext.ToArray();
         }
 
-        public async Task<EncryptionKey> GenerateEncryptionKeyAsync(
+        public async Task<DataKey> GenerateDataKeyAsync(
             string keyIdOrAlias,
             int numberOfBytes = 32,
             Dictionary<string, string>? aad = null,
@@ -59,7 +59,7 @@ namespace Shared.Aws.Helpers
                 EncryptionContext = aad
             }, cancellationToken);
 
-            return new EncryptionKey(
+            return new DataKey(
                 response.Plaintext.ToArray(),
                 response.CiphertextBlob.ToArray()
             );

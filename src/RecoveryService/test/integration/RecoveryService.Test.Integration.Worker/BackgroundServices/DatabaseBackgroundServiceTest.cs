@@ -62,10 +62,10 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             if (queueMessageCount != 0)
                 Assert.Fail($"The queues is not empty. Count: {queueMessageCount}.");
             
-            var awsKms = _collectionCluster.RecoveryWebApp.GetService<IKeyManagement>();
-            var encryptionKey = await awsKms.GenerateEncryptionKeyAsync("alias/test-alias");
+            var awsKms = _collectionCluster.RecoveryWebApp.GetService<IAwsKms>();
+            var dataKey = await awsKms.GenerateDataKeyAsync("alias/test-alias");
             
-            var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
+            var wrappedDataKey = new WrappedDataKey(dataKey.Encrypted);
             var message = "Test message";
             for (int i = 0; i < numberOfMessages; ++i)
             {
@@ -80,7 +80,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                         DeliveryMode = DeliveryModes.Persistent,
                         CorrelationId = Guid.NewGuid().ToString()
                     },
-                    bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(message), encryptionKey.Dek, deleteKey: false)));
+                    bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(message), dataKey.Plaintext, deleteKey: false)));
             }
 
             await using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();

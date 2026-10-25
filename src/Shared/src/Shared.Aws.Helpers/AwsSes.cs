@@ -5,7 +5,7 @@ using Shared.Aws.Helpers.Abstractions;
 
 namespace Shared.Aws.Helpers
 {
-    internal class AwsSes : IEmailSender
+    internal class AwsSes : IAwsSes
     {
         private readonly IAmazonSimpleEmailServiceV2 _awsSes;
 

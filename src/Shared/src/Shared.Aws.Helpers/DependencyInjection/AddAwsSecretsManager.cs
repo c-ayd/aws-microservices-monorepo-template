@@ -9,7 +9,7 @@ namespace Shared.Aws.Helpers.DependencyInjection
         public static void AddAwsSecretsManager(this IServiceCollection services)
         {
             services.AddAWSService<IAmazonSecretsManager>();
-            services.AddSingleton<ISecretsManager, AwsSecretsManager>();
+            services.AddSingleton<IAwsSecretsManager, AwsSecretsManager>();
         }
     }
 }

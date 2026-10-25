@@ -16,14 +16,14 @@ namespace NotificationService.Worker.BackgroundServices
         private const int _maxRetry = 5;
 
         private readonly string _fromEmail;
-        private readonly IEmailSender _emailSender;
+        private readonly IAwsSes _awsSes;
         private readonly ILogger<EmailBackgroundService> _logger;
 
         public EmailBackgroundService(
             IOptions<ConnectionsOptions> connectionsOptions,
             IOptions<CABundleOptions> caBundleOptions,
             IOptions<SmtpOptions> smtpOptions,
-            IEmailSender emailSender,
+            IAwsSes awsSes,
             ILogger<EmailBackgroundService> logger)
             : base(
             connectionsOptions.Value.RabbitMq,
@@ -35,7 +35,7 @@ namespace NotificationService.Worker.BackgroundServices
             logger)
         {
             _fromEmail = smtpOptions.Value.AwsSesFromEmailAddress;
-            _emailSender = emailSender;
+            _awsSes = awsSes;
             _logger = logger;
         }
 
@@ -158,7 +158,7 @@ namespace NotificationService.Worker.BackgroundServices
             // Send email
             try
             {
-                await _emailSender.SendEmailAsync(
+                await _awsSes.SendEmailAsync(
                     _fromEmail,
                     message.To,
                     templateName: $"{message.TemplateId}-{message.Language}",

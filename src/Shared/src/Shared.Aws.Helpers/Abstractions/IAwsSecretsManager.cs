@@ -1,6 +1,6 @@
 namespace Shared.Aws.Helpers.Abstractions
 {
-    public interface ISecretsManager
+    public interface IAwsSecretsManager
     {
         Task<string> GetSecretStringAsync(string id, bool cache = true, CancellationToken cancellationToken = default);
         Task<Dictionary<string, string>> GetMultipleSecretStringsAsync(IEnumerable<string> ids, bool cache = true, CancellationToken cancellationToken = default);

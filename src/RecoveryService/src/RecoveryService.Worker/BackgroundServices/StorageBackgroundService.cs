@@ -14,16 +14,16 @@ namespace RecoveryService.Worker.BackgroundServices
     public class StorageBackgroundService : RepublishBackgroundServiceBase
     {
         private readonly StorageOptions _storageOptions;
-        private readonly IStorage _storage;
-        private readonly IKeyManagement _keyManagement;
+        private readonly IAwsS3Bucket _awsS3Bucket;
+        private readonly IAwsKms _awsKms;
         private readonly ILogger<StorageBackgroundService> _logger;
 
         public StorageBackgroundService(
             IOptions<ConnectionsOptions> connectionsOptions,
             IOptions<CABundleOptions> caBundleOptions,
             IOptions<StorageOptions> storageOptions,
-            IStorage storage,
-            IKeyManagement keyManagement,
+            IAwsS3Bucket awsS3Bucket,
+            IAwsKms awsKms,
             ILogger<StorageBackgroundService> logger)
             : base(
             connectionsOptions.Value.RabbitMq,
@@ -32,8 +32,8 @@ namespace RecoveryService.Worker.BackgroundServices
             logger)
         {
             _storageOptions = storageOptions.Value;
-            _storage = storage;
-            _keyManagement = keyManagement;
+            _awsS3Bucket = awsS3Bucket;
+            _awsKms = awsKms;
             _logger = logger;
         }
 
@@ -50,25 +50,25 @@ namespace RecoveryService.Worker.BackgroundServices
             string folder,
             CancellationToken cancellationToken)
         {
-            var fileNames = await _storage.GetFileNamesUnderFolderAsync(bucketName, folder, cancellationToken);
+            var fileNames = await _awsS3Bucket.GetFileNamesUnderFolderAsync(bucketName, folder, cancellationToken);
             if (fileNames.Count == 0)
                 return;
 
             foreach (var fileName in fileNames)
             {
-                var fileContent = await _storage.DownloadFileAsync(bucketName, folder, fileName, cancellationToken);
+                var fileContent = await _awsS3Bucket.DownloadFileAsync(bucketName, folder, fileName, cancellationToken);
                 var json = Encoding.UTF8.GetString(fileContent.ToArray());
                 var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(json)!;
 
-                var encryptionKey = await _keyManagement.DecryptAsync(messageFileContent.WrappedDataKey, aad: null, cancellationToken);
+                var dataKeyPlaintext = await _awsKms.DecryptAsync(messageFileContent.WrappedDataKey, aad: null, cancellationToken);
                 foreach (var droppedMessage in messageFileContent.Messages)
                 {
                     // To spend less time having the encryption key in the memory, the encrpytion process for the entire batch
                     // needs to be done first. Once the encryption is done, the plain body is saved into the BodyEncrpyted property
                     // and is used normal message body while republishing these dropped messages.
-                    droppedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(droppedMessage.BodyEncrypted, encryptionKey, deleteKey: false);
+                    droppedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(droppedMessage.BodyEncrypted, dataKeyPlaintext, deleteKey: false);
                 }
-                CryptographicOperations.ZeroMemory(encryptionKey);
+                CryptographicOperations.ZeroMemory(dataKeyPlaintext);
 
                 var messagesToRemove = new List<string>();
                 foreach (var droppedMessage in messageFileContent.Messages)
@@ -99,7 +99,7 @@ namespace RecoveryService.Worker.BackgroundServices
 
                 if (messageFileContent.Messages.Count == messagesToRemove.Count)
                 {
-                    await _storage.DeleteFileAsync(bucketName, folder, fileName);
+                    await _awsS3Bucket.DeleteFileAsync(bucketName, folder, fileName);
                 }
                 else
                 {
@@ -110,7 +110,7 @@ namespace RecoveryService.Worker.BackgroundServices
                         .ToList();
 
                     var jsonString = JsonSerializer.Serialize(messageFileContent);
-                    await _storage.UploadFileAsync(
+                    await _awsS3Bucket.UploadFileAsync(
                         bucketName,
                         folder,
                         fileName,

@@ -31,7 +31,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         public async Task UploadFileAsync_WhenStreamIsGiven_ShouldSaveItToBucketAndNotCloseStream()
         {
             // Arrange
-            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
             await using var memoryStream = new MemoryStream(data);
@@ -51,7 +51,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         public async Task UploadFileAsync_WhenBytesAreGiven_ShouldSaveItToBucket()
         {
             // Arrange
-            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
 
@@ -70,7 +70,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
             await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, "download/test.txt", data);
 
-            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
             // Act
             await using var file = await awsS3Bucket.DownloadFileAsync(_bucketName, "download", "test.txt");
@@ -87,7 +87,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var data = Encoding.UTF8.GetBytes(value);
             await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, "download/stream.txt", data);
 
-            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
             // Act
             await using var file = await awsS3Bucket.StreamFileAsync(_bucketName, "download", "stream.txt");
@@ -103,7 +103,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
             await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, "delete/test.txt", data);
 
-            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
             // Act
             await awsS3Bucket.DeleteFileAsync(_bucketName, "delete", "test.txt");
@@ -119,7 +119,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
             await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, "delete/test2.txt", data);
 
-            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
             // Act
             await awsS3Bucket.DeleteFilesAsync(_bucketName, "delete", ["test2.txt", "file.txt"]);
@@ -136,7 +136,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, "delete/test3.txt", data);
             await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, "delete2/test.txt", data);
 
-            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
             // Act
             await awsS3Bucket.DeleteFilesAsync(_bucketName, ["delete/test3.txt", "delete2/test.txt", "file.txt"]);
@@ -158,7 +158,7 @@ namespace Shared.Test.Integration.Aws.Helpers
                 await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, $"count/test-{i}.txt", data);
             }
 
-            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
             // Act
             var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync(_bucketName, "count");

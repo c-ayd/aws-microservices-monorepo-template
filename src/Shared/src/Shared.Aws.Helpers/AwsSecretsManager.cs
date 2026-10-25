@@ -5,7 +5,7 @@ using Shared.Aws.Helpers.Abstractions;
 
 namespace Shared.Aws.Helpers
 {
-    internal class AwsSecretsManager : ISecretsManager
+    internal class AwsSecretsManager : IAwsSecretsManager
     {
         private readonly ConcurrentDictionary<string, string> _cacheString = new ConcurrentDictionary<string, string>();
         private readonly ConcurrentDictionary<string, byte[]> _cacheBinary = new ConcurrentDictionary<string, byte[]>();

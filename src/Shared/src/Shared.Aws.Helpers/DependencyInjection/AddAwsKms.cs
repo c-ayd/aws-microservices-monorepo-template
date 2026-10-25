@@ -9,7 +9,7 @@ namespace Shared.Aws.Helpers.DependencyInjection
         public static void AddAwsKms(this IServiceCollection services)
         {
             services.AddAWSService<IAmazonKeyManagementService>();
-            services.AddSingleton<IKeyManagement, AwsKms>();
+            services.AddSingleton<IAwsKms, AwsKms>();
         }
     }
 }
