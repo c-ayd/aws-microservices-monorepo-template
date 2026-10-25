@@ -3,20 +3,20 @@ using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 
 namespace Shared.RabbitMq.Helpers.EntityFramework.DbContexts
 {
-    public class RejectedMessagesDbContext : DbContext
+    public class DroppedMessagesDbContext : DbContext
     {
-        public DbSet<RejectedMessage> RejectedMessages { get; set; }
+        public DbSet<DroppedMessage> DroppedMessages { get; set; }
         public DbSet<WrappedDataKey> WrappedDataKeys { get; set; }
 
-        public RejectedMessagesDbContext(DbContextOptions<RejectedMessagesDbContext> options) : base(options)
+        public DroppedMessagesDbContext(DbContextOptions<DroppedMessagesDbContext> options) : base(options)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<RejectedMessage>()
+            modelBuilder.Entity<DroppedMessage>()
                 .HasOne(rm => rm.WrappedDataKey)
-                .WithMany(wdk => wdk.RejectedMessages)
+                .WithMany(wdk => wdk.DroppedMessages)
                 .HasForeignKey(rm => rm.WrappedDataKeyId);
         }
     }

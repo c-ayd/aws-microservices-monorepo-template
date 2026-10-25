@@ -8,9 +8,9 @@ using Shared.RabbitMq.Helpers.Utilities;
 namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
 {
     /// <summary>
-    /// Holds necessary information about a rejected message for Entity Framework Core.
+    /// Holds necessary information about a dropped message for Entity Framework Core.
     /// </summary>
-    public class RejectedMessage
+    public class DroppedMessage
     {
         public Guid Id { get; init; }
 
@@ -26,11 +26,11 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
         private BasicProperties? _basicProperties = null;
 
         // Reserved for EF Core
-        private RejectedMessage()
+        private DroppedMessage()
         {
         }
 
-        public RejectedMessage(
+        public DroppedMessage(
             Guid wrappedDataKeyId,
             string exchangeName,
             string routingKey,

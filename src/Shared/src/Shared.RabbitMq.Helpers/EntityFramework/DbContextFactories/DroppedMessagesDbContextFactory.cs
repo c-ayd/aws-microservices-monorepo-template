@@ -4,15 +4,15 @@ using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 
 namespace Shared.RabbitMq.Helpers.EntityFramework.DbContextFactories
 {
-    public class RejectedMessagesDbContextFactory : IDesignTimeDbContextFactory<RejectedMessagesDbContext>
+    public class DroppedMessagesDbContextFactory : IDesignTimeDbContextFactory<DroppedMessagesDbContext>
     {
-        public RejectedMessagesDbContext CreateDbContext(string[] args)
+        public DroppedMessagesDbContext CreateDbContext(string[] args)
         {
-            var options = new DbContextOptionsBuilder<RejectedMessagesDbContext>()
+            var options = new DbContextOptionsBuilder<DroppedMessagesDbContext>()
                 .UseNpgsql(Environment.GetEnvironmentVariable("--conn-string"))
                 .Options;
 
-            return new RejectedMessagesDbContext(options);
+            return new DroppedMessagesDbContext(options);
         }
     }
 }

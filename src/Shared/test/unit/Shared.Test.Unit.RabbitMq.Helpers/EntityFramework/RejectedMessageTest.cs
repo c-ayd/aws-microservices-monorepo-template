@@ -5,10 +5,10 @@ using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 
 namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
 {
-    public class RejectedMessageTest
+    public class DroppedMessageTest
     {
-        private const string _exchangeName = "shared.rabbitmq.helpers.rejectedmessage.exchange";
-        private const string _routingKey = "shared.rabbitmq.helpers.rejectedmessage.routing";
+        private const string _exchangeName = "shared.rabbitmq.helpers.droppedmessage.exchange";
+        private const string _routingKey = "shared.rabbitmq.helpers.droppedmessage.routing";
 
         private readonly Dictionary<string, object?> _testHeaders = new Dictionary<string, object?>
         {
@@ -51,14 +51,14 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var rejectedMessage = new RejectedMessage(wrappedDataKey.Id, _exchangeName, _routingKey, properties, body);
+            var droppedMessage = new DroppedMessage(wrappedDataKey.Id, _exchangeName, _routingKey, properties, body);
 
             // Assert
-            Assert.Equal(_exchangeName, rejectedMessage.ExchangeName);
-            Assert.Equal(_routingKey, rejectedMessage.RoutingKey);
-            Assert.Equal(body, rejectedMessage.BodyEncrypted);
+            Assert.Equal(_exchangeName, droppedMessage.ExchangeName);
+            Assert.Equal(_routingKey, droppedMessage.RoutingKey);
+            Assert.Equal(body, droppedMessage.BodyEncrypted);
 
-            CheckBasicProperties(rejectedMessage.GetBasicProperties());
+            CheckBasicProperties(droppedMessage.GetBasicProperties());
         }
 
         [Theory]
@@ -81,14 +81,14 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var rejectedMessage = new RejectedMessage(wrappedDataKey.Id, _exchangeName, _routingKey, properties, body);
+            var droppedMessage = new DroppedMessage(wrappedDataKey.Id, _exchangeName, _routingKey, properties, body);
 
             // Assert
-            Assert.Equal(_exchangeName, rejectedMessage.ExchangeName);
-            Assert.Equal(_routingKey, rejectedMessage.RoutingKey);
-            Assert.Equal(body, rejectedMessage.BodyEncrypted);
+            Assert.Equal(_exchangeName, droppedMessage.ExchangeName);
+            Assert.Equal(_routingKey, droppedMessage.RoutingKey);
+            Assert.Equal(body, droppedMessage.BodyEncrypted);
 
-            CheckBasicProperties(rejectedMessage.GetBasicProperties());
+            CheckBasicProperties(droppedMessage.GetBasicProperties());
         }
         
         private void CheckBasicProperties(BasicProperties properties)

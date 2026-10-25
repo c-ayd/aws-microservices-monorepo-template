@@ -41,11 +41,11 @@ namespace RecoveryService.Worker.BackgroundServices
         {
             foreach (var folder in _storageOptions.Folders)
             {
-                await RepublishRejectedMessagesInStorageAsync(_storageOptions.AwsS3BucketName, folder, cancellationToken);
+                await RepublishDroppedMessagesInStorageAsync(_storageOptions.AwsS3BucketName, folder, cancellationToken);
             }
         }
 
-        private async Task RepublishRejectedMessagesInStorageAsync(
+        private async Task RepublishDroppedMessagesInStorageAsync(
             string bucketName,
             string folder,
             CancellationToken cancellationToken)
@@ -61,27 +61,27 @@ namespace RecoveryService.Worker.BackgroundServices
                 var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(json)!;
 
                 var encryptionKey = await _keyManagement.DecryptAsync(messageFileContent.WrappedDataKey, aad: null, cancellationToken);
-                foreach (var rejectedMessage in messageFileContent.Messages)
+                foreach (var droppedMessage in messageFileContent.Messages)
                 {
                     // To spend less time having the encryption key in the memory, the encrpytion process for the entire batch
                     // needs to be done first. Once the encryption is done, the plain body is saved into the BodyEncrpyted property
-                    // and is used normal message body while republishing these rejected messages.
-                    rejectedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(rejectedMessage.BodyEncrypted, encryptionKey, deleteKey: false);
+                    // and is used normal message body while republishing these dropped messages.
+                    droppedMessage.BodyEncrypted = AesGcmEncryption.Decrypt(droppedMessage.BodyEncrypted, encryptionKey, deleteKey: false);
                 }
                 CryptographicOperations.ZeroMemory(encryptionKey);
 
                 var messagesToRemove = new List<string>();
-                foreach (var rejectedMessage in messageFileContent.Messages)
+                foreach (var droppedMessage in messageFileContent.Messages)
                 {
                     try
                     {
-                        var properties = rejectedMessage.GetBasicProperties();
+                        var properties = droppedMessage.GetBasicProperties();
                         await Channel!.BasicPublishAsync(
-                            rejectedMessage.ExchangeName,
-                            rejectedMessage.RoutingKey,
+                            droppedMessage.ExchangeName,
+                            droppedMessage.RoutingKey,
                             mandatory: true,
                             properties,
-                            rejectedMessage.BodyEncrypted,
+                            droppedMessage.BodyEncrypted,
                             cancellationToken);
 
                         messagesToRemove.Add(properties.CorrelationId!);

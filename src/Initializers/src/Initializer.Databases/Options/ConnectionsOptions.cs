@@ -8,6 +8,6 @@ namespace Initializer.Databases.Options
         public static string Key => "Connections";
 
         public required PostgreSqlConnectionOptions AuthDb { get; set; }
-        public required PostgreSqlConnectionOptions RejectedMessagesDb { get; set; }
+        public required PostgreSqlConnectionOptions DroppedMessagesDb { get; set; }
     }
 }

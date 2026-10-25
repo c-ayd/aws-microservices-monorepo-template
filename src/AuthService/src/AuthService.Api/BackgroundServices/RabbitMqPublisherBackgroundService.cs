@@ -17,7 +17,7 @@ namespace AuthService.Api.BackgroundServices
 {
     public class RabbitMqPublisherBackgroundService : PublisherBackgroundService
     {
-        private const int _minNumberOfRejectedMessagesForFallback = 1000;
+        private const int _minNumberOfDroppedMessagesForFallback = 1000;
 
         private readonly string _awsKmsAlias;
         private readonly IKeyManagement _keyManagement;
@@ -55,8 +55,8 @@ namespace AuthService.Api.BackgroundServices
             _logger = logger;
         }
 
-        protected override async Task<bool> SaveRejectedMessagesAsync(
-            IEnumerable<Message> rejectedMessages,
+        protected override async Task<bool> SaveDroppedMessagesAsync(
+            IEnumerable<Message> droppedMessages,
             int messageCount,
             bool isShuttingDown,
             CancellationToken cancellationToken = default)
@@ -65,32 +65,32 @@ namespace AuthService.Api.BackgroundServices
             var encryptionKey = await _keyManagement.GenerateEncryptionKeyAsync(_awsKmsAlias);
 
             var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
-            foreach (var rejectedMessage in rejectedMessages)
+            foreach (var droppedMessage in droppedMessages)
             {
-                wrappedDataKey.RejectedMessages.Add(new RejectedMessage(
+                wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
-                    rejectedMessage.ExchangeName,
-                    rejectedMessage.RoutingKey,
-                    rejectedMessage.Properties,
-                    AesGcmEncryption.Encrypt(rejectedMessage.Body, encryptionKey.Dek, deleteKey: false)));
+                    droppedMessage.ExchangeName,
+                    droppedMessage.RoutingKey,
+                    droppedMessage.Properties,
+                    AesGcmEncryption.Encrypt(droppedMessage.Body, encryptionKey.Dek, deleteKey: false)));
             }
 
             CryptographicOperations.ZeroMemory(encryptionKey.Dek);
 
             // Save messages to database
             await using var scope = _scopeFactory.CreateAsyncScope();
-            var rejectedMessagesDbContext = scope.ServiceProvider.GetRequiredService<RejectedMessagesDbContext>();
+            var droppedMessagesDbContext = scope.ServiceProvider.GetRequiredService<DroppedMessagesDbContext>();
 
             try
             {
-                await rejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
-                await rejectedMessagesDbContext.SaveChangesAsync(cancellationToken);
+                await droppedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
+                await droppedMessagesDbContext.SaveChangesAsync(cancellationToken);
 
                 return true;
             }
             catch (OperationCanceledException)
             {
-                _logger.LogWarning("The saving rejected messages operation is cancelled.");
+                _logger.LogWarning("The saving dropped messages operation is cancelled.");
 
                 // Since the operation is cancelled, it should not even check anything later.
                 return false;
@@ -104,9 +104,9 @@ namespace AuthService.Api.BackgroundServices
 
             // S3 Bucket is used as the fallback mechanism. Even if the saving messages to the database process fails,
             // if the application is not shutting down then there will be another chance to save these messages to the DB.
-            // The only exception is when the rejected messages count is too large. In this case, the rejected messages are
+            // The only exception is when the dropped messages count is too large. In this case, the dropped messages are
             // saved to the related S3 Bucket regardless of the application state.
-            if (!isShuttingDown && messageCount < _minNumberOfRejectedMessagesForFallback)
+            if (!isShuttingDown && messageCount < _minNumberOfDroppedMessagesForFallback)
                 return false;
 
             var jsonString = JsonSerializer.Serialize(new MessageFileContent(wrappedDataKey));

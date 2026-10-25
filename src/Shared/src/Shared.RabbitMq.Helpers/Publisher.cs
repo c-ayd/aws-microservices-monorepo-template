@@ -91,10 +91,10 @@ namespace Shared.RabbitMq.Helpers
             var message = new Message(Name, exchangeName, routingKey, properties, body);
 
             // To standardize the type of the header values for consumers, the header values are converted to
-            // JSON strings. By doing this, when rejected messages are saved somewhere and are sent again later,
+            // JSON strings. By doing this, when dropped messages are saved somewhere and are sent again later,
             // consumers do not need to know the source. They can directly threat all header values as JSON strings.
             // This not just allows publishers to add any value type to the headers without conversions, but also
-            // services trying to resend rejected messages can directly use the header values without conversions.
+            // services trying to resend dropped messages can directly use the header values without conversions.
             if (properties.Headers != null)
             {
                 foreach (var header in properties.Headers)

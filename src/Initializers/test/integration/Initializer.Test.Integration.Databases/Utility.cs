@@ -16,7 +16,7 @@ namespace Initializer.Test.Integration.Databases
                 dbContexts: new Dictionary<string, Type>()
                 {
                     { "auth-db", typeof(AuthDbContext) },
-                    { "rejected-messages-db", typeof(RejectedMessagesDbContext) }
+                    { "dropped-messages-db", typeof(DroppedMessagesDbContext) }
                 },
                 runMigrations: false);
         }

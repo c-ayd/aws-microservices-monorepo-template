@@ -24,7 +24,7 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RejectedMessages",
+                name: "DroppedMessages",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -36,9 +36,9 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RejectedMessages", x => x.Id);
+                    table.PrimaryKey("PK_DroppedMessages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RejectedMessages_WrappedDataKeys_WrappedDataKeyId",
+                        name: "FK_DroppedMessages_WrappedDataKeys_WrappedDataKeyId",
                         column: x => x.WrappedDataKeyId,
                         principalTable: "WrappedDataKeys",
                         principalColumn: "Id",
@@ -46,8 +46,8 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_RejectedMessages_WrappedDataKeyId",
-                table: "RejectedMessages",
+                name: "IX_DroppedMessages_WrappedDataKeyId",
+                table: "DroppedMessages",
                 column: "WrappedDataKeyId");
         }
 
@@ -55,7 +55,7 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "RejectedMessages");
+                name: "DroppedMessages");
 
             migrationBuilder.DropTable(
                 name: "WrappedDataKeys");

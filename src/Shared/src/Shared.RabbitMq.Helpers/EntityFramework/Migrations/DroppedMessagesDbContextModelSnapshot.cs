@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
@@ -11,21 +10,19 @@ using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 
 namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
 {
-    [DbContext(typeof(RejectedMessagesDbContext))]
-    [Migration("20261023231733_InitialMig")]
-    partial class InitialMig
+    [DbContext(typeof(DroppedMessagesDbContext))]
+    partial class DroppedMessagesDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.Entities.RejectedMessage", b =>
+            modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.Entities.DroppedMessage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,7 +51,7 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
 
                     b.HasIndex("WrappedDataKeyId");
 
-                    b.ToTable("RejectedMessages");
+                    b.ToTable("DroppedMessages");
                 });
 
             modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.Entities.WrappedDataKey", b =>
@@ -72,10 +69,10 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
                     b.ToTable("WrappedDataKeys");
                 });
 
-            modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.Entities.RejectedMessage", b =>
+            modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.Entities.DroppedMessage", b =>
                 {
                     b.HasOne("Shared.RabbitMq.Helpers.EntityFramework.Entities.WrappedDataKey", "WrappedDataKey")
-                        .WithMany("RejectedMessages")
+                        .WithMany("DroppedMessages")
                         .HasForeignKey("WrappedDataKeyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -85,7 +82,7 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Migrations
 
             modelBuilder.Entity("Shared.RabbitMq.Helpers.EntityFramework.Entities.WrappedDataKey", b =>
                 {
-                    b.Navigation("RejectedMessages");
+                    b.Navigation("DroppedMessages");
                 });
 #pragma warning restore 612, 618
         }

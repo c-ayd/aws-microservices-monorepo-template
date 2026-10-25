@@ -25,16 +25,16 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task SaveRejectedMessagesAsync_WhenThereAreMessagesAndNoExceptionIsThrown_ShouldSaveMessageInDb(bool isShuttingDown)
+        public async Task SaveDroppedMessagesAsync_WhenThereAreMessagesAndNoExceptionIsThrown_ShouldSaveMessageInDb(bool isShuttingDown)
         {
             // Arrange
-            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
-            var rejectedMessages = new List<Message>();
+            var droppedMessages = new List<Message>();
             for (int i = 0; i < 2; ++i)
             {
-                rejectedMessages.Add(new Message(
+                droppedMessages.Add(new Message(
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
@@ -46,40 +46,40 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             }
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, isShuttingDown, default])!;
+            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessages, droppedMessages.Count, isShuttingDown, default])!;
 
             // Assert
-            await using var rejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
-            var messagesFromDb = await rejectedMessagesDbContext.RejectedMessages
+            await using var droppedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
+            var messagesFromDb = await droppedMessagesDbContext.DroppedMessages
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
 
             var encryptionKey = await _collectionCluster.AuthApiWebApp.GetService<IKeyManagement>().DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
-            foreach (var rejectedMessage in rejectedMessages)
+            foreach (var droppedMessage in droppedMessages)
             {
-                var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == rejectedMessage.Properties.CorrelationId);
+                var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
                 if (message == null)
                     Assert.Fail("One of the messages is not saved to the DB.");
 
                 var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, encryptionKey, deleteKey: false);
-                Assert.Equal(rejectedMessage.Body, messageBodyDecrypted);
+                Assert.Equal(droppedMessage.Body, messageBodyDecrypted);
             }
 
-            rejectedMessagesDbContext.RejectedMessages.RemoveRange(messagesFromDb);
-            await rejectedMessagesDbContext.SaveChangesAsync();
+            droppedMessagesDbContext.DroppedMessages.RemoveRange(messagesFromDb);
+            await droppedMessagesDbContext.SaveChangesAsync();
         }
 
         [Fact]
-        public async Task SaveRejectedMessagesAsync_WhenAppIsNotShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldDoNothing()
+        public async Task SaveDroppedMessagesAsync_WhenAppIsNotShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldDoNothing()
         {
             // Arrange
-            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
-            var rejectedMessages = new List<Message>();
+            var droppedMessages = new List<Message>();
             for (int i = 0; i < 2; ++i)
             {
-                rejectedMessages.Add(new Message(
+                droppedMessages.Add(new Message(
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
@@ -93,20 +93,20 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, false, default])!;
+            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessages, droppedMessages.Count, false, default])!;
 
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
 
-            await using var rejectedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
-            var messagesFromDb = await rejectedMessagesDbContext.RejectedMessages
+            await using var droppedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
+            var messagesFromDb = await droppedMessagesDbContext.DroppedMessages
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
 
             int counter = 0;
-            foreach (var rejectedMessage in rejectedMessages)
+            foreach (var droppedMessage in droppedMessages)
             {
-                var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == rejectedMessage.Properties.CorrelationId);
+                var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
                 if (message != null)
                 {
                     ++counter;
@@ -116,17 +116,17 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         }
 
         [Fact]
-        public async Task SaveRejectedMessagesAsync_WhenAppIsNotShuttinDownAndMessagesExceedMinBatchSizeAndExceptionIsThrown_ShouldSaveMessagesToStorage()
+        public async Task SaveDroppedMessagesAsync_WhenAppIsNotShuttinDownAndMessagesExceedMinBatchSizeAndExceptionIsThrown_ShouldSaveMessagesToStorage()
         {
             // Arrange
-            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
-            var rejectedMessages = new List<Message>();
-            var minBatchSize = (int)typeof(RabbitMqPublisherBackgroundService).GetField("_minNumberOfRejectedMessagesForFallback", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
+            var droppedMessages = new List<Message>();
+            var minBatchSize = (int)typeof(RabbitMqPublisherBackgroundService).GetField("_minNumberOfDroppedMessagesForFallback", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
             for (int i = 0; i < minBatchSize; ++i)
             {
-                rejectedMessages.Add(new Message(
+                droppedMessages.Add(new Message(
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
@@ -140,7 +140,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, false, default])!;
+            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessages, droppedMessages.Count, false, default])!;
 
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
@@ -153,16 +153,16 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         }
 
         [Fact]
-        public async Task SaveRejectedMessagesAsync_WhenAppIsShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldSaveMessagesToStorage()
+        public async Task SaveDroppedMessagesAsync_WhenAppIsShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldSaveMessagesToStorage()
         {
             // Arrange
-            var saveRejectedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveRejectedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
-            var rejectedMessages = new List<Message>();
+            var droppedMessage = new List<Message>();
             for (int i = 0; i < 2; ++i)
             {
-                rejectedMessages.Add(new Message(
+                droppedMessage.Add(new Message(
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
@@ -176,7 +176,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveRejectedMessagesMethodInfo.Invoke(backgroundService, [rejectedMessages, rejectedMessages.Count, true, default])!;
+            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessage, droppedMessage.Count, true, default])!;
 
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();

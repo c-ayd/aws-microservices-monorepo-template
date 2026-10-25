@@ -5,12 +5,12 @@ using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 
 namespace Initializer.Databases.Rollouts
 {
-    public static class RejectedMessagesDb
+    public static class DroppedMessagesDb
     {
         public static async Task RolloutAsync(PostgreSqlConnectionOptions connectionOptions, CABundleOptions cABundleOptions)
         {
-            using var rejectedMessagesDbContext = Utility.CreateDbContext<RejectedMessagesDbContext>(connectionOptions, cABundleOptions.Value);
-            await rejectedMessagesDbContext.Database.MigrateAsync();
+            using var droppedMessagesDbContext = Utility.CreateDbContext<DroppedMessagesDbContext>(connectionOptions, cABundleOptions.Value);
+            await droppedMessagesDbContext.Database.MigrateAsync();
         }
     }
 }

@@ -25,7 +25,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
         public async Task RepublishAsync_WhenThereIsKeyInDbButHasNoMessages_ShouldDeleteKey()
         {
             // Arrange
-            using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
+            using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
 
             dbContext.WrappedDataKeys.Add(new WrappedDataKey([1, 2, 3, 4, 5]));
             await dbContext.SaveChangesAsync();
@@ -49,7 +49,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                 ++elapsedTime;
             }
 
-            await _collectionCluster.PostgreSqlFixture.ClearDatabaseAsync<RejectedMessagesDbContext>();
+            await _collectionCluster.PostgreSqlFixture.ClearDatabaseAsync<DroppedMessagesDbContext>();
         }
 
         [Theory]
@@ -69,7 +69,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             var message = "Test message";
             for (int i = 0; i < numberOfMessages; ++i)
             {
-                wrappedDataKey.RejectedMessages.Add(new RejectedMessage(
+                wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
                     exchangeName: "test.recovery",
                     routingKey: "test.recovery.send",
@@ -81,7 +81,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                     bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(message), encryptionKey.Dek, deleteKey: false)));
             }
 
-            using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<RejectedMessagesDbContext>();
+            using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
 
             dbContext.WrappedDataKeys.Add(wrappedDataKey);
             await dbContext.SaveChangesAsync();
@@ -105,7 +105,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                 ++elapsedTime;
             }
 
-            await _collectionCluster.PostgreSqlFixture.ClearDatabaseAsync<RejectedMessagesDbContext>();
+            await _collectionCluster.PostgreSqlFixture.ClearDatabaseAsync<DroppedMessagesDbContext>();
 
             var numberOfMessagesInRabbitMq = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.QueueName);
             Assert.Equal((uint)numberOfMessages, numberOfMessagesInRabbitMq);

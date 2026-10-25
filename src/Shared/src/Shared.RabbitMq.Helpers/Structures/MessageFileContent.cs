@@ -23,9 +23,9 @@ namespace Shared.RabbitMq.Helpers.Structures
             WrappedDataKey = wrappedDataKey.Value;
             
             Messages = new List<Message>();
-            foreach (var rejectedMessage in wrappedDataKey.RejectedMessages)
+            foreach (var droppedMessage in wrappedDataKey.DroppedMessages)
             {
-                Messages.Add(new Message(rejectedMessage));
+                Messages.Add(new Message(droppedMessage));
             }
         }
 
@@ -44,12 +44,12 @@ namespace Shared.RabbitMq.Helpers.Structures
             {
             }
 
-            public Message(RejectedMessage rejectedMessage)
+            public Message(DroppedMessage droppedMessage)
             {
-                ExchangeName = rejectedMessage.ExchangeName;
-                RoutingKey = rejectedMessage.RoutingKey;
-                Properties = rejectedMessage.Properties;
-                BodyEncrypted = rejectedMessage.BodyEncrypted;
+                ExchangeName = droppedMessage.ExchangeName;
+                RoutingKey = droppedMessage.RoutingKey;
+                Properties = droppedMessage.Properties;
+                BodyEncrypted = droppedMessage.BodyEncrypted;
             }
 
             public BasicProperties GetBasicProperties()
