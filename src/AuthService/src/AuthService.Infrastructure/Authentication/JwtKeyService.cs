@@ -25,6 +25,8 @@ namespace AuthService.Infrastructure.Authentication
                 _privateKeys.Add(new JwtKeyDto()
                 {
                     Id = keyInfo.KeyId,
+                    ExpirationTime = keyInfo.ExpirationTime,
+                    NotBeforeTime = keyInfo.NotBeforeTime,
                     Key = new RsaSecurityKey(rsa) { KeyId = keyInfo.KeyId },
                     Parameters = null
                 });
@@ -34,6 +36,8 @@ namespace AuthService.Infrastructure.Authentication
                 _publicKeys.Add(new JwtKeyDto()
                 {
                     Id = keyInfo.KeyId,
+                    ExpirationTime = keyInfo.ExpirationTime,
+                    NotBeforeTime = keyInfo.NotBeforeTime,
                     Key = new RsaSecurityKey(rsa) { KeyId = keyInfo.KeyId },
                     Parameters = rsa.ExportParameters(false)
                 });
