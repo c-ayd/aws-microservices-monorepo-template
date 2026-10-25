@@ -79,12 +79,12 @@ namespace AuthService.Api.BackgroundServices
 
             // Save messages to database
             await using var scope = _scopeFactory.CreateAsyncScope();
-            var authRejectedMessagesDbContext = scope.ServiceProvider.GetRequiredService<RejectedMessagesDbContext>();
+            var rejectedMessagesDbContext = scope.ServiceProvider.GetRequiredService<RejectedMessagesDbContext>();
 
             try
             {
-                await authRejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
-                await authRejectedMessagesDbContext.SaveChangesAsync(cancellationToken);
+                await rejectedMessagesDbContext.WrappedDataKeys.AddAsync(wrappedDataKey, cancellationToken);
+                await rejectedMessagesDbContext.SaveChangesAsync(cancellationToken);
 
                 return true;
             }

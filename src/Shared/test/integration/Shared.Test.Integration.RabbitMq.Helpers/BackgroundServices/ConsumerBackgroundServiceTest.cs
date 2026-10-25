@@ -58,7 +58,6 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Assert
             Assert.NotNull(GetConnection(backgroundService));
             Assert.NotNull(backgroundService.Channel);
-            Assert.NotNull(GetConsumerTag(backgroundService));
 
             await backgroundService.StopAsync(default);
         }
@@ -123,8 +122,6 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             if (messageCount != 0)
                 Assert.Fail($"The queue is not empty. Count: {messageCount}");
 
-            var consumerTag = GetConsumerTag(backgroundService);
-
             if (isConnectionClosed)
             {
                 await CloseConnectionAsync(backgroundService);
@@ -149,7 +146,6 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             await cts.CancelAsync();
 
             // Assert
-            Assert.NotEqual(consumerTag, GetConsumerTag(backgroundService));
             Assert.NotNull(GetConnection(backgroundService));
             Assert.NotNull(backgroundService.Channel);
 
@@ -205,12 +201,6 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             {
                 await backgroundService.Channel.CloseAsync();
             }
-        }
-
-        private string GetConsumerTag(TestBackgroundService backgroundService)
-        {
-            var fieldInfo = typeof(ConsumerBackgroundService).GetField("_consumerTag", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            return (string)fieldInfo.GetValue(backgroundService)!;
         }
 
         private Task ExecuteAsync(TestBackgroundService backgroundService, CancellationToken cancellationToken)

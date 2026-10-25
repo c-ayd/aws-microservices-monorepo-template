@@ -230,6 +230,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
                             kid = "k1",
                             use = "sig",
                             alg = "RS256",
+                            exp = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
+                            nbf = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
                             n = Base64UrlEncoder.Encode(k1Parameters.Modulus),
                             e = Base64UrlEncoder.Encode(k1Parameters.Exponent)
                         },
@@ -239,6 +241,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
                             kid = "k2",
                             use = "sig",
                             alg = "RS256",
+                            exp = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
+                            nbf = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
                             n = Base64UrlEncoder.Encode(k2Parameters.Modulus),
                             e = Base64UrlEncoder.Encode(k2Parameters.Exponent)
                         }

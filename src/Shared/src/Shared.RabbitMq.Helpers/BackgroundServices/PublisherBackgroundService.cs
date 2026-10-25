@@ -100,7 +100,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                     }
                     catch (Exception exception)
                     {
-                        _logger.LogCritical(exception, "Someting went wrong while checking the connection and channels for {PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
+                        _logger.LogError(exception, "Something went wrong while checking the connection and channel for {PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
                             publisher.Name,
                             _retryPublishTime.TotalSeconds,
                             exception.Message);
@@ -138,7 +138,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                         }
                         catch (Exception exception)
                         {
-                            _logger.LogCritical(exception, "Someting went wrong while saving the rejected messages for {PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
+                            _logger.LogError(exception, "Something went wrong while saving the rejected messages for {PublisherName}. The process will rerun in {RetryPubishTime} seconds. Message: {Message}",
                                 publisher.Name,
                                 _retryPublishTime.TotalSeconds,
                                 exception.Message);
@@ -188,7 +188,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogCritical(exception, "Someting went wrong while saving the rejected messages for the last time. Message: {Message}",
+                    _logger.LogCritical(exception, "Something went wrong while saving the rejected messages for the last time. Message: {Message}",
                         exception.Message);
                 }
             }

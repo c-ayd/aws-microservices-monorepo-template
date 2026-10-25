@@ -157,7 +157,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogCritical(exception, "Someting went wrong while checking the connection and channel. The process will rerun in {CheckTime} seconds. Message: {Message}",
+                    _logger.LogError(exception, "Something went wrong while checking the connection and channel. The process will rerun in {CheckTime} seconds. Message: {Message}",
                         _healthCheckTime.TotalSeconds,
                         exception.Message);
                 }

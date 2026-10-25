@@ -101,6 +101,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtOptions.Authority,
             ValidAudience = jwtOptions.Audience,
             ValidAlgorithms = [SecurityAlgorithms.RsaSha256],
+            ClockSkew = TimeSpan.FromMinutes(5), // Same as the access token lifespan
 
             NameClaimType = ApiGatewayAuthKeys.Claims.Id.ClaimType,
             RoleClaimType = ApiGatewayAuthKeys.Claims.Roles.ClaimType
@@ -109,8 +110,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Value);
         options.BackchannelHttpHandler = new SocketsHttpHandler
         {
-            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
             SslOptions = new SslClientAuthenticationOptions()
             {
                 RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>

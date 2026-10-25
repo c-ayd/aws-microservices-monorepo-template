@@ -73,7 +73,7 @@ namespace AuthService.Test.Integration.Api.Collections
                     Connections = new
                     {
                         AuthDb = PostgreSqlFixture.GetConnectionOptions(_authDbName),
-                        AuthRejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_rejectedMessagesDbName),
+                        RejectedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_rejectedMessagesDbName),
                         RabbitMq = RabbitMqFixture.GetConnectionOptions(),
                         TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
                     }
@@ -120,12 +120,16 @@ namespace AuthService.Test.Integration.Api.Collections
                         new JwtKeysOptions.KeyInfo()
                         {
                             KeyId = "k1",
+                            ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
+                            NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
                             PrivateKey = File.ReadAllText("./test-jwt-k1-private.pem"),
                             PublicKey = File.ReadAllText("./test-jwt-k1-public.pem")
                         },
                         new JwtKeysOptions.KeyInfo()
                         {
                             KeyId = "k2",
+                            ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
+                            NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
                             PrivateKey = File.ReadAllText("./test-jwt-k2-private.pem"),
                             PublicKey = File.ReadAllText("./test-jwt-k2-public.pem")
                         }
@@ -172,6 +176,10 @@ namespace AuthService.Test.Integration.Api.Collections
                         _jwtKeysOptions.CurrentKeyId),
                     .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.KeyId)}",
                         k.KeyId)),
+                    .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.ExpirationTime)}",
+                        k.ExpirationTime.ToString())),
+                    .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.NotBeforeTime)}",
+                        k.NotBeforeTime.ToString())),
                     .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.PrivateKey)}",
                         k.PrivateKey)),
                     .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.PublicKey)}",

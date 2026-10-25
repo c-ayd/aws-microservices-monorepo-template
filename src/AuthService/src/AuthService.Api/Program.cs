@@ -60,11 +60,7 @@ builder.Services.AddHealthChecks();
 builder.Services.AddHostedService<RabbitMqPublisherBackgroundService>();
 builder.Services.AddHostedService<RedisBackgroundServices>();
 
-builder.RegisterOptionsFromAssemblies(
-    Assembly.GetAssembly(typeof(AuthService.Persistence.ServiceRegistration))!,
-    Assembly.GetAssembly(typeof(AuthService.Infrastructure.ServiceRegistration))!,
-    Assembly.GetAssembly(typeof(AuthService.Application.ServiceRegistration))!
-);
+builder.RegisterOptionsFromAssemblies(Assembly.GetAssembly(typeof(AuthService.Application.ServiceRegistration))!);
 
 builder.Services.AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(AuthService.Application.ServiceRegistration))!);
 

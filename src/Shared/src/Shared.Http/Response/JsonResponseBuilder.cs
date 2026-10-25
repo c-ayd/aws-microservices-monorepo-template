@@ -15,10 +15,7 @@ namespace Shared.Http.Response
         public const string MetadataKey = "metadata";
         public const string ErrorsKey = "errors";
 
-        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
         /// <summary>
         /// Creates a success response with optional metadata.

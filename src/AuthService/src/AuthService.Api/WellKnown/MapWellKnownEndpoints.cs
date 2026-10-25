@@ -30,6 +30,8 @@ namespace AuthService.Api.WellKnown
                         kid = k.Id,
                         use = "sig",
                         alg = "RS256",
+                        exp = k.ExpirationTime,
+                        nbf = k.NotBeforeTime,
                         n = Base64UrlEncoder.Encode(k.Parameters!.Value.Modulus),
                         e = Base64UrlEncoder.Encode(k.Parameters.Value.Exponent)
                     }).ToList()
