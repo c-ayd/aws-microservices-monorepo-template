@@ -85,10 +85,11 @@ namespace Shared.Test.Helpers.Fixtures
 
         public async Task SecretsManager_AddBinaryAsync(string name, byte[] value)
         {
+            await using var memoryStream = new MemoryStream(value, writable: false);
             await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
             {
                 Name = name,
-                SecretBinary = new MemoryStream(value, writable: false)
+                SecretBinary = memoryStream
             });
         }
 
@@ -198,7 +199,7 @@ namespace Shared.Test.Helpers.Fixtures
                 Key = key
             });
 
-            var memoryStream = new MemoryStream();
+            await using var memoryStream = new MemoryStream();
             await response.ResponseStream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
 
