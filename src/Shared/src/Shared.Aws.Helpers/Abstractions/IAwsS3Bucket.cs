@@ -1,6 +1,6 @@
 namespace Shared.Aws.Helpers.Abstractions
 {
-    public interface IStorage
+    public interface IAwsS3Bucket
     {
         Task UploadFileAsync(string id, string folder, string fileName, Stream content, string? contentType = null, CancellationToken cancellationToken = default);
         Task UploadFileAsync(string id, string folder, string fileName, byte[] content, string? contentType = null, CancellationToken cancellationToken = default);

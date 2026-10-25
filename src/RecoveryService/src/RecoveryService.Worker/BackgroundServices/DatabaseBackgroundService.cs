@@ -15,14 +15,14 @@ namespace RecoveryService.Worker.BackgroundServices
         private readonly int _batchSize = 200;
 
         private readonly IServiceScopeFactory _scopeFactory;
-        private IKeyManagement _keyManagement;
+        private IAwsKms _awsKms;
         private readonly ILogger<DatabaseBackgroundService> _logger;
 
         public DatabaseBackgroundService(
             IServiceScopeFactory scopeFactory,
             IOptions<ConnectionsOptions> connectionsOptions,
             IOptions<CABundleOptions> caBundleOptions,
-            IKeyManagement keyManagement,
+            IAwsKms awsKms,
             ILogger<DatabaseBackgroundService> logger)
             : base(
             connectionsOptions.Value.RabbitMq,
@@ -31,7 +31,7 @@ namespace RecoveryService.Worker.BackgroundServices
             logger)
         {
             _scopeFactory = scopeFactory;
-            _keyManagement = keyManagement;
+            _awsKms = awsKms;
             _logger = logger;
         }
 
@@ -64,7 +64,7 @@ namespace RecoveryService.Worker.BackgroundServices
                 return;
             }
 
-            var encryptionKey = await _keyManagement.DecryptAsync(wrappedDataKey.Value, aad: null, cancellationToken);
+            var encryptionKey = await _awsKms.DecryptAsync(wrappedDataKey.Value, aad: null, cancellationToken);
             foreach (var droppedMessage in wrappedDataKey.DroppedMessages)
             {
                 // To spend less time having the encryption key in the memory, the encrpytion process for the entire batch

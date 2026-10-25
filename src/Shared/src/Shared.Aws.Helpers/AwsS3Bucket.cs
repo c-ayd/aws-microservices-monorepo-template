@@ -4,7 +4,7 @@ using Shared.Aws.Helpers.Abstractions;
 
 namespace Shared.Aws.Helpers
 {
-    internal class AwsS3Bucket : IStorage
+    internal class AwsS3Bucket : IAwsS3Bucket
     {
         private readonly int _maxBatchSize = 1000;
 

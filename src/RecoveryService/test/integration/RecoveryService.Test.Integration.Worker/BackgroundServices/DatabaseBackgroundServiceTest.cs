@@ -62,7 +62,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             if (queueMessageCount != 0)
                 Assert.Fail($"The queues is not empty. Count: {queueMessageCount}.");
             
-            var awsKms = _collectionCluster.RecoveryWebApp.GetService<IKeyManagement>();
+            var awsKms = _collectionCluster.RecoveryWebApp.GetService<IAwsKms>();
             var encryptionKey = await awsKms.GenerateEncryptionKeyAsync("alias/test-alias");
             
             var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);

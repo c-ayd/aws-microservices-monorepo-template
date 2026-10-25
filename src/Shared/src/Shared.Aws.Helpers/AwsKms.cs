@@ -5,7 +5,7 @@ using Shared.Aws.Helpers.Structures;
 
 namespace Shared.Aws.Helpers
 {
-    internal class AwsKms : IKeyManagement
+    internal class AwsKms : IAwsKms
     {
         private readonly IAmazonKeyManagementService _awsKms;
 

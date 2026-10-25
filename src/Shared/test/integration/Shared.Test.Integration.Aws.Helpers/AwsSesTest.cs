@@ -24,7 +24,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var body = "Body {{param2}} - {{param3}}";
             await _collectionCluster.AwsFixture.SES_CreateTemplateAsync(templateName, subject, body);
 
-            var awsSes = _collectionCluster.WebApiFixture.GetService<IEmailSender>();
+            var awsSes = _collectionCluster.WebApiFixture.GetService<IAwsSes>();
 
             var to = EmailGenerator.Generate();
             var templateParams = new Dictionary<string, string>()

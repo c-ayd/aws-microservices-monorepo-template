@@ -15,7 +15,7 @@ namespace Shared.Aws.Helpers.DependencyInjection
                     ((AmazonS3Config)config).ForcePathStyle = true;
                 }
             });
-            services.AddSingleton<IStorage, AwsS3Bucket>();
+            services.AddSingleton<IAwsS3Bucket, AwsS3Bucket>();
         }
     }
 }

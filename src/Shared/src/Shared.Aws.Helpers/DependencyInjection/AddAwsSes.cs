@@ -9,7 +9,7 @@ namespace Shared.Aws.Helpers.DependencyInjection
         public static void AddAwsSes(this IServiceCollection services)
         {
             services.AddAWSService<IAmazonSimpleEmailServiceV2>();
-            services.AddSingleton<IEmailSender, AwsSes>();
+            services.AddSingleton<IAwsSes, AwsSes>();
         }
     }
 }

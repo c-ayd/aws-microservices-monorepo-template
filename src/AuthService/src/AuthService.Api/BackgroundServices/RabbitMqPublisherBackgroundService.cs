@@ -20,9 +20,9 @@ namespace AuthService.Api.BackgroundServices
         private const int _minNumberOfDroppedMessagesForFallback = 1000;
 
         private readonly string _awsKmsAlias;
-        private readonly IKeyManagement _keyManagement;
+        private readonly IAwsKms _awsKms;
         private readonly string _awsS3BucketName;
-        private readonly IStorage _storage;
+        private readonly IAwsS3Bucket _awsS3Bucket;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<RabbitMqPublisherBackgroundService> _logger;
 
@@ -31,8 +31,8 @@ namespace AuthService.Api.BackgroundServices
             IOptions<CABundleOptions> caBundleOptions,
             IOptions<EncrpytionOptions> encryptionOptions,
             IOptions<StorageOptions> storageOptions,
-            IKeyManagement keyManagement,
-            IStorage storage,
+            IAwsKms awsKms,
+            IAwsS3Bucket awsS3Bucket,
             IServiceScopeFactory scopeFactory,
             IEmailService emailService,
             ILogger<RabbitMqPublisherBackgroundService> logger)
@@ -48,9 +48,9 @@ namespace AuthService.Api.BackgroundServices
             logger)
         {
             _awsKmsAlias = encryptionOptions.Value.AwsKmsAlias;
-            _keyManagement = keyManagement;
+            _awsKms = awsKms;
             _awsS3BucketName = storageOptions.Value.AwsS3BucketName;
-            _storage = storage;
+            _awsS3Bucket = awsS3Bucket;
             _scopeFactory = scopeFactory;
             _logger = logger;
         }
@@ -62,7 +62,7 @@ namespace AuthService.Api.BackgroundServices
             CancellationToken cancellationToken = default)
         {
             // Encrypt messages
-            var encryptionKey = await _keyManagement.GenerateEncryptionKeyAsync(_awsKmsAlias);
+            var encryptionKey = await _awsKms.GenerateEncryptionKeyAsync(_awsKmsAlias);
 
             var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
             foreach (var droppedMessage in droppedMessages)
@@ -112,7 +112,7 @@ namespace AuthService.Api.BackgroundServices
                 return false;
 
             var jsonString = JsonSerializer.Serialize(new MessageFileContent(wrappedDataKey));
-            await _storage.UploadFileAsync(
+            await _awsS3Bucket.UploadFileAsync(
                 _awsS3BucketName,
                 folder: "auth-svc",
                 fileName: $"{DateTimeOffset.UtcNow.ToString("yyyy-MM-dd_HH:mm:ss")}_{Guid.NewGuid()}.json",

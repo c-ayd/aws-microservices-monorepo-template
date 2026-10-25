@@ -22,7 +22,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var alias = "alias/aws-kms/encrypt";
             await _collectionCluster.AwsFixture.KMS_CreateKekAsync(alias);
 
-            var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
+            var awsKms = _collectionCluster.WebApiFixture.GetService<IAwsKms>();
 
             var value = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
 
@@ -37,7 +37,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         public async Task DecryptAsync_WhenEncryptedValueIsInvalid_ShouldThrowException()
         {
             // Arrange
-            var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
+            var awsKms = _collectionCluster.WebApiFixture.GetService<IAwsKms>();
 
             // Act
             var exception = Record.ExceptionAsync(async () =>
@@ -56,7 +56,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var alias = "alias/aws-kms/decrypt";
             await _collectionCluster.AwsFixture.KMS_CreateKekAsync(alias);
 
-            var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
+            var awsKms = _collectionCluster.WebApiFixture.GetService<IAwsKms>();
 
             var value = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
             var encryptedValue = await awsKms.EncryptAsync(alias, value);
@@ -75,7 +75,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var alias = "alias/aws-kms/encryption-key";
             await _collectionCluster.AwsFixture.KMS_CreateKekAsync(alias);
 
-            var awsKms = _collectionCluster.WebApiFixture.GetService<IKeyManagement>();
+            var awsKms = _collectionCluster.WebApiFixture.GetService<IAwsKms>();
 
             // Act
             var encryptionKey = await awsKms.GenerateEncryptionKeyAsync(alias);

@@ -55,7 +55,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
 
-            var encryptionKey = await _collectionCluster.AuthApiWebApp.GetService<IKeyManagement>().DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
+            var encryptionKey = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>().DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
             foreach (var droppedMessage in droppedMessages)
             {
                 var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
@@ -148,7 +148,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
 
-            var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
             var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-graceful-shutdown", "auth-svc");
             Assert.Single(fileNames);
             
@@ -185,7 +185,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             // Assert
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
 
-            var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
             var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-graceful-shutdown", "auth-svc");
             Assert.Single(fileNames);
 

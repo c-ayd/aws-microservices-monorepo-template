@@ -23,7 +23,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var value = StringGenerator.GenerateAlphanumeric();
             await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(id, value);
 
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
+            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
 
             // Act
             var result = await awsSecretsManager.GetSecretStringAsync(id);
@@ -48,7 +48,7 @@ namespace Shared.Test.Integration.Aws.Helpers
                 await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(secret.Key, secret.Value);
             }
 
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
+            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
 
             // Act
             var result = await awsSecretsManager.GetMultipleSecretStringsAsync(secrets.Keys);
@@ -80,7 +80,7 @@ namespace Shared.Test.Integration.Aws.Helpers
                 await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(secret.Key, secret.Value);
             }
 
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
+            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
             await awsSecretsManager.GetSecretStringAsync(secrets.Keys.ElementAt(0));
 
             // Act
@@ -113,7 +113,7 @@ namespace Shared.Test.Integration.Aws.Helpers
                 await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(secret.Key, secret.Value);
             }
 
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
+            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
             foreach (var secret in secrets)
             {
                 await awsSecretsManager.GetSecretStringAsync(secret.Key);
@@ -145,7 +145,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             var value = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
             await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(id, value);
 
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
+            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
 
             // Act
             var result = await awsSecretsManager.GetSecretBinaryAsync(id);
@@ -170,7 +170,7 @@ namespace Shared.Test.Integration.Aws.Helpers
                 await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(secret.Key, secret.Value);
             }
 
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
+            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
 
             // Act
             var result = await awsSecretsManager.GetMultipleSecretBinariesAsync(secrets.Keys);
@@ -202,7 +202,7 @@ namespace Shared.Test.Integration.Aws.Helpers
                 await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(secret.Key, secret.Value);
             }
 
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
+            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
             await awsSecretsManager.GetSecretBinaryAsync(secrets.Keys.ElementAt(0));
 
             // Act
@@ -235,7 +235,7 @@ namespace Shared.Test.Integration.Aws.Helpers
                 await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(secret.Key, secret.Value);
             }
 
-            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<ISecretsManager>();
+            var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
             foreach (var secret in secrets)
             {
                 await awsSecretsManager.GetSecretBinaryAsync(secret.Key);

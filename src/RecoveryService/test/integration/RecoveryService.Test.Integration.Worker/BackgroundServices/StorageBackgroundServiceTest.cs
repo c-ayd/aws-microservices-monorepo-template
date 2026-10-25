@@ -31,7 +31,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             if (queueMessageCount != 0)
                 Assert.Fail($"The queues is not empty. Count: {queueMessageCount}.");
 
-            var awsKms = _collectionCluster.RecoveryWebApp.GetService<IKeyManagement>();
+            var awsKms = _collectionCluster.RecoveryWebApp.GetService<IAwsKms>();
             var encryptionKey = await awsKms.GenerateEncryptionKeyAsync("alias/test-alias");
 
             var wrappedDataKey = new WrappedDataKey(encryptionKey.DekEncrypted);
@@ -52,7 +52,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                     bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(message), encryptionKey.Dek, deleteKey: false)));
             }
 
-            var awsS3Bucket = _collectionCluster.RecoveryWebApp.GetService<IStorage>();
+            var awsS3Bucket = _collectionCluster.RecoveryWebApp.GetService<IAwsS3Bucket>();
 
             var storageOptions = _collectionCluster.RecoveryWebApp.GetOptions<StorageOptions>();
             var jsonString = JsonSerializer.Serialize(new MessageFileContent(wrappedDataKey));
