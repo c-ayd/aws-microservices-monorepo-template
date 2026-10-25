@@ -14,6 +14,9 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
     {
         public Guid Id { get; init; }
 
+        public string ServiceName { get; set; }
+        public string PublisherName { get; set; }
+
         public string ExchangeName { get; set; }
         public string RoutingKey { get; set; }
         public string Properties { get; set; }
@@ -32,6 +35,8 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
 
         public DroppedMessage(
             Guid wrappedDataKeyId,
+            string serviceName,
+            string publisherName,
             string exchangeName,
             string routingKey,
             BasicProperties properties,
@@ -40,6 +45,9 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
             WrappedDataKeyId = wrappedDataKeyId;
 
             Id = Guid.CreateVersion7();
+
+            ServiceName = serviceName;
+            PublisherName = publisherName;
 
             ExchangeName = exchangeName;
             RoutingKey = routingKey;

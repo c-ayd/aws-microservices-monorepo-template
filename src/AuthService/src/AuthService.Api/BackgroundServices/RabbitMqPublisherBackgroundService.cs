@@ -69,6 +69,8 @@ namespace AuthService.Api.BackgroundServices
             {
                 wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
+                    droppedMessage.ServiceName,
+                    droppedMessage.PublisherName,
                     droppedMessage.ExchangeName,
                     droppedMessage.RoutingKey,
                     droppedMessage.Properties,

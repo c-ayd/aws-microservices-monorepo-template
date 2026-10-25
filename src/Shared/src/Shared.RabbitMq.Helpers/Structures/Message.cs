@@ -8,6 +8,11 @@ namespace Shared.RabbitMq.Helpers.Structures
     public class Message
     {
         /// <summary>
+        /// The name of the microservice that has sent or has tried to sent this message
+        /// </summary>
+        public string ServiceName { get; init; }
+
+        /// <summary>
         /// The name of the publisher that has sent or has tried to sent this message
         /// </summary>
         public string PublisherName { get; init; }
@@ -36,12 +41,14 @@ namespace Shared.RabbitMq.Helpers.Structures
         internal int RetryCount { get; set; }
 
         public Message(
+            string serviceName,
             string publisherName,
             string exchangeName,
             string routingKey,
             BasicProperties properties,
             byte[] body)
         {
+            ServiceName = serviceName;
             PublisherName = publisherName;
             ExchangeName = exchangeName;
             RoutingKey = routingKey;

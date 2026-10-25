@@ -40,6 +40,8 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             {
                 wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
+                    serviceName: "TestService",
+                    publisherName: "TestPublisher",
                     exchangeName: "test.recovery",
                     routingKey: "test.recovery.send",
                     properties: new BasicProperties()

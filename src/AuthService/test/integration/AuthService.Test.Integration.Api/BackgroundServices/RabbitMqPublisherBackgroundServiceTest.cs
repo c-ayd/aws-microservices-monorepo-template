@@ -35,6 +35,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             for (int i = 0; i < 2; ++i)
             {
                 droppedMessages.Add(new Message(
+                    serviceName: StringGenerator.GenerateAlphanumeric(),
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
@@ -80,6 +81,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             for (int i = 0; i < 2; ++i)
             {
                 droppedMessages.Add(new Message(
+                    serviceName: StringGenerator.GenerateAlphanumeric(),
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
@@ -127,6 +129,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             for (int i = 0; i < minBatchSize; ++i)
             {
                 droppedMessages.Add(new Message(
+                    serviceName: StringGenerator.GenerateAlphanumeric(),
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
@@ -163,6 +166,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             for (int i = 0; i < 2; ++i)
             {
                 droppedMessage.Add(new Message(
+                    serviceName: StringGenerator.GenerateAlphanumeric(),
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
