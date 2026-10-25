@@ -126,7 +126,7 @@ namespace NotificationService.Worker.BackgroundServices
 
                 if (message == null)
                 {
-                    _logger.LogWarning("The message could not be deserialized. Correlation ID: {CorrelationId}, Timestamp: {Timestamp}, User ID: {UserId}",
+                    _logger.LogError("The message could not be deserialized. Correlation ID: {CorrelationId}, Timestamp: {Timestamp}, User ID: {UserId}",
                         args.BasicProperties.CorrelationId,
                         args.BasicProperties.Timestamp,
                         args.BasicProperties.Headers != null && args.BasicProperties.Headers.TryGetValue("UserId", out var userId) ?
