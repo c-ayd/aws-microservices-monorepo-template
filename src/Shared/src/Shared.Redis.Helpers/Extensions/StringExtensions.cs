@@ -5,16 +5,6 @@ namespace Shared.Redis.Helpers.Extensions
 {
     public static class StringExtensions
     {
-        private static readonly JsonSerializerOptions _jsonWriteOptions = new JsonSerializerOptions()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        private static readonly JsonSerializerOptions _jsonReadOptions = new JsonSerializerOptions()
-        {
-            PropertyNameCaseInsensitive = true
-        };
-
         /// <summary>
         /// Converts a given value to a JSON string and saves the string to Redis DB.
         /// </summary>
@@ -24,7 +14,7 @@ namespace Shared.Redis.Helpers.Extensions
         /// <param name="expirationTime">Lifespan of the entry. The default value is 1 hour</param>
         public static async Task SaveAsStringAsync<T>(this IDatabase db, string key, T value, TimeSpan? expirationTime = null)
         {
-            var json = JsonSerializer.Serialize(value, _jsonWriteOptions);
+            var json = JsonSerializer.Serialize(value);
 
             await db.StringSetAsync(key, json, expirationTime ?? TimeSpan.FromHours(1));
         }
@@ -42,7 +32,7 @@ namespace Shared.Redis.Helpers.Extensions
             if (!json.HasValue)
                 return (false, default);
 
-            var value = JsonSerializer.Deserialize<T>(json.ToString(), _jsonReadOptions);
+            var value = JsonSerializer.Deserialize<T>(json.ToString());
             return (true, value);
         }
     }
