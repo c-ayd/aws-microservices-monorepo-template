@@ -71,12 +71,12 @@ namespace AuthService.Infrastructure.Authentication
             throw new NoActiveJwtKeyException("private key");
         }
 
-        public IReadOnlyCollection<JwtKeyDto> GetAllPublicKeys()
+        public IReadOnlyList<JwtKeyDto> GetAllPublicKeys()
         {
             return _publicKeys.AsReadOnly();
         }
 
-        public IReadOnlyCollection<JwtKeyDto> GetAllPrivateKeys()
+        public IReadOnlyList<JwtKeyDto> GetAllPrivateKeys()
         {
             return _privateKeys.AsReadOnly();
         }
