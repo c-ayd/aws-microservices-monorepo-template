@@ -84,16 +84,16 @@ namespace AuthService.Test.Integration.Api.Collections
                             KeyId = "v1",
                             ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
                             NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
-                            PrivateKey = File.ReadAllText("./test-jwt-k1-private.pem"),
-                            PublicKey = File.ReadAllText("./test-jwt-k1-public.pem")
+                            PrivateKey = File.ReadAllText("./test-jwt-v1-private.pem"),
+                            PublicKey = File.ReadAllText("./test-jwt-v1-public.pem")
                         },
                         new JwtKeysOptions.KeyInfo()
                         {
                             KeyId = "v2",
                             ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
                             NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
-                            PrivateKey = File.ReadAllText("./test-jwt-k2-private.pem"),
-                            PublicKey = File.ReadAllText("./test-jwt-k2-public.pem")
+                            PrivateKey = File.ReadAllText("./test-jwt-v2-private.pem"),
+                            PublicKey = File.ReadAllText("./test-jwt-v2-public.pem")
                         }
                     }
                 });

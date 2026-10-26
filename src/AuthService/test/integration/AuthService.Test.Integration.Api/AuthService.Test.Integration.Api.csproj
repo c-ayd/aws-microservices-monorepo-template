@@ -26,10 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Keys/test-jwt-k1-private.pem" Link="test-jwt-k1-private.pem" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test-jwt-k1-public.pem" Link="test-jwt-k1-public.pem" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test-jwt-k2-private.pem" Link="test-jwt-k2-private.pem" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test-jwt-k2-public.pem" Link="test-jwt-k2-public.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-v1-private.pem" Link="test-jwt-v1-private.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-v1-public.pem" Link="test-jwt-v1-public.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-v2-private.pem" Link="test-jwt-v2-private.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-v2-public.pem" Link="test-jwt-v2-public.pem" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/test-auth-service-server.key" Link="Certs/test-auth-service-server.key" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Certs/test-auth-service-server.crt" Link="Certs/test-auth-service-server.crt" CopyToOutputDirectory="PreserveNewest" />
