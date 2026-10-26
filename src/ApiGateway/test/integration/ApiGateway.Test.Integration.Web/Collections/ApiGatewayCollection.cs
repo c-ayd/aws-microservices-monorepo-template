@@ -227,7 +227,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                         new
                         {
                             kty = "RSA",
-                            kid = "k1",
+                            kid = "v1",
                             use = "sig",
                             alg = "RS256",
                             exp = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
@@ -238,7 +238,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                         new
                         {
                             kty = "RSA",
-                            kid = "k2",
+                            kid = "v2",
                             use = "sig",
                             alg = "RS256",
                             exp = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
@@ -284,7 +284,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                 rsa.ImportFromPem(privatePem);
                 var key = new RsaSecurityKey(rsa)
                 {
-                    KeyId = "k2"
+                    KeyId = "v2"
                 };
 
                 var token = new JwtSecurityToken(
@@ -294,7 +294,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                     expires: expired.HasValue && expired.Value ? DateTimeOffset.UtcNow.AddDays(-1).UtcDateTime : DateTimeOffset.UtcNow.AddDays(1).UtcDateTime,
                     signingCredentials: new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
                 );
-                token.Header["kid"] = "k2";
+                token.Header["kid"] = "v2";
 
                 await Results.Content(new JwtSecurityTokenHandler().WriteToken(token), "text/plain")
                     .ExecuteAsync(context);

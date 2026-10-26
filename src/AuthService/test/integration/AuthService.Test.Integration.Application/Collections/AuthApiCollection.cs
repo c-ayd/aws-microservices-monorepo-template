@@ -102,12 +102,12 @@ namespace AuthService.Test.Integration.Application.Collections
             AuthApiWebApp = new AuthApiWebAppFactory(
                 new JwtKeysOptions()
                 {
-                    CurrentKeyId = "k2",
+                    CurrentKeyId = "v2",
                     Keys = new List<JwtKeysOptions.KeyInfo>()
                     {
                         new JwtKeysOptions.KeyInfo()
                         {
-                            KeyId = "k1",
+                            KeyId = "v1",
                             ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
                             NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
                             PrivateKey = File.ReadAllText("./test-jwt-k1-private.pem"),
@@ -115,7 +115,7 @@ namespace AuthService.Test.Integration.Application.Collections
                         },
                         new JwtKeysOptions.KeyInfo()
                         {
-                            KeyId = "k2",
+                            KeyId = "v2",
                             ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
                             NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
                             PrivateKey = File.ReadAllText("./test-jwt-k2-private.pem"),
