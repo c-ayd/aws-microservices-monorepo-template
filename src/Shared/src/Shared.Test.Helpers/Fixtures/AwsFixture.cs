@@ -97,7 +97,8 @@ namespace Shared.Test.Helpers.Fixtures
         {
             await _awsSecretsManagerClient.DeleteSecretAsync(new DeleteSecretRequest()
             {
-                SecretId = name
+                SecretId = name,
+                ForceDeleteWithoutRecovery = true
             });
         }
         //~ End
