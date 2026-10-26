@@ -39,7 +39,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
 
             var request = new RegisterRequest(email, PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -58,7 +58,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
             var email = EmailGenerator.Generate();
             var request = new RegisterRequest(email, PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);

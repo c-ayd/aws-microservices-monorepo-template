@@ -22,7 +22,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
         public async Task ApplyTransform_WhenNotAuthenticated_ShouldAddNothingToHeaders()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
 
             // Act
             var response = await apiGatewayClient.GetAsync("/auth/test/get-headers");
@@ -43,7 +43,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             // Arrange
             var accountId = Guid.NewGuid().ToString();
 
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={accountId}&issuedInPast=true");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
@@ -51,7 +51,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
                 .GetDatabase()
                 .SaveAsStringAsync(accountId, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), TimeSpan.FromMinutes(5));
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -74,11 +74,11 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             // Arrange
             var accountId = Guid.NewGuid().ToString();
 
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={accountId}&expired=true");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -99,7 +99,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
         public async Task ApplyTransform_WhenTokenIsInvalid_ShouldAddNothingToHeadersAndRemoveTokenFromHeaders()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer Token");
 
             // Act
@@ -127,7 +127,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             var emailVerified = true;
             var preferredLanguage = "abc";
 
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
 
             string tokenUrl = $"/test/generate-access-token?accountId={accountId}&emailVerified={emailVerified}&preferredLang={preferredLanguage}";
             if (hasRoles)
@@ -139,7 +139,7 @@ namespace ApiGateway.Test.Integration.Web.Transforms.Request
             var tokenResponse = await authServiceClient.GetAsync(tokenUrl);
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act

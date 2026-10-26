@@ -66,7 +66,8 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
         public class NotificationWebAppFactory : WebAppFactoryFixture<Program>
         {
-            public NotificationWebAppFactory() : base(CABundlePath)
+            public NotificationWebAppFactory()
+                : base(defaultPortConfigName: "Http", CABundlePath)
             {
             }
 

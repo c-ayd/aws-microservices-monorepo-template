@@ -85,7 +85,8 @@ namespace RecoveryService.Test.Integration.Worker.Collections
 
         public class RecoveryWebAppFactory : WebAppFactoryFixture<Program>
         {
-            public RecoveryWebAppFactory() : base(CABundlePath)
+            public RecoveryWebAppFactory()
+                : base(defaultPortConfigName: "Http", CABundlePath)
             {
             }
 

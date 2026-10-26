@@ -19,7 +19,7 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenNotAuthenticatedAndProtectedServiceIsRequested_ShouldReturnUnauthorized()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
 
             // Act
             var response = await apiGatewayClient.GetAsync("/protected");
@@ -32,11 +32,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenAuthenticatedAndProtectedServiceIsRequested_ShouldReturnNoContent()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -50,7 +50,7 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenNotAuthenticatedAndAdminServiceIsRequested_ShouldReturnUnauthorized()
         {
             // Arrange
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
 
             // Act
             var response = await apiGatewayClient.GetAsync("/admin");
@@ -63,11 +63,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenAuthenticatedWithNoAdminRoleAndAdminServiceIsRequested_ShouldReturnForbidden()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -81,11 +81,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Proxy_WhenAuthenticatedWithAdminRoleAndAdminServiceIsRequested_ShouldReturnNoContent()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles=Admin");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act

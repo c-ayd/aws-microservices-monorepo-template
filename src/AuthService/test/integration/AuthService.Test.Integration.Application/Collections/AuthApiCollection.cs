@@ -117,7 +117,8 @@ namespace AuthService.Test.Integration.Application.Collections
         {
             private readonly JwtKeysOptions _jwtKeysOptions;
 
-            public AuthApiWebAppFactory(JwtKeysOptions jwtKeysOptions) : base(CABundlePath)
+            public AuthApiWebAppFactory(JwtKeysOptions jwtKeysOptions)
+                : base(defaultPortConfigName: "HttpsOnly", CABundlePath)
             {
                 _jwtKeysOptions = jwtKeysOptions;
             }

@@ -30,7 +30,7 @@ namespace Shared.Test.Helpers.Fixtures
             string? caBundlePath,
             string? serverCertificatePath,
             string? serverCertificatePrivateKeyPath)
-            : base(caBundlePath)
+            : base(defaultPortConfigName: HttpsPortConfigName, caBundlePath)
         {
             _sslEnabled = sslEnabled;
             _serverPrivateKeyPath = serverCertificatePrivateKeyPath;

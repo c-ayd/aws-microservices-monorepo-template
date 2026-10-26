@@ -33,7 +33,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             // Arrange
             var request = new LoginRequest(EmailGenerator.Generate(), PasswordGenerator.Generate());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -60,7 +60,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var request = new LoginRequest(email, PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -93,7 +93,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             
             var request = new LoginRequest(email, password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -127,7 +127,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var request = new LoginRequest(email, password + "a");
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -168,7 +168,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var request = new LoginRequest(email, password + "a");
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -218,7 +218,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var request = new LoginRequest(email, password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -279,8 +279,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var request = new LoginRequest(email, password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
-
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
 

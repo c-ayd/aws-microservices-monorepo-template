@@ -41,8 +41,8 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
+                headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
@@ -74,8 +74,8 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
+                headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
@@ -121,8 +121,8 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
+                headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },

@@ -19,11 +19,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Invoke_WhenAuthenticatedAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -49,11 +49,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Invoke_WhenAuthenticatedWithAdminRoleAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles=Admin");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -79,11 +79,11 @@ namespace ApiGateway.Test.Integration.Web
         public async Task Invoke_WhenRedisIsDown_ShouldAllowTrafficUntilRedisIsUp()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act

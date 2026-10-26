@@ -140,7 +140,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
         public class ApiGatewayWebAppFactory : WebAppFactoryFixture<Program>
         {
-            public ApiGatewayWebAppFactory() : base(CABundlePath)
+            public ApiGatewayWebAppFactory()
+                : base(defaultPortConfigName: "HttpsOnly", CABundlePath)
             {
             }
 

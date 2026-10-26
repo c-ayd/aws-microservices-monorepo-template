@@ -41,8 +41,8 @@ namespace Shared.Test.Integration.Http.Response.Middlewares
         public async Task Invoke_WhenResponseIs401_ShouldReturn401ErrorItem()
         {
             // Arrange
-            using var client = _collectionCluster.WebApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
-            
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient();
+
             // Act
             var responseAnonymous = await client.GetAsync("/auth-error/anonymous");
             var responseAuthorized = await client.GetAsync("/auth-error/authorized");
@@ -58,7 +58,7 @@ namespace Shared.Test.Integration.Http.Response.Middlewares
         public async Task Invoke_WhenResponseIs403_ShouldReturn403ErrorItem()
         {
             // Arrange
-            using var client = _collectionCluster.WebApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient();
 
             var userId = Guid.NewGuid().ToString();
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, userId);
@@ -81,7 +81,7 @@ namespace Shared.Test.Integration.Http.Response.Middlewares
         public async Task Invoke_WhenResponseIsNotRelatedToAuth_ShouldDoNothing()
         {
             // Arrange
-            using var client = _collectionCluster.WebApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient();
 
             var userId = Guid.NewGuid().ToString();
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, userId);

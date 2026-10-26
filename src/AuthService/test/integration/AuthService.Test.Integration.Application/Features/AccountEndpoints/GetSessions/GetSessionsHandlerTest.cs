@@ -29,7 +29,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Get
         public async Task HandleAsync_WhenNotAuthenticated_ShouldReturnUnauthorized()
         {
             // Arrange
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.GetAsync(_endpoint);
@@ -59,8 +59,8 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Get
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
             
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
+                headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
