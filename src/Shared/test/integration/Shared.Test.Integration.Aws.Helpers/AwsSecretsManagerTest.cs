@@ -122,11 +122,17 @@ namespace Shared.Test.Integration.Aws.Helpers
             await _collectionCluster.AwsFixture.BlockTrafficAsync();
 
             // Act
-            var result = await awsSecretsManager.GetMultipleSecretStringsAsync(secrets.Keys);
-
+            Dictionary<string, string> result;
+            try
+            {
+                result = await awsSecretsManager.GetMultipleSecretStringsAsync(secrets.Keys);
+            }
+            finally
+            {
+                await _collectionCluster.AwsFixture.UnblockTrafficAsync();
+            }
+            
             // Assert
-            await _collectionCluster.AwsFixture.UnblockTrafficAsync();
-
             Assert.Equal(secrets.Count, result.Count);
             foreach (var secret in secrets)
             {
@@ -244,11 +250,17 @@ namespace Shared.Test.Integration.Aws.Helpers
             await _collectionCluster.AwsFixture.BlockTrafficAsync();
 
             // Act
-            var result = await awsSecretsManager.GetMultipleSecretBinariesAsync(secrets.Keys);
+            Dictionary<string, byte[]> result;
+            try
+            {
+                result = await awsSecretsManager.GetMultipleSecretBinariesAsync(secrets.Keys);
+            }
+            finally
+            {
+                await _collectionCluster.AwsFixture.UnblockTrafficAsync();
+            }
 
             // Assert
-            await _collectionCluster.AwsFixture.UnblockTrafficAsync();
-
             Assert.Equal(secrets.Count, result.Count);
             foreach (var secret in secrets)
             {

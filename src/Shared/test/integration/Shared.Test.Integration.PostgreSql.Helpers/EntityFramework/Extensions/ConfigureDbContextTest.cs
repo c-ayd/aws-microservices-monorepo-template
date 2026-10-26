@@ -62,10 +62,12 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
             {
                 isFailed = true;
             }
+            finally
+            {
+                await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+            }
 
             // Assert
-            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
-
             Assert.True(isFailed, "The process did not fail");
         }
 

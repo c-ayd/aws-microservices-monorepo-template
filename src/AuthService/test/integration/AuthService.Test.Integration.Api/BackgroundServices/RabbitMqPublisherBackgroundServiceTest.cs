@@ -95,11 +95,16 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessages, droppedMessages.Count, false, default])!;
-
+            try
+            {
+                await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessages, droppedMessages.Count, false, default])!;
+            }
+            finally
+            {
+                await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+            }
+            
             // Assert
-            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
-
             await using var droppedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
             var messagesFromDb = await droppedMessagesDbContext.DroppedMessages
                 .Include(rm => rm.WrappedDataKey)
@@ -143,11 +148,16 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessages, droppedMessages.Count, false, default])!;
+            try
+            {
+                await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessages, droppedMessages.Count, false, default])!;
+            }
+            finally
+            {
+                await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+            }
 
             // Assert
-            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
-
             var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
             var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-dropped-messages", "auth-svc");
             Assert.Single(fileNames);
@@ -180,11 +190,16 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.BlockTrafficAsync();
 
             // Act
-            await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessage, droppedMessage.Count, true, default])!;
+            try
+            {
+                await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessage, droppedMessage.Count, true, default])!;
+            }
+            finally
+            {
+                await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+            }
 
             // Assert
-            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
-
             var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
             var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-dropped-messages", "auth-svc");
             Assert.Single(fileNames);

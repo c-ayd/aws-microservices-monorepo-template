@@ -88,9 +88,17 @@ namespace ApiGateway.Test.Integration.Web
 
             // Act
             await _collectionCluster.RateLimiterRedis.BlockTrafficAsync();
-            var responseRedisDown = await apiGatewayClient.GetAsync("/auth");
 
-            await _collectionCluster.RateLimiterRedis.UnblockTrafficAsync();
+            HttpResponseMessage responseRedisDown;
+            try
+            {
+                responseRedisDown = await apiGatewayClient.GetAsync("/auth");
+            }
+            finally
+            {
+                await _collectionCluster.RateLimiterRedis.UnblockTrafficAsync();
+            }
+            
             var responseRedisUp = await apiGatewayClient.GetAsync("/auth");
 
             // Assert
