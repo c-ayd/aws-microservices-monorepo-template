@@ -7,8 +7,8 @@ namespace Shared.Aws.Helpers.Abstractions
         Task<MemoryStream> DownloadFileAsync(string bucketName, string folder, string fileName, CancellationToken cancellationToken = default);
         Task<Stream> StreamFileAsync(string bucketName, string folder, string fileName, CancellationToken cancellationToken = default);
         Task DeleteFileAsync(string bucketName, string folder, string fileName, CancellationToken cancellationToken = default);
-        Task<IReadOnlyList<string>> DeleteFilesAsync(string bucketName, string folder, IEnumerable<string> fileNames, CancellationToken cancellationToken = default);
-        Task<IReadOnlyList<string>> DeleteFilesAsync(string bucketName, IEnumerable<string> filePaths, CancellationToken cancellationToken = default);
-        Task<IReadOnlyList<string>> GetFileNamesUnderFolderAsync(string bucketName, string folder, CancellationToken cancellationToken = default);
+        Task<List<string>> DeleteFilesAsync(string bucketName, string folder, IEnumerable<string> fileNames, CancellationToken cancellationToken = default);
+        Task<List<string>> DeleteFilesAsync(string bucketName, IEnumerable<string> filePaths, CancellationToken cancellationToken = default);
+        Task<List<string>> GetFileNamesUnderFolderAsync(string bucketName, string folder, CancellationToken cancellationToken = default);
     }
 }

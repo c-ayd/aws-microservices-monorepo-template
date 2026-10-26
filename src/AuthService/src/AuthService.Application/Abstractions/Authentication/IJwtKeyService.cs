@@ -9,7 +9,7 @@ namespace AuthService.Application.Abstractions.Authentication
     {
         JwtKeyDto GetActivePublicKey();
         JwtKeyDto GetActivePrivateKey();
-        IReadOnlyCollection<JwtKeyDto> GetAllPublicKeys();
-        IReadOnlyCollection<JwtKeyDto> GetAllPrivateKeys();
+        IReadOnlyList<JwtKeyDto> GetAllPublicKeys();
+        IReadOnlyList<JwtKeyDto> GetAllPrivateKeys();
     }
 }
