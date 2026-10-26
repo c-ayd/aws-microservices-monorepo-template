@@ -29,9 +29,7 @@ namespace AuthService.Test.Unit.Application.Features.AccountEndpoints.Login
         public void Validate_WhenEmailAndPasswordAreCorrect_ShouldReturnNoError()
         {
             // Arrange
-            var request = new LoginRequest(
-                EmailGenerator.Generate(),
-                StringGenerator.GenerateAlphanumeric());
+            var request = new LoginRequest(EmailGenerator.Generate(), PasswordGenerator.GenerateValid());
 
             // Act
             var errors = _validator.Validate(request);

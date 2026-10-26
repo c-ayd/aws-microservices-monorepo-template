@@ -14,12 +14,12 @@ namespace Shared.Test.Unit.Crypto
         public void Hash_WhenValueIsInvalid_ShouldThrowException(string? value)
         {
             // Arrange
-            var hashOptions = new HashOptions(SHA256.Create, 16);
+            var hashOptions = new HashOptions(Algorithm: SHA256.Create, SaltSize: 16);
 
             // Act
             var exception = Record.Exception(() =>
             {
-                ValueHasher.Hash(value!, 1, (version) => hashOptions);
+                ValueHasher.Hash(value!, version: 1, (version) => hashOptions);
             });
 
             // Assert
@@ -32,30 +32,30 @@ namespace Shared.Test.Unit.Crypto
         {
             // Arrange
             var value = StringGenerator.GeneratePrintableAscii();
-            var hashOptions = new HashOptions(SHA256.Create, 16);
+            var hashOptions = new HashOptions(Algorithm: SHA256.Create, SaltSize: 16);
 
             // Act
-            var valueHashed = ValueHasher.Hash(value, 1, (version) => hashOptions);
+            var hashedValue = ValueHasher.Hash(value, version: 1, (version) => hashOptions);
 
             // Assert
-            Assert.NotNull(valueHashed);
-            Assert.NotEmpty(valueHashed);
-            Assert.NotEqual(value, valueHashed);
+            Assert.NotNull(hashedValue);
+            Assert.NotEmpty(hashedValue);
+            Assert.NotEqual(value, hashedValue);
         }
 
         [Theory]
         [InlineData("")]
         [InlineData(null)]
-        public void Verify_WhenHashedValueIsInvalid_ShouldThrowException(string? valueHashed)
+        public void Verify_WhenHashedValueIsInvalid_ShouldThrowException(string? hashedValue)
         {
             // Arrange
             var value = StringGenerator.GeneratePrintableAscii();
-            var hashOptions = new HashOptions(SHA256.Create, 16);
+            var hashOptions = new HashOptions(Algorithm: SHA256.Create, SaltSize: 16);
 
             // Act
             var exception = Record.Exception(() =>
             {
-                ValueHasher.Verify(valueHashed!, value, (version) => hashOptions, out var version);
+                ValueHasher.Verify(hashedValue!, value, (version) => hashOptions, out var version);
             });
 
             // Assert
@@ -66,16 +66,16 @@ namespace Shared.Test.Unit.Crypto
         [Theory]
         [InlineData("")]
         [InlineData(null)]
-        public void Verify_WhenPlainValueIsInvalid_ShouldThrowException(string? valuePlain)
+        public void Verify_WhenPlainValueIsInvalid_ShouldThrowException(string? plaintext)
         {
             // Arrange
-            var valueHashed = StringGenerator.GeneratePrintableAscii();
-            var hashOptions = new HashOptions(SHA256.Create, 16);
+            var hashedValue = StringGenerator.GeneratePrintableAscii();
+            var hashOptions = new HashOptions(Algorithm: SHA256.Create, SaltSize: 16);
 
             // Act
             var exception = Record.Exception(() =>
             {
-                ValueHasher.Verify(valueHashed, valuePlain!, (version) => hashOptions, out var version);
+                ValueHasher.Verify(hashedValue, plaintext!, (version) => hashOptions, out var version);
             });
 
             // Assert
@@ -88,13 +88,13 @@ namespace Shared.Test.Unit.Crypto
         {
             // Arrange
             var value = StringGenerator.GeneratePrintableAscii();
-            var hashOptions = new HashOptions(SHA256.Create, 16);
-            var valueHashed = ValueHasher.Hash(value, 1, (version) => hashOptions);
+            var hashOptions = new HashOptions(Algorithm: SHA256.Create, SaltSize: 16);
+            var hashedValue = ValueHasher.Hash(value, version: 1, (version) => hashOptions);
 
             // Act
             var exception = Record.Exception(() =>
             {
-                ValueHasher.Verify(valueHashed, value, (version) => new HashOptions(SHA256.Create, 32), out var version);
+                ValueHasher.Verify(hashedValue, value, (version) => new HashOptions(SHA256.Create, 32), out var version);
             });
 
             // Assert
@@ -107,11 +107,11 @@ namespace Shared.Test.Unit.Crypto
         {
             // Arrange
             var value = StringGenerator.GeneratePrintableAscii();
-            var hashOptions = new HashOptions(SHA256.Create, 16);
-            var valueHashed = ValueHasher.Hash(value, 1, (version) => hashOptions);
+            var hashOptions = new HashOptions(Algorithm: SHA256.Create, SaltSize: 16);
+            var hashedValue = ValueHasher.Hash(value, version: 1, (version) => hashOptions);
 
             // Act
-            var result = ValueHasher.Verify(valueHashed, value + "a", (version) => hashOptions, out var version);
+            var result = ValueHasher.Verify(hashedValue, value + "a", (version) => hashOptions, out var version);
 
             // Assert
             Assert.False(result, "The verification returned true.");
@@ -122,11 +122,11 @@ namespace Shared.Test.Unit.Crypto
         {
             // Arrange
             var value = StringGenerator.GeneratePrintableAscii();
-            var hashOptions = new HashOptions(SHA256.Create, 16);
-            var valueHashed = ValueHasher.Hash(value, 1, (version) => hashOptions);
+            var hashOptions = new HashOptions(Algorithm: SHA256.Create, SaltSize: 16);
+            var hashedValue = ValueHasher.Hash(value, version: 1, (version) => hashOptions);
 
             // Act
-            var result = ValueHasher.Verify(valueHashed, value, (version) => hashOptions, out var version);
+            var result = ValueHasher.Verify(hashedValue, value, (version) => hashOptions, out var version);
 
             // Assert
             Assert.True(result, "The verification returned false.");

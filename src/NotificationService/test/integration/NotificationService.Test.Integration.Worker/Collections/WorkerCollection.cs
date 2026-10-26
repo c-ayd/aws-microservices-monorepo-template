@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Shared.Aws.Helpers.Test;
+using Shared.Constants;
 using Shared.Test.Helpers;
 using Shared.Test.Helpers.Fixtures;
 
@@ -13,10 +14,15 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
     public class WorkerCollectionCluster : IAsyncLifetime
     {
-        private const string _caBundlePath = "Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
-        private static int _awsPort;
-        private static int _notificationServicePort;
+        public const string AwsSesTemplatePrefix = "test-template";
+        public const string AwsSesTemplateSubjectLine = "Subject Line";
+        public const string AwsSesTemplateBody = "Body {{BodyParam}}";
+        public const string AwsSesTemplateBodyParameter = "BodyParam";
+
+        public static int AwsPort { get; private set; }
+        public static int NotificationServicePort { get; private set; }        
 
         public AwsFixture AwsFixture { get; private set; }
         public RabbitMqFixture RabbitMqFixture { get; private set; }
@@ -35,31 +41,14 @@ namespace NotificationService.Test.Integration.Worker.Collections
                 AwsFixture.InitializeAsync(),
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     rabbitMqCertificateFolder: "Certs/RabbitMq")
             );
 
-            await AwsFixture.SES_CreateTemplateAsync("test-template-en", "Subject Line", "Body {{Body}}");
+            await SetupAwsAsync();
 
-            await AwsFixture.SecretsManager_AddStringAsync("template/notification-svc/connections", JsonSerializer.Serialize(
-                new
-                {
-                    Connections = new
-                    {
-                        RabbitMq = RabbitMqFixture.GetConnectionOptions()
-                    }
-                }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
-                new
-                {
-                   CABundle = new
-                   {
-                       Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
-                   }
-                }));
-
-            _awsPort = AwsFixture.GetPort();
-            _notificationServicePort = KestrelHelper.GetFreePort();
+            AwsPort = AwsFixture.GetPort();
+            NotificationServicePort = KestrelHelper.GetFreePort();
 
             NotificationWebApp = new NotificationWebAppFactory();
             NotificationWebApp.StartServer();
@@ -77,7 +66,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
         public class NotificationWebAppFactory : WebAppFactoryFixture<Program>
         {
-            public NotificationWebAppFactory() : base(_caBundlePath)
+            public NotificationWebAppFactory() : base(CABundlePath)
             {
             }
 
@@ -85,12 +74,37 @@ namespace NotificationService.Test.Integration.Worker.Collections
             {
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpPort",
-                        _notificationServicePort.ToString()),
+                        NotificationServicePort.ToString()),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
-                        $"http://localhost:{_awsPort}")
+                        $"http://localhost:{AwsPort}")
                 ]);
             }
+        }
+
+        public async Task SetupAwsAsync()
+        {
+            await AwsFixture.SES_CreateTemplateAsync(
+                templateName: $"{AwsSesTemplatePrefix}-{SupportedLanguages.DefaultLanguage}",
+                AwsSesTemplateSubjectLine,
+                AwsSesTemplateBody);
+
+            await AwsFixture.SecretsManager_AddStringAsync("template/notification-svc/connections", JsonSerializer.Serialize(
+                new
+                {
+                    Connections = new
+                    {
+                        RabbitMq = RabbitMqFixture.GetConnectionOptions()
+                    }
+                }));
+            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+                new
+                {
+                    CABundle = new
+                    {
+                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath))
+                    }
+                }));
         }
     }
 }

@@ -20,22 +20,27 @@ namespace Shared.Test.Integration.Aws.Helpers
         {
             // Arrange
             var templateName = "aws-ses/test-template";
-            var subject = "Subject Line, {{param1}}";
-            var body = "Body {{param2}} - {{param3}}";
-            await _collectionCluster.AwsFixture.SES_CreateTemplateAsync(templateName, subject, body);
+            var subjectLine = "Subject Line, {{param1}}";
+            var subjectLineParameterValue = "test1";
+            var body = "Body - {{param2}}";
+            var bodyParameterValue = "test2";
+            await _collectionCluster.AwsFixture.SES_CreateTemplateAsync(templateName, subjectLine, body);
 
             var awsSes = _collectionCluster.WebApiFixture.GetService<IAwsSes>();
 
             var to = EmailGenerator.Generate();
             var templateParams = new Dictionary<string, string>()
             {
-                { "param1", "test1" },
-                { "param2", "test2" },
-                { "param3", "test3" }
+                { "param1", subjectLineParameterValue },
+                { "param2", bodyParameterValue }
             };
 
             // Act
-            var messageId = await awsSes.SendEmailAsync(AwsTestConstants.SesFromEmail, [to], templateName, templateParams);
+            var messageId = await awsSes.SendEmailAsync(
+                AwsTestConstants.SesFromEmail,
+                [to],
+                templateName,
+                templateParams);
 
             // Assert
             var sentEmails = await _collectionCluster.AwsFixture.SES_GetSentEmailsAsync();
@@ -45,8 +50,8 @@ namespace Shared.Test.Integration.Aws.Helpers
             Assert.Equal(messageId, sentEmails[0].MessageId);
             Assert.Equal(AwsTestConstants.SesFromEmail, sentEmails[0].Source);
             Assert.Equal(to, sentEmails[0].To[0]);
-            Assert.Equal("Subject Line, test1", sentEmails[0].Subject);
-            Assert.Equal("Body test2 - test3", sentEmails[0].BodyText);
+            Assert.Equal(subjectLine.Replace("{{param1}}", subjectLineParameterValue), sentEmails[0].Subject);
+            Assert.Equal(body.Replace("{{param2}}", bodyParameterValue), sentEmails[0].BodyText);
         }
     }
 }

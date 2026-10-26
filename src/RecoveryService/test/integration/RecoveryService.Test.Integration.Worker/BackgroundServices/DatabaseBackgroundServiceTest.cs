@@ -28,7 +28,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             // Arrange
             await using var droppedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
 
-            droppedMessagesDbContext.WrappedDataKeys.Add(new WrappedDataKey([1, 2, 3, 4, 5]));
+            droppedMessagesDbContext.WrappedDataKeys.Add(new WrappedDataKey(value: [1, 2, 3, 4, 5]));
             await droppedMessagesDbContext.SaveChangesAsync();
 
             // Act
@@ -59,22 +59,22 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
         public async Task RepublishAsync_WhenThereAreKeyAndMessages_ShouldRepublishMessages(int numberOfMessages)
         {
             // Arrange
-            var queueMessageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.QueueName);
+            var queueMessageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.TestQueueName);
             if (queueMessageCount != 0)
                 Assert.Fail($"The queues is not empty. Count: {queueMessageCount}.");
             
             var awsKms = _collectionCluster.RecoveryWebApp.GetService<IAwsKms>();
-            var dataKey = await awsKms.GenerateDataKeyAsync("alias/dropped-messages");
+            var dataKey = await awsKms.GenerateDataKeyAsync(WorkerCollectionCluster.AwsKmsAliasForDroppedMessages);
             
             var wrappedDataKey = new WrappedDataKey(dataKey.Encrypted);
             for (int i = 0; i < numberOfMessages; ++i)
             {
                 wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
-                    serviceName: "TestService",
-                    publisherName: "TestPublisher",
-                    exchangeName: "test.recovery",
-                    routingKey: "test.recovery.send",
+                    WorkerCollectionCluster.TestServiceName,
+                    WorkerCollectionCluster.TestPublisherName,
+                    WorkerCollectionCluster.TestExchangeName,
+                    WorkerCollectionCluster.TestRoutingKey,
                     properties: new BasicProperties()
                     {
                         DeliveryMode = DeliveryModes.Persistent,
@@ -109,10 +109,10 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
 
             await _collectionCluster.PostgreSqlFixture.ClearDatabaseAsync<DroppedMessagesDbContext>();
 
-            var numberOfMessagesInRabbitMq = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.QueueName);
+            var numberOfMessagesInRabbitMq = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.TestQueueName);
             Assert.Equal((uint)numberOfMessages, numberOfMessagesInRabbitMq);
 
-            await _collectionCluster.RabbitMqFixture.ClearMessagesAsync(WorkerCollectionCluster.QueueName);
+            await _collectionCluster.RabbitMqFixture.ClearMessagesAsync(WorkerCollectionCluster.TestQueueName);
         }
     }
 }

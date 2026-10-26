@@ -31,19 +31,18 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         private const string _rejectRouting = "shared.rabbitmq.helpers.publisherbackgroundservice.routing.reject";
         public const string _rejectQueue = "shared.rabbitmq.helpers.publisherbackgroundservice.queue.reject";
 
-        private readonly RabbitMqFixture _rabbitMqFixture;
+        private readonly RabbitMqCollectionCluster _collectionCluster;
         private readonly LoggerFixture<PublisherBackgroundServiceTest> _logger;
-
-        private string _caBundle;
+        private string _caBundleValue;
 
         public PublisherBackgroundServiceTest(
-            RabbitMqCollectionCluster rabbitMqCollectionCluster,
+            RabbitMqCollectionCluster collectionCluster,
             LoggerFixture<PublisherBackgroundServiceTest> logger)
         {
-            _rabbitMqFixture = rabbitMqCollectionCluster.RabbitMqFixture;
+            _collectionCluster = collectionCluster;
             _logger = logger;
 
-            _caBundle = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs/test-ca-bundle.crt"));
+            _caBundleValue = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, RabbitMqCollectionCluster.CABundlePath));
         }
 
         [Fact]
@@ -52,8 +51,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -76,14 +75,14 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         public async Task ExecuteAsync_WhenThereIsDroppedMessage_ShouldRetryPublishing()
         {
             // Arrange
-            var messageCount = await _rabbitMqFixture.GetMessageCountAsync(_normalQueue);
+            var messageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(_normalQueue);
             if (messageCount != 0)
                 Assert.Fail($"The normal queue is not empty. Count: {messageCount}");
 
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -91,12 +90,15 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             );
 
             var droppedMessage = new Message(
-                "TestService",
-                "TestPublisher",
+                RabbitMqCollectionCluster.TestServiceName,
+                RabbitMqCollectionCluster.TestPublisherName,
                 _normalExchange,
                 _normalRouting,
-                new BasicProperties() { CorrelationId = Guid.NewGuid().ToString() },
-                JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
+                new BasicProperties()
+                {
+                    CorrelationId = Guid.NewGuid().ToString()
+                },
+                body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             
             GetDroppedMessages(publisher).TryAdd(droppedMessage.GetHashCode(), droppedMessage);
 
@@ -120,9 +122,9 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             Assert.True(result, "The acknowledge event did not set the value to true.");
 
             Assert.Empty(GetDroppedMessages(publisher));
-            Assert.Equal((uint)1, await _rabbitMqFixture.GetMessageCountAsync(_normalQueue));
+            Assert.Equal((uint)1, await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(_normalQueue));
 
-            await _rabbitMqFixture.ClearMessagesAsync(_normalQueue);
+            await _collectionCluster.RabbitMqFixture.ClearMessagesAsync(_normalQueue);
         }
 
         [Fact]
@@ -131,8 +133,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -140,11 +142,14 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             );
 
             var droppedMessage = new Message(
-                "TestService",
-                "TestPublisher",
+                RabbitMqCollectionCluster.TestServiceName,
+                RabbitMqCollectionCluster.TestPublisherName,
                 _rejectExchange,
                 _rejectRouting,
-                new BasicProperties() { CorrelationId = Guid.NewGuid().ToString() },
+                new BasicProperties()
+                {
+                    CorrelationId = Guid.NewGuid().ToString()
+                },
                 JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             SetRetryCount(droppedMessage, 1);
 
@@ -190,8 +195,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -228,8 +233,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Arrange
             var publisher = new TestPublisher();
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
                 new List<Publisher>() { publisher },
                 _retryTime,
                 _graceTime,
@@ -237,26 +242,35 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             );
 
             var pendingMessage = new Message(
-                "TestService",
-                "TestPublisher",
+                RabbitMqCollectionCluster.TestServiceName,
+                RabbitMqCollectionCluster.TestPublisherName,
                 _normalExchange,
                 _normalRouting,
-                new BasicProperties() { CorrelationId = Guid.NewGuid().ToString() },
-                JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
+                new BasicProperties()
+                {
+                    CorrelationId = Guid.NewGuid().ToString()
+                },
+                body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             var droppedMessage = new Message(
-                "TestService",
-                "TestPublisher",
+                RabbitMqCollectionCluster.TestServiceName,
+                RabbitMqCollectionCluster.TestPublisherName,
                 _normalExchange,
                 _normalRouting,
-                new BasicProperties() { CorrelationId = Guid.NewGuid().ToString() },
-                JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
+                new BasicProperties()
+                {
+                    CorrelationId = Guid.NewGuid().ToString()
+                },
+                body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             var droppedMessageInBackgroundService = new Message(
-                "TestService",
-                "TestPublisher",
+                RabbitMqCollectionCluster.TestServiceName,
+                RabbitMqCollectionCluster.TestPublisherName,
                 _normalExchange,
                 _normalRouting,
-                new BasicProperties() { CorrelationId = Guid.NewGuid().ToString() },
-                JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
+                new BasicProperties()
+                {
+                    CorrelationId = Guid.NewGuid().ToString()
+                },
+                body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
 
             GetPendingMessages(publisher).TryAdd(0, pendingMessage);
             GetDroppedMessages(publisher).TryAdd(droppedMessage.GetHashCode(), droppedMessage);
@@ -286,11 +300,13 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             AsyncEventHandler<BasicReturnEventArgs>? returnEvent = null)
         {
             // Backgroung service
-            var connFactoryfieldInfo = typeof(PublisherBackgroundService).GetField("_connectionFactory", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var connFactoryfieldInfo = typeof(PublisherBackgroundService)
+                .GetField("_connectionFactory", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var connFactory = (ConnectionFactory)connFactoryfieldInfo.GetValue(backgroundService)!;
             var connection = await connFactory.CreateConnectionAsync();
 
-            var connectionFieldInfo = typeof(PublisherBackgroundService).GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var connectionFieldInfo = typeof(PublisherBackgroundService)
+                .GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
             connectionFieldInfo.SetValue(backgroundService, connection);
 
             // Publisher
@@ -298,11 +314,16 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 publisherConfirmationsEnabled: true,
                 publisherConfirmationTrackingEnabled: false));
 
-            var acknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleAcknowledgedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var acknowledgeMethodInfo = typeof(Publisher)
+                .GetMethod("HandleAcknowledgedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainAcknowledgeEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicAckEventArgs>), publisher, acknowledgeMethodInfo);
-            var notAcknowledgeMethodInfo = typeof(Publisher).GetMethod("HandleNotAcknowledgedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+            var notAcknowledgeMethodInfo = typeof(Publisher)
+                .GetMethod("HandleNotAcknowledgedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainNotAcknowledgeEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicNackEventArgs>), publisher, notAcknowledgeMethodInfo);
-            var returnMethodInfo = typeof(Publisher).GetMethod("HandleReturnedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+            var returnMethodInfo = typeof(Publisher)
+                .GetMethod("HandleReturnedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var mainReturnEvent = Delegate.CreateDelegate(typeof(AsyncEventHandler<BasicReturnEventArgs>), publisher, returnMethodInfo);
 
             channel.BasicAcksAsync += (AsyncEventHandler<BasicAckEventArgs>)mainAcknowledgeEvent;
@@ -312,16 +333,19 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             channel.BasicNacksAsync += notAcknowledgeEvent;
             channel.BasicReturnAsync += returnEvent;
 
-            var channelPropertyInfo = typeof(Publisher).GetProperty("Channel", BindingFlags.Public | BindingFlags.Instance)!;
+            var channelPropertyInfo = typeof(Publisher)
+                .GetProperty("Channel", BindingFlags.Public | BindingFlags.Instance)!;
             channelPropertyInfo.SetValue(publisher, channel);
 
-            var declareExchangeMethodInfo = typeof(Publisher).GetMethod("DeclareExchangesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var declareExchangeMethodInfo = typeof(Publisher)
+                .GetMethod("DeclareExchangesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             await (Task)declareExchangeMethodInfo.Invoke(publisher, [default])!;
         }
 
         private IConnection GetConnection(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(PublisherBackgroundService).GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var fieldInfo = typeof(PublisherBackgroundService)
+                .GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (IConnection)fieldInfo.GetValue(backgroundService)!;
         }
 
@@ -344,31 +368,36 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private Task ExecuteAsync(TestBackgroundService backgroundService, CancellationToken cancellationToken)
         {
-            var methodInfo = typeof(PublisherBackgroundService).GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var methodInfo = typeof(PublisherBackgroundService)
+                .GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (Task)methodInfo.Invoke(backgroundService, [cancellationToken])!;
         }
 
         private ConcurrentDictionary<ulong, Message> GetPendingMessages(TestPublisher publisher)
         {
-            var propertyInfo = typeof(Publisher).GetProperty("PendingMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var propertyInfo = typeof(Publisher)
+                .GetProperty("PendingMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (ConcurrentDictionary<ulong, Message>)propertyInfo.GetValue(publisher)!;
         }
 
         private ConcurrentDictionary<int, Message> GetDroppedMessages(TestPublisher publisher)
         {
-            var propertyInfo = typeof(Publisher).GetProperty("DroppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var propertyInfo = typeof(Publisher)
+                .GetProperty("DroppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (ConcurrentDictionary<int, Message>)propertyInfo.GetValue(publisher)!;
         }
 
         private void SetRetryCount(Message message, int value)
         {
-            var propertyInfo = typeof(Message).GetProperty("RetryCount", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var propertyInfo = typeof(Message)
+                .GetProperty("RetryCount", BindingFlags.NonPublic | BindingFlags.Instance)!;
             propertyInfo.SetValue(message, value);
         }
 
         private Dictionary<int, Message> GetDroppedMessages(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(PublisherBackgroundService).GetField("_droppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var fieldInfo = typeof(PublisherBackgroundService)
+                .GetField("_droppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (Dictionary<int, Message>)fieldInfo.GetValue(backgroundService)!;
         }
 
@@ -403,7 +432,11 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private class TestPublisher : Publisher
         {
-            public TestPublisher() : base("TestService", "TestPublisher", _maxRetry)
+            public TestPublisher()
+                : base(
+                RabbitMqCollectionCluster.TestServiceName,
+                RabbitMqCollectionCluster.TestPublisherName,
+                _maxRetry)
             {
             }
 

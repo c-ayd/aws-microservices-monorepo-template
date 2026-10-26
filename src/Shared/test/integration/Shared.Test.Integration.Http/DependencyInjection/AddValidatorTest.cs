@@ -13,11 +13,11 @@ namespace Shared.Test.Integration.Http.DependencyInjection
     {
         public const string ScopedServiceValue = "TestValue";
 
-        private readonly WebApiFixture _webApiFixture;
+        private readonly TestHostCollectionCluster _collectionCluster;
 
         public AddValidatorTest(TestHostCollectionCluster collectionCluster)
         {
-            _webApiFixture = collectionCluster.WebApiFixture;
+            _collectionCluster = collectionCluster;
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
@@ -33,7 +33,8 @@ namespace Shared.Test.Integration.Http.DependencyInjection
         public async Task AddValidationsFromAssembly_WhenThereIsValidations_ShouldAddThemToDIContainer()
         {
             // Assert
-            await using (var scope = _webApiFixture.GetScopedService<IValidator<ValidationType1>>(out var validator))
+            await using (var scope = _collectionCluster.WebApiFixture
+                .GetScopedService<IValidator<ValidationType1>>(out var validator))
             {
                 Assert.NotNull(validator);
 
@@ -42,7 +43,8 @@ namespace Shared.Test.Integration.Http.DependencyInjection
                 Assert.Equal(ScopedServiceValue, errors[0].Code);
             }
 
-            await using (var scope = _webApiFixture.GetScopedService<IAsyncValidator<ValidationType2>>(out var asyncValidator))
+            await using (var scope = _collectionCluster.WebApiFixture
+                .GetScopedService<IAsyncValidator<ValidationType2>>(out var asyncValidator))
             {
                 Assert.NotNull(asyncValidator);
 

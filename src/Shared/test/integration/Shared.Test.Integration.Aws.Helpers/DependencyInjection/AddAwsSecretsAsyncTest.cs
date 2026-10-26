@@ -21,8 +21,11 @@ namespace Shared.Test.Integration.Aws.Helpers.DependencyInjection
         public async Task AddAwsSecretsAsync_WhenSecretsExist_ShouldReturnAll()
         {
             // Arrange
+            var secretId = "aws-secrets-manager/di-1";
             var secretValue = StringGenerator.GenerateAlphanumeric();
-            await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync("aws-secrets-manager/di-1", JsonSerializer.Serialize(new { Key = secretValue }));
+            await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(
+                secretId,
+                value: JsonSerializer.Serialize(new { Key = secretValue }));
 
             var configuration = new ConfigurationManager();
             configuration.AddInMemoryCollection([
@@ -33,9 +36,7 @@ namespace Shared.Test.Integration.Aws.Helpers.DependencyInjection
             ]);
 
             // Act
-            await configuration.AddAwsSecretsAsync([
-                "aws-secrets-manager/di-1"
-            ]);
+            await configuration.AddAwsSecretsAsync([secretId]);
 
             // Assert
             Assert.Equal(secretValue, configuration.GetValue<string>("Key"));

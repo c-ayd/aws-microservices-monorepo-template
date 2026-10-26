@@ -15,37 +15,41 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Options
         private const string _strValue = "TestValue";
         private const int _intValue = 10;
 
-        private readonly WebApiFixture _webApiFixture;
+        private readonly TestHostCollectionCluster _collectionCluster;
 
         public AddOptionsTest(TestHostCollectionCluster collectionCluster)
         {
-            _webApiFixture = collectionCluster.WebApiFixture;
+            _collectionCluster = collectionCluster;
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
         public static void AddConfiguration(IConfigurationBuilder builder)
         {
             builder.AddInMemoryCollection([
-                new KeyValuePair<string, string?>("TestKey:StrValue", _strValue),
-                new KeyValuePair<string, string?>("TestKey:IntValue", _intValue.ToString())
+                new KeyValuePair<string, string?>("TestKey:StrValue",
+                    _strValue),
+                new KeyValuePair<string, string?>("TestKey:IntValue",
+                    _intValue.ToString())
             ]);
         }
 
         public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var getOptionsMethodInfo = typeof(DependencyInjection).GetMethod("GetOptionsFromAssembly", BindingFlags.NonPublic | BindingFlags.Static)!;
+            var getOptionsMethodInfo = typeof(DependencyInjection)
+                .GetMethod("GetOptionsFromAssembly", BindingFlags.NonPublic | BindingFlags.Static)!;
             var options = (List<Type>)getOptionsMethodInfo.Invoke(null, [Assembly.GetExecutingAssembly()])!;
 
-            var registerMethodInfo = typeof(DependencyInjection).GetMethod("RegisterOptions", BindingFlags.NonPublic | BindingFlags.Static)!;
+            var registerMethodInfo = typeof(DependencyInjection)
+                .GetMethod("RegisterOptions", BindingFlags.NonPublic | BindingFlags.Static)!;
             registerMethodInfo.Invoke(null, [services, configuration, options]);
         }
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
         [Fact]
-        public async Task AddOptions_WhenOptionsClassIsSet_ShouldRegisterOptionsClass()
+        public async Task RegisterOptions_WhenOptionsClassIsSet_ShouldRegisterOptionsClass()
         {
             // Assert
-            var options = _webApiFixture.GetOptions<TestOptions>();
+            var options = _collectionCluster.WebApiFixture.GetOptions<TestOptions>();
             Assert.NotNull(options);
             Assert.Equal(_strValue, options.StrValue);
             Assert.Null(options.NullableStrValue);

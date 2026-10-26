@@ -31,7 +31,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
             var email = EmailGenerator.Generate();
-            authDbContext.Accounts.Add(new Account(email, PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage));
+            authDbContext.Accounts.Add(new Account(
+                email,
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage));
             await authDbContext.SaveChangesAsync();
 
             var request = new RegisterRequest(email, PasswordGenerator.GenerateValid());
@@ -49,7 +52,8 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
         public async Task HandleAsync_WhenAccountDoesNotExist_ShouldCreateAccountAndTokenAndReturnNoContent()
         {
             // Arrange
-            var tokenLifespan = TimeSpan.FromHours(_collectionCluster.AuthApiWebApp.GetOptions<TokenLifespansOptions>().EmailVerificationLifespanInHours).TotalMinutes;
+            var tokenLifespan = TimeSpan.FromHours(_collectionCluster.AuthApiWebApp.GetOptions<TokenLifespansOptions>().EmailVerificationLifespanInHours)
+                .TotalMinutes;
 
             var email = EmailGenerator.Generate();
             var request = new RegisterRequest(email, PasswordGenerator.GenerateValid());

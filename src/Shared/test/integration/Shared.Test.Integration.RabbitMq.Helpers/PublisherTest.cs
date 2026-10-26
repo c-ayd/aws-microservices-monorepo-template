@@ -40,11 +40,11 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
 
         private readonly TimeSpan _timeoutSpan = TimeSpan.FromSeconds(5);
 
-        private readonly RabbitMqFixture _rabbitMqFixture;
+        private readonly RabbitMqCollectionCluster _collectionCluster;
 
         public PublisherTest(RabbitMqCollectionCluster collectionCluster)
         {
-            _rabbitMqFixture = collectionCluster.RabbitMqFixture;
+            _collectionCluster = collectionCluster;
         }
 
         [Fact]
@@ -74,9 +74,9 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             // Act
             await publisher.PublishMessageAsync(
                 _noQueueExchange,
-                "routingKey",
+                routingKey: StringGenerator.GenerateAlpha(),
                 properties,
-                Encoding.UTF8.GetBytes(message));
+                body: Encoding.UTF8.GetBytes(message));
 
             // Assert
             await Task.WhenAll(returnEventTcs.Task, acknowledgeEventTcs.Task);
@@ -114,7 +114,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
                 _rejectExchange,
                 _rejectRouting,
                 properties,
-                Encoding.UTF8.GetBytes(StringGenerator.GeneratePrintableAscii()));
+                body: Encoding.UTF8.GetBytes(StringGenerator.GeneratePrintableAscii()));
 
             // Assert
             var result = await notAcknowledgeEventTcs.Task.WaitAsync(_timeoutSpan);
@@ -148,7 +148,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
                     acknowledgeEventTcs.SetResult(true);
                 });
 
-            var messageCount = await _rabbitMqFixture.GetMessageCountAsync(_normalQueue);
+            var messageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(_normalQueue);
             if (messageCount != 0)
                 Assert.Fail($"The normal queue is not empty. Count: {messageCount}");
 
@@ -157,7 +157,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
                 _normalExchange,
                 _normalRouting,
                 properties,
-                Encoding.UTF8.GetBytes(message));
+                body: Encoding.UTF8.GetBytes(message));
 
             // Assert
             var result = await acknowledgeEventTcs.Task.WaitAsync(_timeoutSpan);
@@ -168,7 +168,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.Empty(pendingMessages);
             Assert.Empty(droppedMessages);
 
-            var messageFromRabbitMq = await _rabbitMqFixture.GetNextMessageAsync(_normalQueue);
+            var messageFromRabbitMq = await _collectionCluster.RabbitMqFixture.GetNextMessageAsync(_normalQueue);
 
             Assert.NotNull(messageFromRabbitMq);
             Assert.Equal(message, Encoding.UTF8.GetString(messageFromRabbitMq.Body.ToArray()));
@@ -189,7 +189,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             var publisher = new TestPublisher();
             await InitializePublisherAsync(publisher);
 
-            var channelPropertyInfo = typeof(Publisher).GetProperty("Channel", BindingFlags.Public | BindingFlags.Instance)!;
+            var channelPropertyInfo = typeof(Publisher)
+                .GetProperty("Channel", BindingFlags.Public | BindingFlags.Instance)!;
             channelPropertyInfo.SetValue(publisher, null);
 
             // Act
@@ -197,7 +198,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
                 _normalExchange,
                 _normalRouting,
                 properties,
-                Encoding.UTF8.GetBytes(StringGenerator.GeneratePrintableAscii()));
+                body: Encoding.UTF8.GetBytes(StringGenerator.GeneratePrintableAscii()));
 
             // Assert
             var pendingMessages = GetPendingMessages(publisher);
@@ -214,8 +215,9 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             AsyncEventHandler<BasicNackEventArgs>? notAcknowledgeEvent = null,
             AsyncEventHandler<BasicReturnEventArgs>? returnEvent = null)
         {
-            var initializeAsyncMethodInfo = typeof(Publisher).GetMethod("InitializeAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            await (Task)initializeAsyncMethodInfo.Invoke(publisher, [_rabbitMqFixture.Connection, default])!;
+            var initializeAsyncMethodInfo = typeof(Publisher)
+                .GetMethod("InitializeAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            await (Task)initializeAsyncMethodInfo.Invoke(publisher, [_collectionCluster.RabbitMqFixture.Connection, default])!;
 
             publisher.Channel!.BasicAcksAsync += acknowledgeEvent;
             publisher.Channel.BasicNacksAsync += notAcknowledgeEvent;
@@ -224,13 +226,15 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
 
         private ConcurrentDictionary<ulong, Message> GetPendingMessages(TestPublisher publisher)
         {
-            var propertyInfo = typeof(Publisher).GetProperty("PendingMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var propertyInfo = typeof(Publisher)
+                .GetProperty("PendingMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (ConcurrentDictionary<ulong, Message>)propertyInfo.GetValue(publisher)!;
         }
 
         private ConcurrentDictionary<int, Message> GetDroppedMessages(TestPublisher publisher)
         {
-            var propertyInfo = typeof(Publisher).GetProperty("DroppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var propertyInfo = typeof(Publisher)
+                .GetProperty("DroppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (ConcurrentDictionary<int, Message>)propertyInfo.GetValue(publisher)!;
         }
 
@@ -288,7 +292,11 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
 
         private class TestPublisher : Publisher
         {
-            public TestPublisher() : base("TestService", "TestPublisher", 3)
+            public TestPublisher() 
+                : base(
+                RabbitMqCollectionCluster.TestServiceName,
+                RabbitMqCollectionCluster.TestPublisherName,
+                maxRetryForMesages: 3)
             {
             }
 

@@ -45,7 +45,11 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Get
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
             var numberOfSessions = 3;
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
+            
             for (int i = 0; i < numberOfSessions; ++i)
             {
                 account.Sessions.Add(new Session(account.Id, StringGenerator.GenerateAlphanumeric(), DateTimeOffset.UtcNow.AddDays(1)));

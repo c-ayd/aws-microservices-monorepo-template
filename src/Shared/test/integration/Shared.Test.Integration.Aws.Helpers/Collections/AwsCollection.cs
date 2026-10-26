@@ -12,6 +12,8 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
 
     public class AwsCollectionCluster : IAsyncLifetime
     {
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
+
         public AwsFixture AwsFixture { get; private set; }
         public WebApiFixture WebApiFixture { get; private set; }
 
@@ -20,7 +22,7 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
             AwsFixture = new AwsFixture();
             WebApiFixture = new WebApiFixture(
                 sslEnabled: true,
-                caBundlePath: "Certs/test-ca-bundle.crt",
+                caBundlePath: CABundlePath,
                 serverCertificatePath: "Certs/WebApi/test-webapi-server.crt",
                 serverCertificatePrivateKeyPath: "Certs/WebApi/test-webapi-server.key");
         }
@@ -41,7 +43,7 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
                 },
                 configureServices: (services, config) =>
                 {
-                    services.AddAwsOptions(false);
+                    services.AddAwsOptions(isProduction: false);
                     services.AddAwsSecretsManager();
                     services.AddAwsKms();
                     services.AddAwsSes();

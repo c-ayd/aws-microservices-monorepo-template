@@ -13,22 +13,25 @@ namespace AuthService.Test.Integration.Persistence.Interceptors
     [Collection(nameof(AuthDbContextCollection))]
     public class UpdateableInterceptorTest
     {
-        private readonly PostgreSqlFixture _postgreSqlFixture;
+        private readonly AuthDbContextCollectionCluster _collectionCluster;
 
         public UpdateableInterceptorTest(AuthDbContextCollectionCluster collectionCluster)
         {
-            _postgreSqlFixture = collectionCluster.PostgreSqlFixture;
+            _collectionCluster = collectionCluster;
         }
 
         [Fact]
-        public async Task UpdateableInterceptor_WhenEntityIsUpdateableAndIsUpdated_ShouldSetUpdatedDate()
+        public async Task SavingChangesAsync_WhenEntityIsUpdateableAndIsUpdated_ShouldSetUpdatedDate()
         {
             // Arrange
-            await using var authDbContext = _postgreSqlFixture.CreateDbContext<AuthDbContext>();
+            await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
             var now = DateTimeOffset.UtcNow;
             var passwordLength = 10;
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(length: passwordLength), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(length: passwordLength),
+                SupportedLanguages.DefaultLanguage);
             var accountId = account.Id;
 
             await authDbContext.Accounts.AddAsync(account);
@@ -51,14 +54,21 @@ namespace AuthService.Test.Integration.Persistence.Interceptors
         }
 
         [Fact]
-        public async Task UpdateableInterceptor_WhenEntityIsNotUpdateableAndIsUpdated_ShouldThrowException()
+        public async Task SavingChangesAsync_WhenEntityIsNotUpdateableAndIsUpdated_ShouldThrowException()
         {
             // Arrange
-            await using var authDbContext = _postgreSqlFixture.CreateDbContext<AuthDbContext>();
+            await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
             var tokenLength = 10;
-            var token = new Token(account.Id, ETokenPurpose.EmailVerification, StringGenerator.GeneratePrintableAscii(length: tokenLength), DateTimeOffset.UtcNow);
+            var token = new Token(
+                account.Id,
+                ETokenPurpose.EmailVerification,
+                valueHashed: StringGenerator.GeneratePrintableAscii(length: tokenLength),
+                expirationDate: DateTimeOffset.UtcNow);
 
             account.Tokens.Add(token);
             await authDbContext.Accounts.AddAsync(account);

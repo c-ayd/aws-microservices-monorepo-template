@@ -7,6 +7,9 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
 {
     public class DroppedMessageTest
     {
+        private const string _serviceName = "TestService";
+        private const string _publisherName = "TestPublisher";
+
         private const string _exchangeName = "shared.rabbitmq.helpers.droppedmessage.exchange";
         private const string _routingKey = "shared.rabbitmq.helpers.droppedmessage.routing";
 
@@ -51,7 +54,14 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var droppedMessage = new DroppedMessage(wrappedDataKey.Id, "TestService", "TestPublisher", _exchangeName, _routingKey, properties, body);
+            var droppedMessage = new DroppedMessage(
+                wrappedDataKey.Id,
+                _serviceName,
+                _publisherName,
+                _exchangeName,
+                _routingKey,
+                properties,
+                body);
 
             // Assert
             Assert.Equal(_exchangeName, droppedMessage.ExchangeName);
@@ -81,7 +91,14 @@ namespace Shared.Test.Unit.RabbitMq.Helpers.EntityFramework
             }
 
             // Act
-            var droppedMessage = new DroppedMessage(wrappedDataKey.Id, "TestService", "TestPublisher", _exchangeName, _routingKey, properties, body);
+            var droppedMessage = new DroppedMessage(
+                wrappedDataKey.Id,
+                _serviceName,
+                _publisherName,
+                _exchangeName,
+                _routingKey,
+                properties,
+                body);
 
             // Assert
             Assert.Equal(_exchangeName, droppedMessage.ExchangeName);

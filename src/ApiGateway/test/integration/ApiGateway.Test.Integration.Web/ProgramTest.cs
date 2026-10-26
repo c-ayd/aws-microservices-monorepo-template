@@ -33,7 +33,7 @@ namespace ApiGateway.Test.Integration.Web
         {
             // Arrange
             var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
-            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
             var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");

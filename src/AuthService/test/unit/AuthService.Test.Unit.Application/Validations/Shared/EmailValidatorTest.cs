@@ -25,7 +25,10 @@ namespace AuthService.Test.Unit.Application.Validations.Shared
         public void Validate_WhenEmailIsLong_ShouldReturnError()
         {
             // Arrange
-            var email = EmailGenerator.Generate(AccountConstraints.EmailMaxLength + 1, 3, 3);
+            var email = EmailGenerator.Generate(
+                usernameLength: AccountConstraints.EmailMaxLength + 1,
+                domainLength: 3,
+                tldLength: 3);
 
             // Act
             var errors = _validator.Validate(email);

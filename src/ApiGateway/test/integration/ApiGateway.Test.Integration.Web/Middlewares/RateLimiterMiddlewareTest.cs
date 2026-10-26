@@ -16,11 +16,11 @@ namespace ApiGateway.Test.Integration.Web
         }
 
         [Fact]
-        public async Task RateLimiter_WhenAuthenticatedAndExceedsLimit_ShouldReturnTooManyRequests()
+        public async Task Invoke_WhenAuthenticatedAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
             var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
-            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
             var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
@@ -46,7 +46,7 @@ namespace ApiGateway.Test.Integration.Web
         }
 
         [Fact]
-        public async Task RateLimiter_WhenAuthenticatedWithAdminRoleAndExceedsLimit_ShouldReturnTooManyRequests()
+        public async Task Invoke_WhenAuthenticatedWithAdminRoleAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
             var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
@@ -76,11 +76,11 @@ namespace ApiGateway.Test.Integration.Web
         }
 
         [Fact]
-        public async Task RateLimiter_WhenRedisIsDown_ShouldAllowTrafficUntilRedisIsUp()
+        public async Task Invoke_WhenRedisIsDown_ShouldAllowTrafficUntilRedisIsUp()
         {
             // Arrange
             var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
-            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
             var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");

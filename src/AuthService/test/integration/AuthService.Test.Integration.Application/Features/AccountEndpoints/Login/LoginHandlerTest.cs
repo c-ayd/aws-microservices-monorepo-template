@@ -31,9 +31,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         public async Task HandleAsync_WhenAccountDoesNotExist_ShouldReturnBadRequest()
         {
             // Arrange
-            var request = new LoginRequest(
-                EmailGenerator.Generate(),
-                StringGenerator.GenerateAlphanumeric());
+            var request = new LoginRequest(EmailGenerator.Generate(), PasswordGenerator.Generate());
 
             var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
 
@@ -49,7 +47,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         {
             // Arrange
             var email = EmailGenerator.Generate();
-            var account = new Account(email, PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                email,
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
             account.IsBanned = true;
 
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
@@ -77,7 +78,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var passwordHasher = _collectionCluster.AuthApiWebApp.GetService<IPasswordHasher>();
 
-            var account = new Account(email, passwordHasher.Hash(password), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                email,
+                passwordHasher.Hash(password),
+                SupportedLanguages.DefaultLanguage);
             account.IsLocked = true;
             account.FailedLoginAttempts = 3;
             account.UnlockDate = DateTimeOffset.UtcNow.AddDays(1);
@@ -111,7 +115,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var passwordHasher = _collectionCluster.AuthApiWebApp.GetService<IPasswordHasher>();
 
-            var account = new Account(email, passwordHasher.Hash(password), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                email,
+                passwordHasher.Hash(password),
+                SupportedLanguages.DefaultLanguage);
 
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
@@ -148,7 +155,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             var accountLockOptions = _collectionCluster.AuthApiWebApp.GetOptions<AccountLockOptions>();
             var failedAttempts = accountLockOptions.NumberOfFailedAttempsBeforeLock - 1 + additionalFailedAttempts;
 
-            var account = new Account(email, passwordHasher.Hash(password), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                email,
+                passwordHasher.Hash(password),
+                SupportedLanguages.DefaultLanguage);
             account.FailedLoginAttempts = failedAttempts;
 
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
@@ -188,7 +198,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var passwordHasher = _collectionCluster.AuthApiWebApp.GetService<IPasswordHasher>();
 
-            var account = new Account(email, passwordHasher.Hash(password), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                email,
+                passwordHasher.Hash(password),
+                SupportedLanguages.DefaultLanguage);
             account.IsEmailVerified = true;
 
             string? roleName = null;
@@ -252,7 +265,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
 
             var passwordHasher = _collectionCluster.AuthApiWebApp.GetService<IPasswordHasher>();
 
-            var account = new Account(email, passwordHasher.Hash(password), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                email,
+                passwordHasher.Hash(password),
+                SupportedLanguages.DefaultLanguage);
             account.IsLocked = true;
             account.UnlockDate = DateTimeOffset.UtcNow.AddDays(-1);
 

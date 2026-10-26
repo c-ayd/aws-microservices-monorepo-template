@@ -88,13 +88,14 @@ namespace NotificationService.Test.Integration.Worker.BackgroundServices
                 Assert.Fail($"The main queue is not empty. Message Count: {mainQueueMessageCount}.");
 
             var to = EmailGenerator.Generate();
+            var bodyParamValue = "Test message";
             var message = new EmailMessage(
                 [to],
-                "test-template",
+                TemplateId: WorkerCollectionCluster.AwsSesTemplatePrefix,
                 SupportedLanguages.DefaultLanguage,
-                new Dictionary<string, string>()
+                Parameters: new Dictionary<string, string>()
                 {
-                    { "Body", "Test message" }
+                    { WorkerCollectionCluster.AwsSesTemplateBodyParameter, bodyParamValue }
                 });
 
             await _collectionCluster.RabbitMqFixture.PublishMessageAsync(
@@ -128,8 +129,8 @@ namespace NotificationService.Test.Integration.Worker.BackgroundServices
             }
             
             Assert.Equal(AwsTestConstants.SesFromEmail, sentEmail.Source);
-            Assert.Equal("Subject Line", sentEmail.Subject);
-            Assert.Equal("Body Test message", sentEmail.BodyText);
+            Assert.Equal(WorkerCollectionCluster.AwsSesTemplateSubjectLine, sentEmail.Subject);
+            Assert.Equal(WorkerCollectionCluster.AwsSesTemplateBody.Replace($"{{{{{WorkerCollectionCluster.AwsSesTemplateBodyParameter}}}}}", bodyParamValue), sentEmail.BodyText);
 
             mainQueueMessageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(EmailConfiguration.QueueName);
             var retryQueueMessageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(EmailConfiguration.RetryQueueName);
@@ -155,13 +156,10 @@ namespace NotificationService.Test.Integration.Worker.BackgroundServices
                 Assert.Fail($"The queues are not empty. Main: {mainQueueMessageCount}, Retry: {retryQueueMessageCount}.");
 
             var message = new EmailMessage(
-                [EmailGenerator.Generate()],
-                StringGenerator.GenerateAlphanumeric(),
+                To: [EmailGenerator.Generate()],
+                TemplateId: StringGenerator.GenerateAlphanumeric(),
                 SupportedLanguages.DefaultLanguage,
-                new Dictionary<string, string>()
-                {
-                    { "Body", "Test message" }
-                });
+                Parameters: null);
 
             var properties = new BasicProperties()
             {
@@ -181,7 +179,7 @@ namespace NotificationService.Test.Integration.Worker.BackgroundServices
                 EmailConfiguration.ExchangeName,
                 EmailConfiguration.RoutingKey,
                 properties,
-                JsonSerializer.SerializeToUtf8Bytes(message));
+                body: JsonSerializer.SerializeToUtf8Bytes(message));
 
             // Act
             // EmailBackgroundService should automatically handle the message.
@@ -202,7 +200,8 @@ namespace NotificationService.Test.Integration.Worker.BackgroundServices
             }
 
             var emailBackgroundService = _collectionCluster.NotificationWebApp.GetBackgroundService<EmailBackgroundService>();
-            var retryDelayTimeFieldInfo = typeof(EmailBackgroundService).GetField("_retryDelayTime", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var retryDelayTimeFieldInfo = typeof(EmailBackgroundService)
+                .GetField("_retryDelayTime", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var retryDelayTime = (TimeSpan)retryDelayTimeFieldInfo.GetValue(emailBackgroundService)!;
 
             var messageFromRabbitMq = await _collectionCluster.RabbitMqFixture.GetNextMessageAsync(EmailConfiguration.RetryQueueName);
@@ -230,13 +229,10 @@ namespace NotificationService.Test.Integration.Worker.BackgroundServices
                 Assert.Fail($"The queues are not empty. Main: {mainQueueMessageCount}, DLQ: {dlqMessageCount}.");
 
             var message = new EmailMessage(
-                [EmailGenerator.Generate()],
-                StringGenerator.GenerateAlphanumeric(),
+                To: [EmailGenerator.Generate()],
+                TemplateId: StringGenerator.GenerateAlphanumeric(),
                 SupportedLanguages.DefaultLanguage,
-                new Dictionary<string, string>()
-                {
-                    { "Body", "Test message" }
-                });
+                Parameters: null);
 
             var maxRetryFieldInfo = typeof(EmailBackgroundService).GetField("_maxRetry", BindingFlags.NonPublic | BindingFlags.Static)!;
             var maxRetry = (int)maxRetryFieldInfo.GetValue(null)!;

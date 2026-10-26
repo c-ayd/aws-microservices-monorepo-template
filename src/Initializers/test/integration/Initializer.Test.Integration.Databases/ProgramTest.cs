@@ -22,6 +22,9 @@ namespace Initializer.Test.Integration.Databases
                 "--test",
                 "--aws-url", $"http://localhost:{_collectionCluster.AwsFixture.GetPort()}"
             ]);
+
+            // Assert
+            // Should not throw exception
         }
     }
 }

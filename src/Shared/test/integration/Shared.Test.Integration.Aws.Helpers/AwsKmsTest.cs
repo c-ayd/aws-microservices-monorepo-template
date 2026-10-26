@@ -42,7 +42,7 @@ namespace Shared.Test.Integration.Aws.Helpers
             // Act
             var exception = Record.ExceptionAsync(async () =>
             {
-                await awsKms.DecryptAsync([0, 1, 2, 3, 4, 5]);
+                await awsKms.DecryptAsync(encryptedValue: [0, 1, 2, 3, 4, 5]);
             });
 
             // Assert
@@ -69,7 +69,7 @@ namespace Shared.Test.Integration.Aws.Helpers
         }
 
         [Fact]
-        public async Task GenerateEncryptionKeyAsync_WhenMethodIsCalled_ShouldReturnEncryptionKeys()
+        public async Task GenerateDataKeyAsync_WhenMethodIsCalled_ShouldReturnEncryptionKeys()
         {
             // Arrange
             var alias = "alias/aws-kms/encryption-key";

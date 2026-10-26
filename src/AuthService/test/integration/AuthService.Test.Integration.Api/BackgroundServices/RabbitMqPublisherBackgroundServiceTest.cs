@@ -16,6 +16,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
     [Collection(nameof(AuthApiCollection))]
     public class RabbitMqPublisherBackgroundServiceTest
     {
+        private const string _folderNameForDroppedMessages = "auth-svc";
+
         private readonly AuthApiCollectionCluster _collectionCluster;
 
         public RabbitMqPublisherBackgroundServiceTest(AuthApiCollectionCluster collectionCluster)
@@ -29,7 +31,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         public async Task SaveDroppedMessagesAsync_WhenThereAreMessagesAndNoExceptionIsThrown_ShouldSaveMessageInDb(bool isShuttingDown)
         {
             // Arrange
-            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService)
+                .GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
             var droppedMessages = new List<Message>();
@@ -56,7 +59,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 .Include(rm => rm.WrappedDataKey)
                 .ToListAsync();
 
-            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>().DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
+            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>()
+                .DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
             foreach (var droppedMessage in droppedMessages)
             {
                 var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
@@ -75,7 +79,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         public async Task SaveDroppedMessagesAsync_WhenAppIsNotShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldDoNothing()
         {
             // Arrange
-            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService)
+                .GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
             var droppedMessages = new List<Message>();
@@ -127,11 +132,14 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         public async Task SaveDroppedMessagesAsync_WhenAppIsNotShuttinDownAndMessagesExceedMinBatchSizeAndExceptionIsThrown_ShouldSaveMessagesToStorage()
         {
             // Arrange
-            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService)
+                .GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
             var droppedMessages = new List<Message>();
-            var minBatchSize = (int)typeof(RabbitMqPublisherBackgroundService).GetField("_minNumberOfDroppedMessagesForFallback", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
+            var minBatchSize = (int)typeof(RabbitMqPublisherBackgroundService)
+                .GetField("_minNumberOfDroppedMessagesForFallback", BindingFlags.NonPublic | BindingFlags.Static)!
+                .GetValue(null)!;
             for (int i = 0; i < minBatchSize; ++i)
             {
                 droppedMessages.Add(new Message(
@@ -160,13 +168,19 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
 
             // Assert
             var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
-            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-dropped-messages", "auth-svc");
+            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync(
+                AuthApiCollectionCluster.AwsS3BucketNameForDroppedMessages,
+                _folderNameForDroppedMessages);
             Assert.Single(fileNames);
 
-            await using var fileContent = await awsS3Bucket.DownloadFileAsync("template-dropped-messages", "auth-svc", fileNames[0]);
+            await using var fileContent = await awsS3Bucket.DownloadFileAsync(
+                AuthApiCollectionCluster.AwsS3BucketNameForDroppedMessages,
+                _folderNameForDroppedMessages,
+                fileNames[0]);
             var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(Encoding.UTF8.GetString(fileContent.ToArray()))!;
 
-            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>().DecryptAsync(messageFileContent.WrappedDataKey);
+            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>()
+                .DecryptAsync(messageFileContent.WrappedDataKey);
             foreach (var droppedMessage in droppedMessages)
             {
                 var message = messageFileContent.Messages.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
@@ -184,7 +198,8 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         public async Task SaveDroppedMessagesAsync_WhenAppIsShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldSaveMessagesToStorage()
         {
             // Arrange
-            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService)
+                .GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
             var droppedMessages = new List<Message>();
@@ -216,13 +231,19 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
 
             // Assert
             var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
-            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-dropped-messages", "auth-svc");
+            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync(
+                AuthApiCollectionCluster.AwsS3BucketNameForDroppedMessages,
+                _folderNameForDroppedMessages);
             Assert.Single(fileNames);
 
-            await using var fileContent = await awsS3Bucket.DownloadFileAsync("template-dropped-messages", "auth-svc", fileNames[0]);
+            await using var fileContent = await awsS3Bucket.DownloadFileAsync(
+                AuthApiCollectionCluster.AwsS3BucketNameForDroppedMessages,
+                _folderNameForDroppedMessages,
+                fileNames[0]);
             var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(Encoding.UTF8.GetString(fileContent.ToArray()))!;
 
-            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>().DecryptAsync(messageFileContent.WrappedDataKey);
+            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>()
+                .DecryptAsync(messageFileContent.WrappedDataKey);
             foreach (var droppedMessage in droppedMessages)
             {
                 var message = messageFileContent.Messages.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
@@ -233,7 +254,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 Assert.Equal(droppedMessage.Body, messageBodyDecrypted);
             }
 
-            await awsS3Bucket.DeleteFilesAsync("template-dropped-messages", "auth-svc", fileNames);
+            await awsS3Bucket.DeleteFilesAsync(
+                AuthApiCollectionCluster.AwsS3BucketNameForDroppedMessages,
+                _folderNameForDroppedMessages,
+                fileNames);
         }
     }
 }

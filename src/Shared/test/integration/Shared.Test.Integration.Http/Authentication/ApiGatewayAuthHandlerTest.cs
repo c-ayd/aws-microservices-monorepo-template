@@ -20,11 +20,11 @@ namespace Shared.Test.Integration.Http.Authentication
     {
         private const string _roleName = "TestRole";
         
-        private readonly WebApiFixture _webApiFixture;
+        private readonly TestHostCollectionCluster _collectionCluster;
 
         public ApiGatewayAuthHandlerTest(TestHostCollectionCluster collectionCluster)
         {
-            _webApiFixture = collectionCluster.WebApiFixture;
+            _collectionCluster = collectionCluster;
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
@@ -62,7 +62,7 @@ namespace Shared.Test.Integration.Http.Authentication
         public async Task Invoke_WhenHeadersHaveUserContent_ShouldFillClaimPrincipalAndAuthorize()
         {
             // Arrange
-            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
 
             var userId = Guid.NewGuid().ToString();
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, userId);
@@ -93,11 +93,15 @@ namespace Shared.Test.Integration.Http.Authentication
             Assert.NotNull(responseUser);
             Assert.True(responseUser.IsAuthenticated, "The user is not authenticated.");
             Assert.Equal(userId, responseUser.Name);
-            Assert.Equal(_roleName, responseUser.Claims.FirstOrDefault(c => c.Type == ApiGatewayAuthKeys.Claims.Roles.ClaimType)!.Value);
+            Assert.Equal(_roleName, responseUser.Claims
+                .FirstOrDefault(c => c.Type == ApiGatewayAuthKeys.Claims.Roles.ClaimType)!
+                .Value);
 
             if (claim != null)
             {
-                Assert.Equal(headerValue, responseUser.Claims.FirstOrDefault(c => c.Type == claim.ClaimType)!.Value);
+                Assert.Equal(headerValue, responseUser.Claims
+                    .FirstOrDefault(c => c.Type == claim.ClaimType)!
+                    .Value);
             }
 
             Assert.Equal(HttpStatusCode.OK, responseAuthorized.StatusCode);
@@ -109,7 +113,7 @@ namespace Shared.Test.Integration.Http.Authentication
         public async Task Invoke_WhenHeadersHaveNoUserContent_ShouldLeftClaimPrincipalEmptyAndNotAuthorize()
         {
             // Arrange
-            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
 
             // Act
             var responseUser = await client.GetFromJsonAsync<UserDto>("/api-gateway");
