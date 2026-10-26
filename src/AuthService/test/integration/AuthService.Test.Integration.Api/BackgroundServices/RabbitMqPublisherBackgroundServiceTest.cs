@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using AuthService.Api.BackgroundServices;
 using AuthService.Test.Integration.Api.Collections;
@@ -161,7 +162,21 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
             var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-dropped-messages", "auth-svc");
             Assert.Single(fileNames);
-            
+
+            await using var fileContent = await awsS3Bucket.DownloadFileAsync("template-dropped-messages", "auth-svc", fileNames[0]);
+            var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(Encoding.UTF8.GetString(fileContent.ToArray()))!;
+
+            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>().DecryptAsync(messageFileContent.WrappedDataKey);
+            foreach (var droppedMessage in droppedMessages)
+            {
+                var message = messageFileContent.Messages.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
+                if (message == null)
+                    Assert.Fail("One of the messages is not saved to the file.");
+
+                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, dataKeyPlaintext, deleteKey: false);
+                Assert.Equal(droppedMessage.Body, messageBodyDecrypted);
+            }
+
             await awsS3Bucket.DeleteFilesAsync("template-dropped-messages", "auth-svc", fileNames);
         }
 
@@ -172,10 +187,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService).GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
 
-            var droppedMessage = new List<Message>();
+            var droppedMessages = new List<Message>();
             for (int i = 0; i < 2; ++i)
             {
-                droppedMessage.Add(new Message(
+                droppedMessages.Add(new Message(
                     serviceName: StringGenerator.GenerateAlphanumeric(),
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
@@ -192,7 +207,7 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             // Act
             try
             {
-                await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessage, droppedMessage.Count, true, default])!;
+                await (Task)saveDroppedMessagesMethodInfo.Invoke(backgroundService, [droppedMessages, droppedMessages.Count, true, default])!;
             }
             finally
             {
@@ -203,6 +218,20 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
             var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-dropped-messages", "auth-svc");
             Assert.Single(fileNames);
+
+            await using var fileContent = await awsS3Bucket.DownloadFileAsync("template-dropped-messages", "auth-svc", fileNames[0]);
+            var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(Encoding.UTF8.GetString(fileContent.ToArray()))!;
+
+            var dataKeyPlaintext = await _collectionCluster.AuthApiWebApp.GetService<IAwsKms>().DecryptAsync(messageFileContent.WrappedDataKey);
+            foreach (var droppedMessage in droppedMessages)
+            {
+                var message = messageFileContent.Messages.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
+                if (message == null)
+                    Assert.Fail("One of the messages is not saved to the file.");
+
+                var messageBodyDecrypted = AesGcmEncryption.Decrypt(message.BodyEncrypted, dataKeyPlaintext, deleteKey: false);
+                Assert.Equal(droppedMessage.Body, messageBodyDecrypted);
+            }
 
             await awsS3Bucket.DeleteFilesAsync("template-dropped-messages", "auth-svc", fileNames);
         }
