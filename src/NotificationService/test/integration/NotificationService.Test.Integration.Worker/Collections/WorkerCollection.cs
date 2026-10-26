@@ -49,14 +49,6 @@ namespace NotificationService.Test.Integration.Worker.Collections
                         RabbitMq = RabbitMqFixture.GetConnectionOptions()
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/notification-svc/secrets", JsonSerializer.Serialize(
-                new
-                {
-                    Smtp = new
-                    {
-                        AwsSesFromEmailAddress = AwsTestConstants.SesFromEmail
-                    }
-                }));
             await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {

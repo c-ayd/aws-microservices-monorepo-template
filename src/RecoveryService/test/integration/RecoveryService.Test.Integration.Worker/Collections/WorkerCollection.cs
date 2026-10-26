@@ -60,8 +60,8 @@ namespace RecoveryService.Test.Integration.Worker.Collections
             await RabbitMqFixture.DeclareExchangeAsync(ExchangeName, ExchangeType.Direct);
             await RabbitMqFixture.DeclareQueueAsync(QueueName, ExchangeName, RoutingKey);
 
-            await AwsFixture.KMS_CreateKekAsync("alias/test-alias");
-            await AwsFixture.S3Bucket_CreateBucketAsync("template-graceful-shutdown");
+            await AwsFixture.KMS_CreateKekAsync("alias/dropped-messages");
+            await AwsFixture.S3Bucket_CreateBucketAsync("template-dropped-messages");
 
             await AwsFixture.SecretsManager_AddStringAsync("template/recovery-svc/connections", JsonSerializer.Serialize(
                 new
@@ -70,15 +70,6 @@ namespace RecoveryService.Test.Integration.Worker.Collections
                     {
                         DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_droppedMessagesDbName),
                         RabbitMq = RabbitMqFixture.GetConnectionOptions()
-                    }
-                }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/recovery-svc/secrets", JsonSerializer.Serialize(
-                new
-                {
-                    Storage = new
-                    {
-                        AwsS3BucketName = "template-graceful-shutdown",
-                        Folders = new[] { "auth-svc" }
                     }
                 }));
             await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(

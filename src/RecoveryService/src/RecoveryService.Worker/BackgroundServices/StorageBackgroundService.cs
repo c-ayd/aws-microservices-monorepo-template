@@ -41,7 +41,7 @@ namespace RecoveryService.Worker.BackgroundServices
         {
             foreach (var folder in _storageOptions.Folders)
             {
-                await RepublishDroppedMessagesInStorageAsync(_storageOptions.AwsS3BucketName, folder, cancellationToken);
+                await RepublishDroppedMessagesInStorageAsync(_storageOptions.DroppedMessagesBucketName, folder, cancellationToken);
             }
         }
 

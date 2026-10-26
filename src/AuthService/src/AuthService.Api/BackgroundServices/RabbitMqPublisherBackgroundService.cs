@@ -19,9 +19,9 @@ namespace AuthService.Api.BackgroundServices
     {
         private const int _minNumberOfDroppedMessagesForFallback = 1000;
 
-        private readonly string _awsKmsAlias;
+        private readonly EncrpytionOptions _encryptionOptions;
+        private readonly StorageOptions _storageOptions;
         private readonly IAwsKms _awsKms;
-        private readonly string _awsS3BucketName;
         private readonly IAwsS3Bucket _awsS3Bucket;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<RabbitMqPublisherBackgroundService> _logger;
@@ -47,9 +47,9 @@ namespace AuthService.Api.BackgroundServices
             graceTime: TimeSpan.FromSeconds(5),
             logger)
         {
-            _awsKmsAlias = encryptionOptions.Value.AwsKmsAlias;
+            _encryptionOptions = encryptionOptions.Value;
+            _storageOptions = storageOptions.Value;
             _awsKms = awsKms;
-            _awsS3BucketName = storageOptions.Value.AwsS3BucketName;
             _awsS3Bucket = awsS3Bucket;
             _scopeFactory = scopeFactory;
             _logger = logger;
@@ -62,7 +62,7 @@ namespace AuthService.Api.BackgroundServices
             CancellationToken cancellationToken = default)
         {
             // Encrypt messages
-            var dataKey = await _awsKms.GenerateDataKeyAsync(_awsKmsAlias);
+            var dataKey = await _awsKms.GenerateDataKeyAsync(_encryptionOptions.DroppedMessagesKeyAlias);
 
             var wrappedDataKey = new WrappedDataKey(dataKey.Encrypted);
             foreach (var droppedMessage in droppedMessages)
@@ -113,7 +113,7 @@ namespace AuthService.Api.BackgroundServices
 
             var jsonString = JsonSerializer.Serialize(new MessageFileContent(wrappedDataKey));
             await _awsS3Bucket.UploadFileAsync(
-                _awsS3BucketName,
+                _storageOptions.DroppedMessagesBucketName,
                 folder: "auth-svc",
                 fileName: $"{DateTimeOffset.UtcNow.ToString("yyyy-MM-dd_HH:mm:ss")}_{Guid.NewGuid()}.json",
                 content: Encoding.UTF8.GetBytes(jsonString),

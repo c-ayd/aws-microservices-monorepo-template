@@ -6,6 +6,6 @@ namespace NotificationService.Worker.Options
     {
         public static string Key => "Smtp";
 
-        public required string AwsSesFromEmailAddress { get; set; }
+        public required string FromEmailAddress { get; set; }
     }
 }

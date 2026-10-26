@@ -18,7 +18,6 @@ builder.Services.AddAwsS3Bucket();
 builder.Services.AddAwsKms();
 await builder.Configuration.AddAwsSecretsAsync([
     "template/recovery-svc/connections",
-    "template/recovery-svc/secrets",
     "template/cert/ca-bundle"
 ]);
 

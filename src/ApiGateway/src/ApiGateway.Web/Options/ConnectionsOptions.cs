@@ -1,12 +1,10 @@
-using Shared.AspNetCore.Helpers.Options;
+using Shared.Aws.Helpers.Options;
 using Shared.Redis.Helpers.Options.Extensions;
 
 namespace ApiGateway.Web.Options
 {
-    public class ConnectionsOptions : IOptions
+    public class ConnectionsOptions : ConnectionsOptionsBase
     {
-        public static string Key => "Connections";
-
         public required RedisConnectionOptions TokenBlacklistRedis { get; set; }
         public required RedisConnectionOptions RateLimiterRedis { get; set; }
     }
