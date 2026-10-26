@@ -23,11 +23,15 @@ namespace AuthService.Test.Unit.Api.Middlewares
         public async Task Invoke_WhenAuthenticatedAndUserPreferencesExist_ShouldAddPreferencesToItems(string language, string expected)
         {
             // Arrange
-            var httpContext = new DefaultHttpContext();
-            httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>()
+            var httpContext = new DefaultHttpContext
             {
-                new Claim(ApiGatewayAuthKeys.Claims.PreferredLanguage.ClaimType, language)
-            }, "TestAuth"));
+                User = new ClaimsPrincipal(new ClaimsIdentity(
+                    claims: new List<Claim>()
+                    {
+                        new Claim(ApiGatewayAuthKeys.Claims.PreferredLanguage.ClaimType, language)
+                    },
+                    authenticationType: "TestAuth"))
+            };
 
             // Act
             await _middleware.Invoke(httpContext);

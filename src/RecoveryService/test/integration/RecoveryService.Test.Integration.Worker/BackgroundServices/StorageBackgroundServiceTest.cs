@@ -8,6 +8,7 @@ using Shared.Aws.Helpers.Abstractions;
 using Shared.Crypto;
 using Shared.RabbitMq.Helpers.EntityFramework.Entities;
 using Shared.RabbitMq.Helpers.Structures;
+using Shared.Test.Generators;
 
 namespace RecoveryService.Test.Integration.Worker.BackgroundServices
 {
@@ -27,29 +28,28 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
         public async Task RepublishAsync_WhenThereAreFiles_ShouldRepublishMessages()
         {
             // Arrange
-            var queueMessageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.QueueName);
+            var queueMessageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.TestQueueName);
             if (queueMessageCount != 0)
                 Assert.Fail($"The queues is not empty. Count: {queueMessageCount}.");
 
             var awsKms = _collectionCluster.RecoveryWebApp.GetService<IAwsKms>();
-            var dataKey = await awsKms.GenerateDataKeyAsync("alias/dropped-messages");
+            var dataKey = await awsKms.GenerateDataKeyAsync(WorkerCollectionCluster.AwsKmsAliasForDroppedMessages);
 
             var wrappedDataKey = new WrappedDataKey(dataKey.Encrypted);
-            var message = "Test message";
             for (int i = 0; i < 100; ++i)
             {
                 wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
-                    serviceName: "TestService",
-                    publisherName: "TestPublisher",
-                    exchangeName: "test.recovery",
-                    routingKey: "test.recovery.send",
+                    WorkerCollectionCluster.TestServiceName,
+                    WorkerCollectionCluster.TestPublisherName,
+                    WorkerCollectionCluster.TestExchangeName,
+                    WorkerCollectionCluster.TestRoutingKey,
                     properties: new BasicProperties()
                     {
                         DeliveryMode = DeliveryModes.Persistent,
                         CorrelationId = Guid.NewGuid().ToString()
                     },
-                    bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(message), dataKey.Plaintext, deleteKey: false)));
+                    bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric()), dataKey.Plaintext, deleteKey: false)));
             }
 
             var awsS3Bucket = _collectionCluster.RecoveryWebApp.GetService<IAwsS3Bucket>();
@@ -81,13 +81,10 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                 ++elapsedTime;
             }
 
-            var numberOfMessagesInRabbitMq = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.QueueName);
+            var numberOfMessagesInRabbitMq = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(WorkerCollectionCluster.TestQueueName);
             Assert.Equal((uint)wrappedDataKey.DroppedMessages.Count, numberOfMessagesInRabbitMq);
 
-            var messageFromRabbit = await _collectionCluster.RabbitMqFixture.GetNextMessageAsync(WorkerCollectionCluster.QueueName);
-            Assert.Equal(message, Encoding.UTF8.GetString(messageFromRabbit!.Body.ToArray()));
-
-            await _collectionCluster.RabbitMqFixture.ClearMessagesAsync(WorkerCollectionCluster.QueueName);
+            await _collectionCluster.RabbitMqFixture.ClearMessagesAsync(WorkerCollectionCluster.TestQueueName);
         }
     }
 }

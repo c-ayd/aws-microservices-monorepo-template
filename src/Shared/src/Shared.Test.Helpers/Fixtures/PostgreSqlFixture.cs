@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
+using Shared.Test.Helpers.Fixtures.SeedWork;
 using Testcontainers.PostgreSql;
 
 namespace Shared.Test.Helpers.Fixtures

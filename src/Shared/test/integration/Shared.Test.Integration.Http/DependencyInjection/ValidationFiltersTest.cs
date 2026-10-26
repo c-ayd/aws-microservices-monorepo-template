@@ -18,11 +18,11 @@ namespace Shared.Test.Integration.Http.DependencyInjection
     {
         public const string ErrorCode = "TestValue";
 
-        private readonly WebApiFixture _webApiFixture;
+        private readonly TestHostCollectionCluster _collectionCluster;
 
         public ValidationFiltersTest(TestHostCollectionCluster collectionCluster)
         {
-            _webApiFixture = collectionCluster.WebApiFixture;
+            _collectionCluster = collectionCluster;
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
@@ -33,9 +33,11 @@ namespace Shared.Test.Integration.Http.DependencyInjection
 
         public static void ConfigureEndpoints(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/valiation-filter/validation", (HttpContext context, ValidationType1 value) => Results.NoContent().ExecuteAsync(context))
+            endpoints.MapPost("/valiation-filter/validation", 
+                    (HttpContext context, ValidationType1 value) => Results.NoContent().ExecuteAsync(context))
                 .AddValidation<ValidationType1>();
-            endpoints.MapPost("/valiation-filter/async-validation", (HttpContext context, ValidationType2 value) => Results.NoContent().ExecuteAsync(context))
+            endpoints.MapPost("/valiation-filter/async-validation",
+                    (HttpContext context, ValidationType2 value) => Results.NoContent().ExecuteAsync(context))
                 .AddAsyncValidation<ValidationType2>();
         }
 #pragma warning restore xUnit1013 // Public method should be marked as test
@@ -46,7 +48,7 @@ namespace Shared.Test.Integration.Http.DependencyInjection
             // Arrange
             var request = new ValidationType1(10);
 
-            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync("/valiation-filter/validation", request);
@@ -61,7 +63,7 @@ namespace Shared.Test.Integration.Http.DependencyInjection
             // Arrange
             var request = new ValidationType1(-1);
 
-            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync("/valiation-filter/validation", request);
@@ -80,7 +82,7 @@ namespace Shared.Test.Integration.Http.DependencyInjection
             // Arrange
             var request = new ValidationType1(10);
 
-            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync("/valiation-filter/async-validation", request);
@@ -95,7 +97,7 @@ namespace Shared.Test.Integration.Http.DependencyInjection
             // Arrange
             var request = new ValidationType1(-1);
 
-            using var client = _webApiFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            using var client = _collectionCluster.WebApiFixture.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync("/valiation-filter/async-validation", request);

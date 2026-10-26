@@ -22,19 +22,18 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         private const string _routingKey = "shared.rabbitmq.helpers.consumerbackgroundservice.routing";
         private const string _queueName = "shared.rabbitmq.helpers.consumerbackgroundservice.queue";
 
-        private readonly RabbitMqFixture _rabbitMqFixture;
+        private readonly RabbitMqCollectionCluster _collectionCluster;
         private readonly LoggerFixture<ConsumerBackgroundServiceTest> _loggerFixture;
-
-        private string _caBundle;
+        private string _caBundleValue;
 
         public ConsumerBackgroundServiceTest(
-            RabbitMqCollectionCluster rabbitMqCollectionCluster,
+            RabbitMqCollectionCluster collectionCluster,
             LoggerFixture<ConsumerBackgroundServiceTest> loggerFixture)
         {
-            _rabbitMqFixture = rabbitMqCollectionCluster.RabbitMqFixture;
+            _collectionCluster = collectionCluster;
             _loggerFixture = loggerFixture;
 
-            _caBundle = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs/test-ca-bundle.crt"));
+            _caBundleValue = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, RabbitMqCollectionCluster.CABundlePath));
         }
 
         [Fact]
@@ -42,12 +41,12 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         {
             // Arrange
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
-                TimeSpan.FromSeconds(60),
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
+                healthCheckTime: TimeSpan.FromSeconds(60),
                 _graceTime,
                 _queueName,
-                1,
+                prefetchCount: 1,
                 _loggerFixture);
 
             // Act
@@ -67,25 +66,25 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         {
             // Arrange
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
-                1,
+                prefetchCount: 1,
                 _loggerFixture);
             await InitializeBackgroundServiceAsync(backgroundService);
 
-            var messageCount = await _rabbitMqFixture.GetMessageCountAsync(_queueName);
+            var messageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(_queueName);
             if (messageCount != 0)
                 Assert.Fail($"The queue is not empty. Count: {messageCount}");
 
             var message = StringGenerator.GeneratePrintableAscii();
-            await _rabbitMqFixture.PublishMessageAsync(
+            await _collectionCluster.RabbitMqFixture.PublishMessageAsync(
                 _exchangeName,
                 _routingKey,
                 new BasicProperties(),
-                JsonSerializer.SerializeToUtf8Bytes(message));
+                body: JsonSerializer.SerializeToUtf8Bytes(message));
 
             // Act
             var cts = new CancellationTokenSource();
@@ -109,16 +108,16 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         {
             // Arrange
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
-                1,
+                prefetchCount: 1,
                 _loggerFixture);
             await InitializeBackgroundServiceAsync(backgroundService);
 
-            var messageCount = await _rabbitMqFixture.GetMessageCountAsync(_queueName);
+            var messageCount = await _collectionCluster.RabbitMqFixture.GetMessageCountAsync(_queueName);
             if (messageCount != 0)
                 Assert.Fail($"The queue is not empty. Count: {messageCount}");
 
@@ -132,11 +131,11 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             }
 
             var message = StringGenerator.GeneratePrintableAscii();
-            await _rabbitMqFixture.PublishMessageAsync(
+            await _collectionCluster.RabbitMqFixture.PublishMessageAsync(
                 _exchangeName,
                 _routingKey,
                 new BasicProperties(),
-                JsonSerializer.SerializeToUtf8Bytes(message));
+                body: JsonSerializer.SerializeToUtf8Bytes(message));
 
             // Act
             var cts = new CancellationTokenSource();
@@ -157,12 +156,12 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
         {
             // Arrange
             var backgroundService = new TestBackgroundService(
-                _rabbitMqFixture.GetConnectionOptions(),
-                _caBundle,
+                _collectionCluster.RabbitMqFixture.GetConnectionOptions(),
+                _caBundleValue,
                 _healthCheckTime,
                 _graceTime,
                 _queueName,
-                1,
+                prefetchCount: 1,
                 _loggerFixture);
             await InitializeBackgroundServiceAsync(backgroundService);
 
@@ -176,13 +175,15 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private async Task InitializeBackgroundServiceAsync(TestBackgroundService backgroundService)
         {
-            var initializeConnectionMethodInfo = typeof(ConsumerBackgroundService).GetMethod("InitializeConnectionAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var initializeConnectionMethodInfo = typeof(ConsumerBackgroundService)
+                .GetMethod("InitializeConnectionAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             await (Task)initializeConnectionMethodInfo.Invoke(backgroundService, [default])!;
         }
 
         private IConnection GetConnection(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(ConsumerBackgroundService).GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var fieldInfo = typeof(ConsumerBackgroundService)
+                .GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (IConnection)fieldInfo.GetValue(backgroundService)!;
         }
 
@@ -205,7 +206,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private Task ExecuteAsync(TestBackgroundService backgroundService, CancellationToken cancellationToken)
         {
-            var methodInfo = typeof(ConsumerBackgroundService).GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var methodInfo = typeof(ConsumerBackgroundService)
+                .GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (Task)methodInfo.Invoke(backgroundService, [cancellationToken])!;
         }
 

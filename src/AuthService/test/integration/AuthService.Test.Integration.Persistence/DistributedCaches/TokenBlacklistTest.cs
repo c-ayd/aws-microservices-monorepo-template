@@ -1,6 +1,7 @@
 using System.Reflection;
 using AuthService.Application.Options;
 using AuthService.Persistence.DistributedCaches;
+using AuthService.Test.Integration.Persistence.Collections;
 using Microsoft.Extensions.Options;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.PostgreSql.Helpers.Options.Extensions;
@@ -12,7 +13,6 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
 {
     public class TokenBlacklistTest : IClassFixture<RedisFixture>, IAsyncLifetime
     {
-        private readonly string _caBundlePath = "Certs/test-ca-bundle.crt";
         private readonly RedisFixture _redisFixture;
 
         private TokenBlacklistRedis? _tokenBlacklist;
@@ -26,7 +26,7 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
         {
             await _redisFixture.InitializeAsync(
                 sslEnabled: true,
-                caBundlePath: _caBundlePath,
+                caBundlePath: AuthDbContextCollectionCluster.CABundlePath,
                 redisCertificateFolder: "Certs/Redis");
 
             var connectionsOptions = new ConnectionsOptions()
@@ -39,14 +39,15 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
 
             var caBundleOptions = new CABundleOptions()
             {
-                Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
+                Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, AuthDbContextCollectionCluster.CABundlePath))
             };
 
             _tokenBlacklist = new TokenBlacklistRedis(
                 Options.Create(connectionsOptions),
                 Options.Create(caBundleOptions));
 
-            var connectAsyncMethod = typeof(RedisConnection).GetMethod("ConnectAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var connectAsyncMethod = typeof(RedisConnection)
+                .GetMethod("ConnectAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             await (Task)connectAsyncMethod.Invoke(_tokenBlacklist, [default])!;
         }
 
@@ -86,7 +87,10 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
             var expirationTime = TimeSpan.FromMinutes(5);
             var now = DateTimeOffset.UtcNow;
 
-            await _redisFixture.GetDatabase().StringSetAsync(accountId, DateTimeOffset.UtcNow.AddMonths(-1).ToUnixTimeSeconds(), TimeSpan.FromHours(1));
+            await _redisFixture.GetDatabase().StringSetAsync(
+                key: accountId,
+                value: DateTimeOffset.UtcNow.AddMonths(-1).ToUnixTimeSeconds(),
+                expiry: TimeSpan.FromHours(1));
 
             // Act
             await _tokenBlacklist!.AddAsync(accountId, expirationTime);
@@ -115,7 +119,10 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
             // Arrange
             var accountId = Guid.NewGuid().ToString();
 
-            await _redisFixture.GetDatabase().StringSetAsync(accountId, DateTimeOffset.UtcNow.ToUnixTimeSeconds(), TimeSpan.FromMinutes(5));
+            await _redisFixture.GetDatabase().StringSetAsync(
+                key: accountId,
+                value: DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                expiry: TimeSpan.FromMinutes(5));
 
             // Act
             await _tokenBlacklist!.DeleteAsync(accountId);

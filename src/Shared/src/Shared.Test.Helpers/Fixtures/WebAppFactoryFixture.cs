@@ -16,15 +16,17 @@ namespace Shared.Test.Helpers.Fixtures
     /// Is a web application factory to centralize common functionalities for test cases.
     /// </summary>
     /// <typeparam name="TEntryPoint">Entry point of the web application, usually the main Program.cs</typeparam>
-    public class WebAppFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint>
+    public abstract class WebAppFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint>
         where TEntryPoint : class
     {
+        private readonly string _defaultPortConfigName;
         private X509Certificate2Collection _caBundle;
 
         protected List<HttpClient> HttpClients { get; private set; } = new List<HttpClient>();
 
-        public WebAppFactoryFixture(string? caBundlePath)
+        public WebAppFactoryFixture(string defaultPortConfigName, string? caBundlePath)
         {
+            _defaultPortConfigName = defaultPortConfigName;
             _caBundle = TlsUtility.LoadCertificateChain(
                 File.ReadAllText(Path.Combine(AppContext.BaseDirectory, caBundlePath!)));
 
@@ -62,7 +64,18 @@ namespace Shared.Test.Helpers.Fixtures
             return ((IPEndPoint)portConfigs.Ports[portConfigName].Configuration.EndPoint).Port;
         }
 
-        public HttpClient CreateHttpClient(string portConfigName)
+        public HttpClient CreateHttpClient(
+            string? portConfigName = null,
+            Dictionary<string, string>? headers = null,
+            Dictionary<string, string>? cookies = null)
+        {
+            return CreateManagedHttpClient(portConfigName ?? _defaultPortConfigName, headers, cookies);
+        }
+
+        protected HttpClient CreateManagedHttpClient(
+            string portConfigName,
+            Dictionary<string, string>? headers = null,
+            Dictionary<string, string>? cookies = null)
         {
             HttpClient client;
 
@@ -91,20 +104,12 @@ namespace Shared.Test.Helpers.Fixtures
                 };
             }
 
-            HttpClients.Add(client);
-            return client;
-        }
-
-        public HttpClient CreateHttpClientWithHeaders(
-            string portConfigName,
-            Dictionary<string, string> headers,
-            Dictionary<string, string>? cookies = null)
-        {
-            var client = CreateHttpClient(portConfigName);
-
-            foreach (var (key, value) in headers)
+            if (headers != null)
             {
-                client.DefaultRequestHeaders.Add(key, value);
+                foreach (var (key, value) in headers)
+                {
+                    client.DefaultRequestHeaders.Add(key, value);
+                }
             }
 
             if (cookies != null)
@@ -118,6 +123,7 @@ namespace Shared.Test.Helpers.Fixtures
                 client.DefaultRequestHeaders.Add("Cookie", cookieString.Substring(0, cookieString.Length - 2));
             }
 
+            HttpClients.Add(client);
             return client;
         }
 

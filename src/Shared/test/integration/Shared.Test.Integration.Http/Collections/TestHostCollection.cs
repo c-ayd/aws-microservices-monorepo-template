@@ -12,13 +12,15 @@ namespace Shared.Test.Integration.Http.Collections
 
     public class TestHostCollectionCluster : IAsyncLifetime
     {
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
+
         public WebApiFixture WebApiFixture { get; private set; }
 
         public TestHostCollectionCluster()
         {
             WebApiFixture = new WebApiFixture(
                 sslEnabled: true,
-                caBundlePath: "Certs/test-ca-bundle.crt",
+                caBundlePath: CABundlePath,
                 serverCertificatePath: "Certs/WebApi/test-webapi-server.crt",
                 serverCertificatePrivateKeyPath: "Certs/WebApi/test-webapi-server.key");
         }

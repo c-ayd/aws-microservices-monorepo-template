@@ -30,7 +30,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
         {
             // Arrange
             var passwordHasher = _collectionCluster.AuthApiWebApp.GetService<IPasswordHasher>();
-            var account = new Account(EmailGenerator.Generate(), passwordHasher.Hash(PasswordGenerator.Generate()), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                EmailGenerator.Generate(),
+                passwordHasher.Hash(PasswordGenerator.Generate()),
+                SupportedLanguages.DefaultLanguage);
 
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
             await authDbContext.Accounts.AddAsync(account);
@@ -38,8 +41,8 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
+                headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
@@ -60,7 +63,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
             var password = PasswordGenerator.GenerateValid();
             var passwordHasher = _collectionCluster.AuthApiWebApp.GetService<IPasswordHasher>();
 
-            var account = new Account(EmailGenerator.Generate(), passwordHasher.Hash(password), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                EmailGenerator.Generate(),
+                passwordHasher.Hash(password),
+                SupportedLanguages.DefaultLanguage);
 
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
             await authDbContext.Accounts.AddAsync(account);
@@ -68,8 +74,8 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
+                headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
@@ -82,12 +88,11 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
             // Assert
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-            var unixTimeInSeconds = await _collectionCluster.TokenBlacklistRedisFixture
-                .GetDatabase()
+            var unixTimeInSeconds = await _collectionCluster.TokenBlacklistRedisFixture.GetDatabase()
                 .LoadFromStringAsync<long>(account.Id.ToString());
             Assert.True(unixTimeInSeconds.isKeyFound, "The account ID as the key is not found in Redis");
 
-            var time = DateTimeOffset.FromUnixTimeSeconds(unixTimeInSeconds.value);     // Should not throw
+            var time = DateTimeOffset.FromUnixTimeSeconds(unixTimeInSeconds.value); // Should not throw exception
         }
 
         [Fact]
@@ -97,10 +102,17 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
             var password = PasswordGenerator.GenerateValid();
             var passwordHasher = _collectionCluster.AuthApiWebApp.GetService<IPasswordHasher>();
 
-            var account = new Account(EmailGenerator.Generate(), passwordHasher.Hash(password), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                EmailGenerator.Generate(),
+                passwordHasher.Hash(password),
+                SupportedLanguages.DefaultLanguage);
+            
             for (int i = 0; i < 3; ++i)
             {
-                account.Sessions.Add(new Session(account.Id, StringGenerator.GenerateAlphanumeric(), DateTimeOffset.UtcNow));
+                account.Sessions.Add(new Session(
+                    account.Id,
+                    refreshTokenHashed: StringGenerator.GenerateAlphanumeric(),
+                    expirationDate: DateTimeOffset.UtcNow));
             }
 
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
@@ -109,8 +121,8 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
 
             var request = new CloseSessionsRequest(password);
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
+                headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
@@ -130,12 +142,11 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Clo
                 .ToListAsync();
             Assert.Empty(sessionFromDb);
 
-            var unixTimeInSeconds = await _collectionCluster.TokenBlacklistRedisFixture
-                .GetDatabase()
+            var unixTimeInSeconds = await _collectionCluster.TokenBlacklistRedisFixture.GetDatabase()
                 .LoadFromStringAsync<long>(account.Id.ToString());
             Assert.True(unixTimeInSeconds.isKeyFound, "The account ID as the key is not found in Redis");
 
-            var time = DateTimeOffset.FromUnixTimeSeconds(unixTimeInSeconds.value);     // Should not throw
+            var time = DateTimeOffset.FromUnixTimeSeconds(unixTimeInSeconds.value); // Should not throw exception
         }
     }
 }

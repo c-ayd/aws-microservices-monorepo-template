@@ -14,16 +14,21 @@ namespace RecoveryService.Test.Integration.Worker.Collections
 
     public class WorkerCollectionCluster : IAsyncLifetime
     {
-        private const string _caBundlePath = "Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
-        public const string ExchangeName = "test.recovery";
-        public const string RoutingKey = "test.recovery.send";
-        public const string QueueName = "test.recovery.queue";
+        public const string AwsKmsAliasForDroppedMessages = "alias/dropped-messages";
+        public const string AwsS3BucketNameForDroppedMessages = "template-dropped-messages";
 
-        private const string _droppedMessagesDbName = "dropped-messages-db";
+        public const string DroppedMessagesDbName = "dropped-messages-db";
 
-        private static int _awsPort;
-        private static int _recoveryServicePort;
+        public const string TestServiceName = "TestService";
+        public const string TestPublisherName = "TestPublisher";
+        public const string TestExchangeName = "test.recovery";
+        public const string TestRoutingKey = "test.recovery.send";
+        public const string TestQueueName = "test.recovery.queue";
+
+        public static int AwsPort { get; private set; }
+        public static int RecoveryServicePort { get; private set; }
 
         public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -44,45 +49,24 @@ namespace RecoveryService.Test.Integration.Worker.Collections
                 AwsFixture.InitializeAsync(),
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     serverCertificatePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     serverCertificatePrivateKeyPath: "Certs/PostgreSql/test-postgresql-server.key",
                     dbContexts: new Dictionary<string, Type>()
                     {
-                        { _droppedMessagesDbName, typeof(DroppedMessagesDbContext) }
+                        { DroppedMessagesDbName, typeof(DroppedMessagesDbContext) }
                     }),
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     rabbitMqCertificateFolder: "Certs/RabbitMq")
             );
 
-            await RabbitMqFixture.DeclareExchangeAsync(ExchangeName, ExchangeType.Direct);
-            await RabbitMqFixture.DeclareQueueAsync(QueueName, ExchangeName, RoutingKey);
+            await SetupAwsAsync();
+            await SetupRabbitMqAsync();
 
-            await AwsFixture.KMS_CreateKekAsync("alias/dropped-messages");
-            await AwsFixture.S3Bucket_CreateBucketAsync("template-dropped-messages");
-
-            await AwsFixture.SecretsManager_AddStringAsync("template/recovery-svc/connections", JsonSerializer.Serialize(
-                new
-                {
-                    Connections = new
-                    {
-                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_droppedMessagesDbName),
-                        RabbitMq = RabbitMqFixture.GetConnectionOptions()
-                    }
-                }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
-                new
-                {
-                    CABundle = new
-                    {
-                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
-                    }
-                }));
-
-            _awsPort = AwsFixture.GetPort();
-            _recoveryServicePort = KestrelHelper.GetFreePort();
+            AwsPort = AwsFixture.GetPort();
+            RecoveryServicePort = KestrelTestHelper.GetFreePort();
 
             RecoveryWebApp = new RecoveryWebAppFactory();
             RecoveryWebApp.StartServer();
@@ -101,7 +85,8 @@ namespace RecoveryService.Test.Integration.Worker.Collections
 
         public class RecoveryWebAppFactory : WebAppFactoryFixture<Program>
         {
-            public RecoveryWebAppFactory() : base(_caBundlePath)
+            public RecoveryWebAppFactory()
+                : base(defaultPortConfigName: "Http", CABundlePath)
             {
             }
 
@@ -111,12 +96,42 @@ namespace RecoveryService.Test.Integration.Worker.Collections
 
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpPort",
-                        _recoveryServicePort.ToString()),
+                        RecoveryServicePort.ToString()),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
-                        $"http://localhost:{_awsPort}")
+                        $"http://localhost:{AwsPort}")
                 ]);
             }
+        }
+
+        private async Task SetupAwsAsync()
+        {
+            await AwsFixture.KMS_CreateKekAsync(AwsKmsAliasForDroppedMessages);
+            await AwsFixture.S3Bucket_CreateBucketAsync(AwsS3BucketNameForDroppedMessages);
+
+            await AwsFixture.SecretsManager_AddStringAsync("template/recovery-svc/connections", JsonSerializer.Serialize(
+                new
+                {
+                    Connections = new
+                    {
+                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(DroppedMessagesDbName),
+                        RabbitMq = RabbitMqFixture.GetConnectionOptions()
+                    }
+                }));
+            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+                new
+                {
+                    CABundle = new
+                    {
+                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath))
+                    }
+                }));
+        }
+
+        private async Task SetupRabbitMqAsync()
+        {
+            await RabbitMqFixture.DeclareExchangeAsync(TestExchangeName, ExchangeType.Direct);
+            await RabbitMqFixture.DeclareQueueAsync(TestQueueName, TestExchangeName, TestRoutingKey);
         }
     }
 }

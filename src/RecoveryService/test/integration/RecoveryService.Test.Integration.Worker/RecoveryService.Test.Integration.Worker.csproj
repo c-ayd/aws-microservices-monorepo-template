@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\RecoveryService.Worker\RecoveryService.csproj" />
     <ProjectReference Include="..\..\..\..\Shared\src\Shared.Test.Helpers\Shared.Test.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\..\Shared\src\Shared.Test.Generators\Shared.Test.Generators.csproj" />
   </ItemGroup>
 
   <ItemGroup>

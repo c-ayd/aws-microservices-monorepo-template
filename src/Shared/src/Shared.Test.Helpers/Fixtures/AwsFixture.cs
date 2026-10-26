@@ -10,6 +10,7 @@ using Amazon.SimpleEmailV2.Model;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Shared.Aws.Helpers.Test;
+using Shared.Test.Helpers.Fixtures.SeedWork;
 
 namespace Shared.Test.Helpers.Fixtures
 {
@@ -74,30 +75,31 @@ namespace Shared.Test.Helpers.Fixtures
         }
 
         //~ Begin - AWS Secrets Manager
-        public async Task SecretsManager_AddStringAsync(string name, string value)
+        public async Task SecretsManager_AddStringAsync(string id, string value)
         {
             await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
             {
-                Name = name,
+                Name = id,
                 SecretString = value
             });
         }
 
-        public async Task SecretsManager_AddBinaryAsync(string name, byte[] value)
+        public async Task SecretsManager_AddBinaryAsync(string id, byte[] value)
         {
             await using var memoryStream = new MemoryStream(value, writable: false);
             await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
             {
-                Name = name,
+                Name = id,
                 SecretBinary = memoryStream
             });
         }
 
-        public async Task SecretsManager_DeleteAsync(string name)
+        public async Task SecretsManager_DeleteAsync(string id)
         {
             await _awsSecretsManagerClient.DeleteSecretAsync(new DeleteSecretRequest()
             {
-                SecretId = name
+                SecretId = id,
+                ForceDeleteWithoutRecovery = true
             });
         }
         //~ End

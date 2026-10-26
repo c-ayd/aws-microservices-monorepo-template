@@ -12,10 +12,10 @@ namespace Initializer.Test.Integration.Databases.Collections
 
     public class InitializerCollectionCluster : IAsyncLifetime
     {
-        private const string _caBundlePath = "Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
-        private const string _authDbName = "auth-db";
-        private const string _droppedMessagesDbName = "dropped-messages-db";
+        public const string AuthDbName = "auth-db";
+        public const string DroppedMessagesDbName = "dropped-messages-db";
 
         public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -32,24 +32,37 @@ namespace Initializer.Test.Integration.Databases.Collections
                 AwsFixture.InitializeAsync(),
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     serverCertificatePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     serverCertificatePrivateKeyPath: "Certs/PostgreSql/test-postgresql-server.key",
                     dbContexts: new Dictionary<string, Type>()
                     {
-                        { _authDbName, typeof(AuthDbContext) },
-                        { _droppedMessagesDbName, typeof(DroppedMessagesDbContext) }
+                        { AuthDbName, typeof(AuthDbContext) },
+                        { DroppedMessagesDbName, typeof(DroppedMessagesDbContext) }
                     },
                     runMigrations: false)
             );
 
+            await SetupAwsAsync();
+        }
+        
+        public async Task DisposeAsync()
+        {
+            await Task.WhenAll(
+                AwsFixture.DisposeAsync(),
+                PostgreSqlFixture.DisposeAsync()
+            );
+        }
+
+        private async Task SetupAwsAsync()
+        {
             await AwsFixture.SecretsManager_AddStringAsync("template/authdb-job/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
                     {
-                        AuthDb = PostgreSqlFixture.GetConnectionOptions(_authDbName),
-                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_droppedMessagesDbName)
+                        AuthDb = PostgreSqlFixture.GetConnectionOptions(AuthDbName),
+                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(DroppedMessagesDbName)
                     }
                 }));
             await AwsFixture.SecretsManager_AddStringAsync("template/authdb-job/seed-data", JsonSerializer.Serialize(
@@ -63,7 +76,7 @@ namespace Initializer.Test.Integration.Databases.Collections
                             {
                                 "Admin"
                             },
-                                Accounts = new[]
+                            Accounts = new[]
                             {
                                 new { Email = "test@test.com", Role = "Admin" }
                             }
@@ -75,17 +88,9 @@ namespace Initializer.Test.Integration.Databases.Collections
                 {
                     CABundle = new
                     {
-                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
+                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath))
                     }
                 }));
-        }
-        
-        public async Task DisposeAsync()
-        {
-            await Task.WhenAll(
-                AwsFixture.DisposeAsync(),
-                PostgreSqlFixture.DisposeAsync()
-            );
         }
     }
 }

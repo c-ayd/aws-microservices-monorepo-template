@@ -11,6 +11,9 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.Collections
     {
         public const string CABundlePath = "Certs/test-ca-bundle.crt";
 
+        public const string TestServiceName = "TestService";
+        public const string TestPublisherName = "TestPublisher";
+
         public RabbitMqFixture RabbitMqFixture { get; private set; }
 
         public RabbitMqCollectionCluster()

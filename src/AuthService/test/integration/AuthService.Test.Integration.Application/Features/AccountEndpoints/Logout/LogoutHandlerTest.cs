@@ -28,7 +28,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
         public async Task HandleAsync_WhenNotAuthenticated_ShouldReturnUnauthorized()
         {
             // Arrange
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.DeleteAsync(_endpoint);
@@ -43,14 +43,20 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
-            account.Sessions.Add(new Session(account.Id, StringGenerator.GenerateAlphanumeric(), DateTimeOffset.UtcNow));
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
+            account.Sessions.Add(new Session(
+                account.Id,
+                refreshTokenHashed: StringGenerator.GenerateAlphanumeric(),
+                expirationDate: DateTimeOffset.UtcNow));
             
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
-                new Dictionary<string, string>()
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
+                headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
@@ -77,13 +83,19 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
-            account.Sessions.Add(new Session(account.Id, StringGenerator.GenerateAlphanumeric(), DateTimeOffset.UtcNow));
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
+            account.Sessions.Add(new Session(
+                account.Id,
+                refreshTokenHashed: StringGenerator.GenerateAlphanumeric(),
+                expirationDate: DateTimeOffset.UtcNow));
 
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
                 headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
@@ -121,13 +133,19 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             var hashVersions = _collectionCluster.AuthApiWebApp.GetService<IHashVersions>();
 
             var refreshToken = StringGenerator.GenerateAlphanumeric();
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
-            account.Sessions.Add(new Session(account.Id, StringGenerator.GenerateAlphanumeric(), DateTimeOffset.UtcNow));
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
+            account.Sessions.Add(new Session(
+                account.Id,
+                refreshTokenHashed: StringGenerator.GenerateAlphanumeric(),
+                expirationDate: DateTimeOffset.UtcNow));
 
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
                 headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },
@@ -136,8 +154,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
                 },
                 cookies: new Dictionary<string, string>()
                 {
-                    { CookieKeys.SessionId, matchSessionId ? account.Sessions.ElementAt(0).Id.ToString() : Guid.NewGuid().ToString() },
-                    { CookieKeys.RefreshToken, matchRefreshToken ? refreshToken : StringGenerator.GenerateAlphanumeric() }
+                    { CookieKeys.SessionId, matchSessionId ?
+                        account.Sessions.ElementAt(0).Id.ToString() : Guid.NewGuid().ToString() },
+                    { CookieKeys.RefreshToken, matchRefreshToken ?
+                        refreshToken : StringGenerator.GenerateAlphanumeric() }
                 });
             
             // Act
@@ -162,13 +182,19 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             var hashVersions = _collectionCluster.AuthApiWebApp.GetService<IHashVersions>();
 
             var refreshToken = StringGenerator.GenerateAlphanumeric();
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
-            account.Sessions.Add(new Session(account.Id, ValueHasher.Hash(refreshToken, hashVersions.CurrentVersion, hashVersions.GetHashOptions), DateTimeOffset.UtcNow));
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
+            account.Sessions.Add(new Session(
+                account.Id,
+                refreshTokenHashed: ValueHasher.Hash(refreshToken, hashVersions.CurrentVersion, hashVersions.GetHashOptions),
+                expirationDate: DateTimeOffset.UtcNow));
 
             await authDbContext.Accounts.AddAsync(account);
             await authDbContext.SaveChangesAsync();
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClientWithHeaders("HttpsOnly",
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient(
                 headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, account.Id.ToString() },

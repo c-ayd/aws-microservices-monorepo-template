@@ -31,12 +31,15 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
             var email = EmailGenerator.Generate();
-            authDbContext.Accounts.Add(new Account(email, PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage));
+            authDbContext.Accounts.Add(new Account(
+                email,
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage));
             await authDbContext.SaveChangesAsync();
 
             var request = new RegisterRequest(email, PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);
@@ -49,12 +52,13 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
         public async Task HandleAsync_WhenAccountDoesNotExist_ShouldCreateAccountAndTokenAndReturnNoContent()
         {
             // Arrange
-            var tokenLifespan = TimeSpan.FromHours(_collectionCluster.AuthApiWebApp.GetOptions<TokenLifespansOptions>().EmailVerificationLifespanInHours).TotalMinutes;
+            var tokenLifespan = TimeSpan.FromHours(_collectionCluster.AuthApiWebApp.GetOptions<TokenLifespansOptions>().EmailVerificationLifespanInHours)
+                .TotalMinutes;
 
             var email = EmailGenerator.Generate();
             var request = new RegisterRequest(email, PasswordGenerator.GenerateValid());
 
-            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient("HttpsOnly");
+            var client = _collectionCluster.AuthApiWebApp.CreateHttpClient();
 
             // Act
             var response = await client.PostAsJsonAsync(_endpoint, request);

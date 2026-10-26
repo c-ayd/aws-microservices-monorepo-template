@@ -15,15 +15,19 @@ namespace AuthService.Test.Integration.Application.Collections
 
     public class AuthApiCollectionCluster : IAsyncLifetime
     {
-        private const string _caBundlePath = "Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
+        
         private const string _authServiceServerKeyFilePath = "Certs/test-auth-service-server.key";
         private const string _authServiceServerCertificateFilePath = "Certs/test-auth-service-server.crt";
 
-        private const string _authDbName = "auth-db";
-        private const string _droppedMessagesDbName = "dropped-messages-db";
+        public const string AwsKmsAliasForDroppedMessages = "alias/dropped-messages";
+        public const string AwsS3BucketNameForDroppedMessages = "template-dropped-messages";
 
-        private static int _awsPort;
-        private static int _authServicePort;
+        public const string AuthDbName = "auth-db";
+        public const string DroppedMessagesDbName = "dropped-messages-db";
+
+        public static int AwsPort { get; private set; }
+        public static int AuthServicePort { get; private set; }
 
         public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -46,80 +50,50 @@ namespace AuthService.Test.Integration.Application.Collections
                 AwsFixture.InitializeAsync(),
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     serverCertificatePath: "Certs/PostgreSql/test-postgresql-server.crt",
                     serverCertificatePrivateKeyPath: "Certs/PostgreSql/test-postgresql-server.key",
                     new Dictionary<string, Type>()
                     {
-                        { _authDbName, typeof(AuthDbContext) },
-                        { _droppedMessagesDbName, typeof(DroppedMessagesDbContext) }
+                        { AuthDbName, typeof(AuthDbContext) },
+                        { DroppedMessagesDbName, typeof(DroppedMessagesDbContext) }
                     }),
                 RabbitMqFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     rabbitMqCertificateFolder: "Certs/RabbitMq"),
                 TokenBlacklistRedisFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     redisCertificateFolder: "Certs/Redis")
             );
 
-            await AwsFixture.KMS_CreateKekAsync("alias/dropped-messages");
-            await AwsFixture.S3Bucket_CreateBucketAsync("template-dropped-messages");
+            await SetupAwsAsync();
 
-            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
-                new
-                {
-                    Connections = new
-                    {
-                        AuthDb = PostgreSqlFixture.GetConnectionOptions(_authDbName),
-                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(_droppedMessagesDbName),
-                        RabbitMq = RabbitMqFixture.GetConnectionOptions(),
-                        TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
-                    }
-                }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
-                new
-                {
-                    Certificate = new
-                    {
-                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath)),
-                        ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerKeyFilePath))
-                    }
-                }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
-                new
-                {
-                    CABundle = new
-                    {
-                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
-                    }
-                }));
-
-            _awsPort = AwsFixture.GetPort();
-            _authServicePort = KestrelHelper.GetFreePort();
+            AwsPort = AwsFixture.GetPort();
+            AuthServicePort = KestrelTestHelper.GetFreePort();
 
             AuthApiWebApp = new AuthApiWebAppFactory(
                 new JwtKeysOptions()
                 {
-                    CurrentKeyId = "k2",
+                    CurrentKeyId = "v2",
                     Keys = new List<JwtKeysOptions.KeyInfo>()
                     {
                         new JwtKeysOptions.KeyInfo()
                         {
-                            KeyId = "k1",
+                            KeyId = "v1",
                             ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
                             NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
-                            PrivateKey = File.ReadAllText("./test-jwt-k1-private.pem"),
-                            PublicKey = File.ReadAllText("./test-jwt-k1-public.pem")
+                            PrivateKey = File.ReadAllText("./test-jwt-v1-private.pem"),
+                            PublicKey = File.ReadAllText("./test-jwt-v1-public.pem")
                         },
                         new JwtKeysOptions.KeyInfo()
                         {
-                            KeyId = "k2",
+                            KeyId = "v2",
                             ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
                             NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
-                            PrivateKey = File.ReadAllText("./test-jwt-k2-private.pem"),
-                            PublicKey = File.ReadAllText("./test-jwt-k2-public.pem")
+                            PrivateKey = File.ReadAllText("./test-jwt-v2-private.pem"),
+                            PublicKey = File.ReadAllText("./test-jwt-v2-public.pem")
                         }
                     }
                 });
@@ -143,7 +117,8 @@ namespace AuthService.Test.Integration.Application.Collections
         {
             private readonly JwtKeysOptions _jwtKeysOptions;
 
-            public AuthApiWebAppFactory(JwtKeysOptions jwtKeysOptions) : base(_caBundlePath)
+            public AuthApiWebAppFactory(JwtKeysOptions jwtKeysOptions)
+                : base(defaultPortConfigName: "HttpsOnly", CABundlePath)
             {
                 _jwtKeysOptions = jwtKeysOptions;
             }
@@ -152,13 +127,13 @@ namespace AuthService.Test.Integration.Application.Collections
             {
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpsPort",
-                        _authServicePort.ToString()),
+                        AuthServicePort.ToString()),
 
                     new KeyValuePair<string, string?>($"{JwtOptions.Key}:{nameof(JwtOptions.Issuer)}",
-                        $"https://localhost:{_authServicePort}"),
+                        $"https://localhost:{AuthServicePort}"),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
-                        $"http://localhost:{_awsPort}"),
+                        $"http://localhost:{AwsPort}"),
 
                     new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.CurrentKeyId)}",
                         _jwtKeysOptions.CurrentKeyId),
@@ -174,6 +149,41 @@ namespace AuthService.Test.Integration.Application.Collections
                         k.PublicKey))
                 ]);
             }
+        }
+
+        private async Task SetupAwsAsync()
+        {
+            await AwsFixture.KMS_CreateKekAsync(AwsKmsAliasForDroppedMessages);
+            await AwsFixture.S3Bucket_CreateBucketAsync(AwsS3BucketNameForDroppedMessages);
+
+            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
+                new
+                {
+                    Connections = new
+                    {
+                        AuthDb = PostgreSqlFixture.GetConnectionOptions(AuthDbName),
+                        DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(DroppedMessagesDbName),
+                        RabbitMq = RabbitMqFixture.GetConnectionOptions(),
+                        TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
+                    }
+                }));
+            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
+                new
+                {
+                    Certificate = new
+                    {
+                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath)),
+                        ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerKeyFilePath))
+                    }
+                }));
+            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+                new
+                {
+                    CABundle = new
+                    {
+                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath))
+                    }
+                }));
         }
     }
 }

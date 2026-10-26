@@ -25,10 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Keys/test-jwt-k1-private.pem" Link="test-jwt-k1-private.pem" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test-jwt-k1-public.pem" Link="test-jwt-k1-public.pem" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test-jwt-k2-private.pem" Link="test-jwt-k2-private.pem" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Keys/test-jwt-k2-public.pem" Link="test-jwt-k2-public.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-v1-private.pem" Link="test-jwt-v1-private.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-v1-public.pem" Link="test-jwt-v1-public.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-v2-private.pem" Link="test-jwt-v2-private.pem" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Keys/test-jwt-v2-public.pem" Link="test-jwt-v2-public.pem" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

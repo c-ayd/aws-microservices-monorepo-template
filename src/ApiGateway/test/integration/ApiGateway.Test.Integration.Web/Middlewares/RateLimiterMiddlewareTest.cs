@@ -16,14 +16,14 @@ namespace ApiGateway.Test.Integration.Web
         }
 
         [Fact]
-        public async Task RateLimiter_WhenAuthenticatedAndExceedsLimit_ShouldReturnTooManyRequests()
+        public async Task Invoke_WhenAuthenticatedAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
-            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -46,14 +46,14 @@ namespace ApiGateway.Test.Integration.Web
         }
 
         [Fact]
-        public async Task RateLimiter_WhenAuthenticatedWithAdminRoleAndExceedsLimit_ShouldReturnTooManyRequests()
+        public async Task Invoke_WhenAuthenticatedWithAdminRoleAndExceedsLimit_ShouldReturnTooManyRequests()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
             var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles=Admin");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
@@ -76,21 +76,29 @@ namespace ApiGateway.Test.Integration.Web
         }
 
         [Fact]
-        public async Task RateLimiter_WhenRedisIsDown_ShouldAllowTrafficUntilRedisIsUp()
+        public async Task Invoke_WhenRedisIsDown_ShouldAllowTrafficUntilRedisIsUp()
         {
             // Arrange
-            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient(WebApiFixture.HttpsPortConfigName);
-            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid().ToString()}");
+            var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
-            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient("HttpsOnly");
+            var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();
             apiGatewayClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Bearer " + token);
 
             // Act
             await _collectionCluster.RateLimiterRedis.BlockTrafficAsync();
-            var responseRedisDown = await apiGatewayClient.GetAsync("/auth");
 
-            await _collectionCluster.RateLimiterRedis.UnblockTrafficAsync();
+            HttpResponseMessage responseRedisDown;
+            try
+            {
+                responseRedisDown = await apiGatewayClient.GetAsync("/auth");
+            }
+            finally
+            {
+                await _collectionCluster.RateLimiterRedis.UnblockTrafficAsync();
+            }
+            
             var responseRedisUp = await apiGatewayClient.GetAsync("/auth");
 
             // Assert

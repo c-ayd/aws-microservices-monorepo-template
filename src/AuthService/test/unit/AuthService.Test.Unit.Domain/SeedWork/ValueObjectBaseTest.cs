@@ -51,12 +51,12 @@ namespace AuthService.Test.Unit.Domain.SeedWork
             var number = Random.Shared.Next();
             var vo1 = new TestValueObject()
             {
-                MyString = StringGenerator.GeneratePrintableAscii(10),
+                MyString = StringGenerator.GeneratePrintableAscii(length: 10),
                 MyInt = number
             };
             var vo2 = new TestValueObject()
             {
-                MyString = StringGenerator.GeneratePrintableAscii(5),
+                MyString = StringGenerator.GeneratePrintableAscii(length: 5),
                 MyInt = number
             };
 
@@ -124,12 +124,12 @@ namespace AuthService.Test.Unit.Domain.SeedWork
             var number = Random.Shared.Next();
             var vo1 = new TestValueObject()
             {
-                MyString = StringGenerator.GeneratePrintableAscii(10),
+                MyString = StringGenerator.GeneratePrintableAscii(length: 10),
                 MyInt = number
             };
             var vo2 = new TestValueObject()
             {
-                MyString = StringGenerator.GeneratePrintableAscii(5),
+                MyString = StringGenerator.GeneratePrintableAscii(length: 5),
                 MyInt = number
             };
 
@@ -189,12 +189,12 @@ namespace AuthService.Test.Unit.Domain.SeedWork
             var number = Random.Shared.Next();
             var vo1 = new TestValueObject()
             {
-                MyString = StringGenerator.GeneratePrintableAscii(10),
+                MyString = StringGenerator.GeneratePrintableAscii(length: 10),
                 MyInt = number
             };
             var vo2 = new TestValueObject()
             {
-                MyString = StringGenerator.GeneratePrintableAscii(5),
+                MyString = StringGenerator.GeneratePrintableAscii(length: 5),
                 MyInt = number
             };
 

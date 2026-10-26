@@ -29,17 +29,18 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
     public class ApiGatewayCollectionCluster : IAsyncLifetime
     {
-        private const string _caBundlePath = "Certs/test-ca-bundle.crt";
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
+
         private const string _apiGatewayServerCertificatePath = "Certs/test-api-gateway-server.crt";
         private const string _apiGatewayServerCertificatePrivateKeyPath = "Certs/test-api-gateway-server.key";
         private const string _webApiServerCertificatePath = "Certs/WebApi/test-webapi-server.crt";
         private const string _webApiServerPrivateKeyPath = "Certs/WebApi/test-webapi-server.key";
 
-        private static int _awsPort;
-        private static int _apiGatewayPort;
-        private static int _authServicePort;
-        private static int _protectedServicePort;
-        private static int _adminServicePort;
+        public static int AwsPort { get; private set; }
+        public static int ApiGatewayPort { get; private set; }
+        public static int AuthServicePort { get; private set; }
+        public static int ProtectedServicePort { get; private set; }
+        public static int AdminServicePort { get; private set; }
 
         public AwsFixture AwsFixture { get; private set; }
         public RedisFixture TokenBlacklistRedisFixture { get; private set; }
@@ -57,17 +58,17 @@ namespace ApiGateway.Test.Integration.Web.Collections
             RateLimiterRedis = new RedisFixture();
             AuthServiceFixture = new WebApiFixture(
                 sslEnabled: true,
-                caBundlePath: _caBundlePath,
+                caBundlePath: CABundlePath,
                 serverCertificatePath: _webApiServerCertificatePath,
                 serverCertificatePrivateKeyPath: _webApiServerPrivateKeyPath);
             ProtectedServiceFixture = new WebApiFixture(
                 sslEnabled: true,
-                caBundlePath: _caBundlePath,
+                caBundlePath: CABundlePath,
                 serverCertificatePath: _webApiServerCertificatePath,
                 serverCertificatePrivateKeyPath: _webApiServerPrivateKeyPath);
             AdminServiceFixture = new WebApiFixture(
                 sslEnabled: true,
-                caBundlePath: _caBundlePath,
+                caBundlePath: CABundlePath,
                 serverCertificatePath: _webApiServerCertificatePath,
                 serverCertificatePrivateKeyPath: _webApiServerPrivateKeyPath);
         }
@@ -78,11 +79,11 @@ namespace ApiGateway.Test.Integration.Web.Collections
                 AwsFixture.InitializeAsync(),
                 TokenBlacklistRedisFixture.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     redisCertificateFolder: "Certs/Redis"),
                 RateLimiterRedis.InitializeAsync(
                     sslEnabled: true,
-                    caBundlePath: _caBundlePath,
+                    caBundlePath: CABundlePath,
                     redisCertificateFolder: "Certs/Redis"),
                 AuthServiceFixture.InitializeAsync(
                     overrideConfiguration: null,
@@ -111,41 +112,13 @@ namespace ApiGateway.Test.Integration.Web.Collections
             ProtectedServiceFixture.StartServer();
             AdminServiceFixture.StartServer();
 
-            var tokenBlacklistConnectionOptions = TokenBlacklistRedisFixture.GetConnectionOptions();
-            var rateLimiterRedisConnectionOptions = RateLimiterRedis.GetConnectionOptions();
+            await SetupAwsAsync();
 
-            await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/connections", JsonSerializer.Serialize(
-                new
-                {
-                    Connections = new
-                    {
-                        TokenBlacklistRedis = tokenBlacklistConnectionOptions,
-                        RateLimiterRedis = rateLimiterRedisConnectionOptions
-                    }
-                }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/certificates", JsonSerializer.Serialize(
-                new
-                {
-                    Certificate = new
-                    {
-                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePath)),
-                        ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePrivateKeyPath))
-                    }
-                }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
-                new
-                {
-                    CABundle = new
-                    {
-                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _caBundlePath))
-                    }
-                }));
-
-            _awsPort = AwsFixture.GetPort();
-            _apiGatewayPort = KestrelHelper.GetFreePort();
-            _authServicePort = AuthServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
-            _protectedServicePort = ProtectedServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
-            _adminServicePort = AdminServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
+            AwsPort = AwsFixture.GetPort();
+            ApiGatewayPort = KestrelTestHelper.GetFreePort();
+            AuthServicePort = AuthServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
+            ProtectedServicePort = ProtectedServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
+            AdminServicePort = AdminServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
 
             ApiGatewayWebApp = new ApiGatewayWebAppFactory();
             ApiGatewayWebApp.StartServer();
@@ -167,7 +140,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
         public class ApiGatewayWebAppFactory : WebAppFactoryFixture<Program>
         {
-            public ApiGatewayWebAppFactory() : base(_caBundlePath)
+            public ApiGatewayWebAppFactory()
+                : base(defaultPortConfigName: "HttpsOnly", CABundlePath)
             {
             }
 
@@ -177,24 +151,54 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpsPort",
-                        _apiGatewayPort.ToString()),
+                        ApiGatewayPort.ToString()),
 
                     new KeyValuePair<string, string?>($"{JwtOptions.Key}:{nameof(JwtOptions.Authority)}",
-                        $"https://localhost:{_authServicePort}"),
+                        $"https://localhost:{AuthServicePort}"),
                     new KeyValuePair<string, string?>($"{JwtOptions.Key}:{nameof(JwtOptions.Audience)}",
-                        $"https://localhost:{_apiGatewayPort}"),
+                        $"https://localhost:{ApiGatewayPort}"),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
-                        $"http://localhost:{_awsPort}"),
+                        $"http://localhost:{AwsPort}"),
 
                     new KeyValuePair<string, string?>("ReverseProxy:Clusters:auth-cluster:Destinations:auth-service:Address",
-                        $"https://localhost:{_authServicePort}"),
+                        $"https://localhost:{AuthServicePort}"),
                     new KeyValuePair<string, string?>("ReverseProxy:Clusters:protected-cluster:Destinations:protected-service:Address",
-                        $"https://localhost:{_protectedServicePort}"),
+                        $"https://localhost:{ProtectedServicePort}"),
                     new KeyValuePair<string, string?>("ReverseProxy:Clusters:admin-cluster:Destinations:admin-service:Address",
-                        $"https://localhost:{_adminServicePort}")
+                        $"https://localhost:{AdminServicePort}")
                 ]);
             }
+        }
+
+        private async Task SetupAwsAsync()
+        {
+            await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/connections", JsonSerializer.Serialize(
+                new
+                {
+                    Connections = new
+                    {
+                        TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions(),
+                        RateLimiterRedis = RateLimiterRedis.GetConnectionOptions()
+                    }
+                }));
+            await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/certificates", JsonSerializer.Serialize(
+                new
+                {
+                    Certificate = new
+                    {
+                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePath)),
+                        ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePrivateKeyPath))
+                    }
+                }));
+            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+                new
+                {
+                    CABundle = new
+                    {
+                        Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath))
+                    }
+                }));
         }
 
         private void DownstreamServiceConfigureEndpoints(IEndpointRouteBuilder endpoints)
@@ -204,18 +208,18 @@ namespace ApiGateway.Test.Integration.Web.Collections
             {
                 await Results.Ok(new
                 {
-                    issuer = $"https://localhost:{_authServicePort}",
-                    jwks_uri = $"https://localhost:{_authServicePort}/.well-known/jwks.json"
+                    issuer = $"https://localhost:{AuthServicePort}",
+                    jwks_uri = $"https://localhost:{AuthServicePort}/.well-known/jwks.json"
                 }).ExecuteAsync(context);
             });
             endpoints.MapGet("/.well-known/jwks.json", async (context) =>
             {
-                var publicPem = await File.ReadAllTextAsync("./test-jwt-k1-public.pem");
+                var publicPem = await File.ReadAllTextAsync("./test-jwt-v1-public.pem");
                 var rsa = RSA.Create();
                 rsa.ImportFromPem(publicPem);
                 var k1Parameters = rsa.ExportParameters(false);
 
-                publicPem = await File.ReadAllTextAsync("./test-jwt-k2-public.pem");
+                publicPem = await File.ReadAllTextAsync("./test-jwt-v2-public.pem");
                 rsa = RSA.Create();
                 rsa.ImportFromPem(publicPem);
                 var k2Parameters = rsa.ExportParameters(false);
@@ -227,7 +231,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                         new
                         {
                             kty = "RSA",
-                            kid = "k1",
+                            kid = "v1",
                             use = "sig",
                             alg = "RS256",
                             exp = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
@@ -238,7 +242,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                         new
                         {
                             kty = "RSA",
-                            kid = "k2",
+                            kid = "v2",
                             use = "sig",
                             alg = "RS256",
                             exp = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
@@ -264,8 +268,10 @@ namespace ApiGateway.Test.Integration.Web.Collections
                 var claims = new List<Claim>()
                 {
                     new Claim(ApiGatewayAuthKeys.Claims.Id.ClaimType, accountId.ToString()),
-                    new Claim(ApiGatewayAuthKeys.Claims.EmailVerified.ClaimType, emailVerified.HasValue ? emailVerified.ToString()!.ToLower() : false.ToString().ToLower()),
-                    new Claim(ApiGatewayAuthKeys.Claims.PreferredLanguage.ClaimType, preferredLang != null ? preferredLang : SupportedLanguages.DefaultLanguage),
+                    new Claim(ApiGatewayAuthKeys.Claims.EmailVerified.ClaimType, emailVerified.HasValue ? 
+                        emailVerified.ToString()!.ToLower() : false.ToString().ToLower()),
+                    new Claim(ApiGatewayAuthKeys.Claims.PreferredLanguage.ClaimType, preferredLang != null ? 
+                        preferredLang : SupportedLanguages.DefaultLanguage),
                     new Claim(ApiGatewayAuthKeys.Claims.IssuedAt.ClaimType, issuedInPast.HasValue && issuedInPast.Value ?
                         DateTimeOffset.UtcNow.AddHours(-1).ToUnixTimeSeconds().ToString() :
                         DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds().ToString()),
@@ -279,22 +285,24 @@ namespace ApiGateway.Test.Integration.Web.Collections
                     }
                 }
 
-                var privatePem = await File.ReadAllTextAsync("./test-jwt-k2-private.pem");
+                var privatePem = await File.ReadAllTextAsync("./test-jwt-v2-private.pem");
                 var rsa = RSA.Create();
                 rsa.ImportFromPem(privatePem);
                 var key = new RsaSecurityKey(rsa)
                 {
-                    KeyId = "k2"
+                    KeyId = "v2"
                 };
 
                 var token = new JwtSecurityToken(
-                    issuer: $"https://localhost:{_authServicePort}",
-                    audience: $"https://localhost:{_apiGatewayPort}",
+                    issuer: $"https://localhost:{AuthServicePort}",
+                    audience: $"https://localhost:{ApiGatewayPort}",
                     claims: claims,
-                    expires: expired.HasValue && expired.Value ? DateTimeOffset.UtcNow.AddDays(-1).UtcDateTime : DateTimeOffset.UtcNow.AddDays(1).UtcDateTime,
+                    expires: expired.HasValue && expired.Value ? 
+                        DateTimeOffset.UtcNow.AddDays(-1).UtcDateTime : 
+                        DateTimeOffset.UtcNow.AddDays(1).UtcDateTime,
                     signingCredentials: new SigningCredentials(key, SecurityAlgorithms.RsaSha256)
                 );
-                token.Header["kid"] = "k2";
+                token.Header["kid"] = "v2";
 
                 await Results.Content(new JwtSecurityTokenHandler().WriteToken(token), "text/plain")
                     .ExecuteAsync(context);

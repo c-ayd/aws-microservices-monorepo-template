@@ -7,24 +7,23 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
     [Collection(nameof(PostgreSqlCollection))]
     public class ConfigureDbContextTest
     {
-        private PostgreSqlCollectionCluster _collectionCluster;
-
-        private string _caBundle;
+        private readonly PostgreSqlCollectionCluster _collectionCluster;
+        private readonly string _caBundleValue;
 
         public ConfigureDbContextTest(PostgreSqlCollectionCluster collectionCluster)
         {
             _collectionCluster = collectionCluster;
 
-            _caBundle = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs/test-ca-bundle.crt"));
+            _caBundleValue = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, PostgreSqlCollectionCluster.CABundlePath));
         }
 
         [Fact]
-        public async Task EnsureCreated_WhenThereIsNoConnectionError_ShouldCreateDatabase()
+        public async Task ConfigureDbContext_WhenThereIsNoConnectionError_ShouldCreateDatabase()
         {
             // Arrange
             var connection = _collectionCluster.PostgreSqlFixture.GetConnectionOptions("test-db-1");
             var builder = new DbContextOptionsBuilder<TestDbContext1>();
-            builder.ConfigureDbContext(connection, _caBundle);
+            builder.ConfigureDbContext(connection, _caBundleValue);
 
             await using var dbContext = new TestDbContext1(builder.Options);
             
@@ -41,12 +40,12 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
         }
 
         [Fact]
-        public async Task EnsureCreated_WhenRetryMechanismIsDefined_ShouldRetryMechanismStart()
+        public async Task ConfigureDbContext_WhenRetryMechanismIsDefined_ShouldRetryMechanismStart()
         {
             // Arrange
             var connection = _collectionCluster.PostgreSqlFixture.GetConnectionOptions("test-db-2");
             var builder = new DbContextOptionsBuilder<TestDbContext2>();
-            builder.ConfigureDbContext(connection, _caBundle);
+            builder.ConfigureDbContext(connection, _caBundleValue);
 
             await using var dbContext = new TestDbContext2(builder.Options);
 
@@ -62,10 +61,12 @@ namespace Shared.Test.Integration.PostgreSql.Helpers.EntityFramework.Extensions
             {
                 isFailed = true;
             }
+            finally
+            {
+                await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
+            }
 
             // Assert
-            await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
-
             Assert.True(isFailed, "The process did not fail");
         }
 

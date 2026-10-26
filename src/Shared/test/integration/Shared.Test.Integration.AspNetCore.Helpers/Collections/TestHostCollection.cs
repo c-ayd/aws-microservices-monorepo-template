@@ -10,6 +10,8 @@ namespace Shared.Test.Integration.AspNetCore.Helpers.Collections
 
     public class TestHostCollectionCluster : IAsyncLifetime
     {
+        public const string CABundlePath = "Certs/test-ca-bundle.crt";
+
         public WebApiFixture WebApiFixture { get; private set; }
 
         public TestHostCollectionCluster()

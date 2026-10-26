@@ -12,21 +12,24 @@ namespace AuthService.Test.Integration.Persistence.Interceptors
     [Collection(nameof(AuthDbContextCollection))]
     public class SoftDeleteInterceptorTest
     {
-        private readonly PostgreSqlFixture _postgreSqlFixture;
+        private readonly AuthDbContextCollectionCluster _collectionCluster;
 
         public SoftDeleteInterceptorTest(AuthDbContextCollectionCluster collectionCluster)
         {
-            _postgreSqlFixture = collectionCluster.PostgreSqlFixture;
+            _collectionCluster = collectionCluster;
         }
 
         [Fact]
-        public async Task SoftDeleteInterceptor_WhenEntityIsSoftDeleteableAndDeleted_ShouldNotDeleteEntityAndUpdateSoftDeleteProperties()
+        public async Task SavingChangesAsync_WhenEntityIsSoftDeleteableAndDeleted_ShouldNotDeleteEntityAndUpdateSoftDeleteProperties()
         {
             // Arrange
-            await using var authDbContext = _postgreSqlFixture.CreateDbContext<AuthDbContext>();
+            await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
             var now = DateTimeOffset.UtcNow;
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
             var accountId = account.Id;
 
             await authDbContext.Accounts.AddAsync(account);
@@ -49,13 +52,19 @@ namespace AuthService.Test.Integration.Persistence.Interceptors
         }
 
         [Fact]
-        public async Task SoftDeleteInterceptor_WhenEntityIsNotSoftDeleteableAndDeleted_ShouldDeleteEntity()
+        public async Task SavingChangesAsync_WhenEntityIsNotSoftDeleteableAndDeleted_ShouldDeleteEntity()
         {
             // Arrange
-            await using var authDbContext = _postgreSqlFixture.CreateDbContext<AuthDbContext>();
+            await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
 
-            var account = new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), SupportedLanguages.DefaultLanguage);
-            var session = new Session(account.Id, StringGenerator.GeneratePrintableAscii(), DateTimeOffset.UtcNow);
+            var account = new Account(
+                EmailGenerator.Generate(),
+                PasswordGenerator.Generate(),
+                SupportedLanguages.DefaultLanguage);
+            var session = new Session(
+                account.Id,
+                refreshTokenHashed: StringGenerator.GeneratePrintableAscii(),
+                expirationDate: DateTimeOffset.UtcNow);
             var sessionId = session.Id;
 
             account.Sessions.Add(session);

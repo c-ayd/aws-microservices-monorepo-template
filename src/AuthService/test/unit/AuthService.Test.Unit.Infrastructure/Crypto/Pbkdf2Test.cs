@@ -76,11 +76,14 @@ namespace AuthService.Test.Unit.Infrastructure.Crypto
             hashBytes[0] = version;
             passwordHashed = Convert.ToBase64String(hashBytes);
 
-            var hashVersionType = typeof(Pbkdf2).GetNestedType("HashVersion", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var hashVersionType = typeof(Pbkdf2)
+                .GetNestedType("HashVersion", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var hashVersionTypeCtor = hashVersionType.GetConstructor([typeof(HashAlgorithmName), typeof(int), typeof(int), typeof(int)])!;
             var hashVersionInstance = hashVersionTypeCtor.Invoke([HashAlgorithmName.SHA512, 100, 100, 100]);
 
-            var hashVersionsDict = typeof(Pbkdf2).GetField("_hashVersions", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(_pbkdf2)!;
+            var hashVersionsDict = typeof(Pbkdf2)
+                .GetField("_hashVersions", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(_pbkdf2)!;
             var hashVersionsDictType = hashVersionsDict.GetType();
             var addVersionMethod = hashVersionsDictType.GetMethod("Add", [typeof(byte), hashVersionType])!;
             addVersionMethod.Invoke(hashVersionsDict, [byte.MaxValue, hashVersionInstance]);
@@ -119,12 +122,18 @@ namespace AuthService.Test.Unit.Infrastructure.Crypto
             hashBytes[0] = version;
             passwordHashed = Convert.ToBase64String(hashBytes);
 
-            var currentVersion = typeof(Pbkdf2).GetField("_currentVersion", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(_pbkdf2)!;
-            var hashVersionsDict = typeof(Pbkdf2).GetField("_hashVersions", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(_pbkdf2)!;
-            var hashVersionType = typeof(Pbkdf2).GetNestedType("HashVersion", BindingFlags.NonPublic)!;
+            var currentVersion = typeof(Pbkdf2)
+                .GetField("_currentVersion", BindingFlags.NonPublic | BindingFlags.Static)!
+                .GetValue(_pbkdf2)!;
+            var hashVersionsDict = typeof(Pbkdf2)
+                .GetField("_hashVersions", BindingFlags.NonPublic | BindingFlags.Instance)!
+                .GetValue(_pbkdf2)!;
+            var hashVersionType = typeof(Pbkdf2)
+                .GetNestedType("HashVersion", BindingFlags.NonPublic)!;
 
             var hashVersionsDictType = hashVersionsDict.GetType();
-            var currentHashVersion = hashVersionsDictType.GetProperty("Item")!.GetValue(hashVersionsDict, [currentVersion])!;
+            var currentHashVersion = hashVersionsDictType.GetProperty("Item")!
+                .GetValue(hashVersionsDict, [currentVersion])!;
 
             var addVersionMethod = hashVersionsDictType.GetMethod("Add", [typeof(byte), hashVersionType])!;
             addVersionMethod.Invoke(hashVersionsDict, [byte.MaxValue, currentHashVersion]);
