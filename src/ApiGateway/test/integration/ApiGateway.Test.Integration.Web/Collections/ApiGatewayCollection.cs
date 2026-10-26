@@ -115,7 +115,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
             await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetPort();
-            ApiGatewayPort = KestrelHelper.GetFreePort();
+            ApiGatewayPort = KestrelTestHelper.GetFreePort();
             AuthServicePort = AuthServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
             ProtectedServicePort = ProtectedServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
             AdminServicePort = AdminServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);

@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Shared.Test.Helpers
 {
-    public static class KestrelHelper
+    public static class KestrelTestHelper
     {
         public static int GetFreePort()
         {

@@ -66,7 +66,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
             await SetupRabbitMqAsync();
 
             AwsPort = AwsFixture.GetPort();
-            RecoveryServicePort = KestrelHelper.GetFreePort();
+            RecoveryServicePort = KestrelTestHelper.GetFreePort();
 
             RecoveryWebApp = new RecoveryWebAppFactory();
             RecoveryWebApp.StartServer();
