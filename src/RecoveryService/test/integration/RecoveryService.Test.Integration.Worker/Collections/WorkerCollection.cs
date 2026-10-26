@@ -72,15 +72,6 @@ namespace RecoveryService.Test.Integration.Worker.Collections
                         RabbitMq = RabbitMqFixture.GetConnectionOptions()
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/recovery-svc/secrets", JsonSerializer.Serialize(
-                new
-                {
-                    Storage = new
-                    {
-                        DroppedMessagesBucketName = "template-dropped-messages",
-                        Folders = new[] { "auth-svc" }
-                    }
-                }));
             await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {

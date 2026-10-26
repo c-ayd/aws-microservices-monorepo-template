@@ -87,18 +87,6 @@ namespace AuthService.Test.Integration.Application.Collections
                         ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath))
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/secrets", JsonSerializer.Serialize(
-                new
-                {
-                    Encryption = new
-                    {
-                        DroppedMessagesKeyAlias = "alias/dropped-messages"
-                    },
-                    Storage = new
-                    {
-                        DroppedMessagesBucketName = "template-dropped-messages"
-                    }
-                }));
             await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
