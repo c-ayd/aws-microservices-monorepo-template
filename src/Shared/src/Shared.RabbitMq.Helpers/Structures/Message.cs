@@ -61,6 +61,7 @@ namespace Shared.RabbitMq.Helpers.Structures
         public override int GetHashCode()
         {
             return HashCode.Combine(
+                ServiceName,
                 PublisherName,
                 ExchangeName,
                 RoutingKey,
