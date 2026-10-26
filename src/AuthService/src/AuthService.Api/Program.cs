@@ -39,8 +39,8 @@ builder.WebHost.ConfigureKestrel(options =>
 {
     options.ConfigureHttps(
         name: "HttpsOnly",
-        certificatesOptions.ServerKey,
         certificatesOptions.ServerCertificate,
+        certificatesOptions.ServerPrivateKey,
         port: builder.Configuration.GetValue<int>("HttpsPort"),
         HttpProtocols.Http1,
         portConfigs);

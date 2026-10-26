@@ -47,8 +47,8 @@ namespace AuthService.Test.Integration.Application.Collections
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
                     caBundlePath: _caBundlePath,
-                    certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
-                    certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
+                    serverCertificatePath: "Certs/PostgreSql/test-postgresql-server.crt",
+                    serverCertificatePrivateKeyPath: "Certs/PostgreSql/test-postgresql-server.key",
                     new Dictionary<string, Type>()
                     {
                         { _authDbName, typeof(AuthDbContext) },
@@ -83,8 +83,8 @@ namespace AuthService.Test.Integration.Application.Collections
                 {
                     Certificate = new
                     {
-                        ServerKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerKeyFilePath)),
-                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath))
+                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerCertificateFilePath)),
+                        ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerKeyFilePath))
                     }
                 }));
             await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(

@@ -5,18 +5,18 @@ namespace Shared.AspNetCore.Helpers.Kestrel.Utilities
 {
     public static partial class TlsUtility
     {
-        public static X509Certificate2 LoadCertificate(string key, string certificate)
+        public static X509Certificate2 LoadCertificate(string certificate, string privateKey)
         {
             // On Windows, the certificate's private key is loaded differently
             X509Certificate2 resultCertificate;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                using var tempCert = X509Certificate2.CreateFromPem(certificate, key);
+                using var tempCert = X509Certificate2.CreateFromPem(certificate, privateKey);
                 resultCertificate = X509CertificateLoader.LoadPkcs12(tempCert.Export(X509ContentType.Pkcs12), "");
             }
             else
             {
-                resultCertificate = X509Certificate2.CreateFromPem(certificate, key);
+                resultCertificate = X509Certificate2.CreateFromPem(certificate, privateKey);
             }
 
             return resultCertificate;

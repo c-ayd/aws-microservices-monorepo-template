@@ -26,8 +26,8 @@ namespace AuthService.Test.Integration.Persistence.Collections
             await PostgreSqlFixture.InitializeAsync(
                 sslEnabled: true,
                 caBundlePath: CABundlePath,
-                certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
-                certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
+                serverCertificatePath: "Certs/PostgreSql/test-postgresql-server.crt",
+                serverCertificatePrivateKeyPath: "Certs/PostgreSql/test-postgresql-server.key",
                 new Dictionary<string, Type>()
                 {
                     { AuthDbName, typeof(AuthDbContext) }
