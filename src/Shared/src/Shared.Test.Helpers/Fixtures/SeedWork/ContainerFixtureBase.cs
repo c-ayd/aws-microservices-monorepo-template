@@ -1,6 +1,6 @@
 using DotNet.Testcontainers.Containers;
 
-namespace Shared.Test.Helpers.Fixtures
+namespace Shared.Test.Helpers.Fixtures.SeedWork
 {
     public abstract class ContainerFixtureBase
     {

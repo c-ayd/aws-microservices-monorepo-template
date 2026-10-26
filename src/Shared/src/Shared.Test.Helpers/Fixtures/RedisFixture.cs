@@ -5,6 +5,7 @@ using DotNet.Testcontainers.Containers;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Redis.Helpers.Options.Extensions;
+using Shared.Test.Helpers.Fixtures.SeedWork;
 using StackExchange.Redis;
 using Testcontainers.Redis;
 

@@ -10,6 +10,7 @@ using Amazon.SimpleEmailV2.Model;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Shared.Aws.Helpers.Test;
+using Shared.Test.Helpers.Fixtures.SeedWork;
 
 namespace Shared.Test.Helpers.Fixtures
 {

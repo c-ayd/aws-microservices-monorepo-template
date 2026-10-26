@@ -7,6 +7,7 @@ using RabbitMQ.Client;
 using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.RabbitMq.Helpers.Options.Extensions;
+using Shared.Test.Helpers.Fixtures.SeedWork;
 using Testcontainers.RabbitMq;
 
 namespace Shared.Test.Helpers.Fixtures
