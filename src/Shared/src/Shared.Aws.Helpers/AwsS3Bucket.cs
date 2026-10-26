@@ -98,7 +98,7 @@ namespace Shared.Aws.Helpers
             }, cancellationToken);
         }
 
-        public async Task<IReadOnlyList<string>> DeleteFilesAsync(
+        public async Task<List<string>> DeleteFilesAsync(
             string bucketName,
             string folder,
             IEnumerable<string> fileNames,
@@ -127,7 +127,7 @@ namespace Shared.Aws.Helpers
             return failedFiles;
         }
 
-        public async Task<IReadOnlyList<string>> DeleteFilesAsync(
+        public async Task<List<string>> DeleteFilesAsync(
             string bucketName,
             IEnumerable<string> filePaths,
             CancellationToken cancellationToken = default)
@@ -155,7 +155,7 @@ namespace Shared.Aws.Helpers
             return failedFiles;
         }
 
-        public async Task<IReadOnlyList<string>> GetFileNamesUnderFolderAsync(
+        public async Task<List<string>> GetFileNamesUnderFolderAsync(
             string bucketName,
             string folder,
             CancellationToken cancellationToken = default)
