@@ -24,8 +24,8 @@ namespace Shared.Test.Helpers.Fixtures
         public async Task InitializeAsync(
             bool sslEnabled,
             string? caBundlePath = null,
-            string? certificateKeyFilePath = null,
-            string? certificateFilePath = null,
+            string? serverCertificatePath = null,
+            string? serverCertificatePrivateKeyPath = null,
             Dictionary<string, Type>? dbContexts = null,
             bool runMigrations = true)
         {
@@ -41,8 +41,8 @@ namespace Shared.Test.Helpers.Fixtures
                 _caBundleValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, caBundlePath!));
                 _container = builder
                     .WithSsl(
-                        Path.Combine(AppContext.BaseDirectory, certificateFilePath!),
-                        Path.Combine(AppContext.BaseDirectory, certificateKeyFilePath!))
+                        Path.Combine(AppContext.BaseDirectory, serverCertificatePath!),
+                        Path.Combine(AppContext.BaseDirectory, serverCertificatePrivateKeyPath!))
                     .Build();
             }
             else

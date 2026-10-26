@@ -20,21 +20,21 @@ namespace Shared.Test.Helpers.Fixtures
         private Action<IEndpointRouteBuilder>? _configureEndpoints;
 
         private bool _sslEnabled = false;
-        private string? _serverKeyFilePath;
-        private string? _serverKeyFileValue;
-        private string? _serverCertificateFilePath;
-        private string? _serverCertificateFileValue;
+        private string? _serverPrivateKeyPath;
+        private string? _serverPrivateKeyValue;
+        private string? _serverCertificatePath;
+        private string? _serverCertificateValue;
 
         public WebApiFixture(
             bool sslEnabled,
             string? caBundlePath,
-            string? serverKeyFilePath,
-            string? serverCertificateFilePath)
+            string? serverCertificatePath,
+            string? serverCertificatePrivateKeyPath)
             : base(caBundlePath)
         {
             _sslEnabled = sslEnabled;
-            _serverKeyFilePath = serverKeyFilePath;
-            _serverCertificateFilePath = serverCertificateFilePath;
+            _serverPrivateKeyPath = serverCertificatePrivateKeyPath;
+            _serverCertificatePath = serverCertificatePath;
         }
 
         public async Task InitializeAsync(
@@ -45,8 +45,8 @@ namespace Shared.Test.Helpers.Fixtures
         {
             if (_sslEnabled)
             {
-                _serverKeyFileValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverKeyFilePath!));
-                _serverCertificateFileValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverCertificateFilePath!));
+                _serverPrivateKeyValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverPrivateKeyPath!));
+                _serverCertificateValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _serverCertificatePath!));
             }
 
             _overrideConfiguration = overrideConfiguration;
@@ -71,8 +71,8 @@ namespace Shared.Test.Helpers.Fixtures
                 {
                     options.ConfigureHttps(
                         HttpsPortConfigName,
-                        _serverKeyFileValue!,
-                        _serverCertificateFileValue!,
+                        _serverCertificateValue!,
+                        _serverPrivateKeyValue!,
                         port: 0,
                         HttpProtocols.Http1AndHttp2,
                         portConfigs);

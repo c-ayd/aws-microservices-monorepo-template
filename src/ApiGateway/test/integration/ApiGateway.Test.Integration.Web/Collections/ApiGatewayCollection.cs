@@ -30,10 +30,10 @@ namespace ApiGateway.Test.Integration.Web.Collections
     public class ApiGatewayCollectionCluster : IAsyncLifetime
     {
         private const string _caBundlePath = "Certs/test-ca-bundle.crt";
-        private const string _apiGatewayServerKeyFilePath = "Certs/test-api-gateway-server.key";
-        private const string _apiGatewayServerCertificateFilePath = "Certs/test-api-gateway-server.crt";
-        private const string _webApiServerKeyFilePath = "Certs/WebApi/test-webapi-server.key";
-        private const string _webApiServerCertificateFilePath = "Certs/WebApi/test-webapi-server.crt";
+        private const string _apiGatewayServerCertificatePath = "Certs/test-api-gateway-server.crt";
+        private const string _apiGatewayServerCertificatePrivateKeyPath = "Certs/test-api-gateway-server.key";
+        private const string _webApiServerCertificatePath = "Certs/WebApi/test-webapi-server.crt";
+        private const string _webApiServerPrivateKeyPath = "Certs/WebApi/test-webapi-server.key";
 
         private static int _awsPort;
         private static int _apiGatewayPort;
@@ -58,18 +58,18 @@ namespace ApiGateway.Test.Integration.Web.Collections
             AuthServiceFixture = new WebApiFixture(
                 sslEnabled: true,
                 caBundlePath: _caBundlePath,
-                serverKeyFilePath: _webApiServerKeyFilePath,
-                serverCertificateFilePath: _webApiServerCertificateFilePath);
+                serverCertificatePath: _webApiServerCertificatePath,
+                serverCertificatePrivateKeyPath: _webApiServerPrivateKeyPath);
             ProtectedServiceFixture = new WebApiFixture(
                 sslEnabled: true,
                 caBundlePath: _caBundlePath,
-                serverKeyFilePath: _webApiServerKeyFilePath,
-                serverCertificateFilePath: _webApiServerCertificateFilePath);
+                serverCertificatePath: _webApiServerCertificatePath,
+                serverCertificatePrivateKeyPath: _webApiServerPrivateKeyPath);
             AdminServiceFixture = new WebApiFixture(
                 sslEnabled: true,
                 caBundlePath: _caBundlePath,
-                serverKeyFilePath: _webApiServerKeyFilePath,
-                serverCertificateFilePath: _webApiServerCertificateFilePath);
+                serverCertificatePath: _webApiServerCertificatePath,
+                serverCertificatePrivateKeyPath: _webApiServerPrivateKeyPath);
         }
 
         public async Task InitializeAsync()
@@ -128,8 +128,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
                 {
                     Certificate = new
                     {
-                        ServerKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerKeyFilePath)),
-                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificateFilePath))
+                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePath)),
+                        ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePrivateKeyPath))
                     }
                 }));
             await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(

@@ -33,22 +33,22 @@ namespace Shared.AspNetCore.Helpers.Kestrel
 
         public static void ConfigureHttps(this KestrelServerOptions options,
             string name,
-            string serverKeyFilePath,
-            string serverCertificateFilePath,
+            string serverCertificate,
+            string serverPrivateKey,
             int port,
             HttpProtocols protocols,
             PortConfigs portConfigs)
         {
-            var serverCertificate = TlsUtility.LoadCertificate(serverKeyFilePath, serverCertificateFilePath);
-            var serverCertificateChain = TlsUtility.LoadCertificateChain(serverCertificateFilePath, skipFirstInChain: true);
+            var certificate = TlsUtility.LoadCertificate(serverCertificate, serverPrivateKey);
+            var certificateChain = TlsUtility.LoadCertificateChain(serverCertificate, skipFirstInChain: true);
 
             options.ListenAnyIP(port, config =>
             {
                 config.Protocols = protocols;
-                config.UseHttps(serverCertificate, httpsOptions =>
+                config.UseHttps(certificate, httpsOptions =>
                 {
                     httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-                    httpsOptions.ServerCertificateChain = serverCertificateChain;
+                    httpsOptions.ServerCertificateChain = certificateChain;
                     httpsOptions.ClientCertificateMode = ClientCertificateMode.NoCertificate;
                 });
 

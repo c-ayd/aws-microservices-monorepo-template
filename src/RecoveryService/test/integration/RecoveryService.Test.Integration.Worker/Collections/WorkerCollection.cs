@@ -45,8 +45,8 @@ namespace RecoveryService.Test.Integration.Worker.Collections
                 PostgreSqlFixture.InitializeAsync(
                     sslEnabled: true,
                     caBundlePath: _caBundlePath,
-                    certificateKeyFilePath: "Certs/PostgreSql/test-postgresql-server.key",
-                    certificateFilePath: "Certs/PostgreSql/test-postgresql-server.crt",
+                    serverCertificatePath: "Certs/PostgreSql/test-postgresql-server.crt",
+                    serverCertificatePrivateKeyPath: "Certs/PostgreSql/test-postgresql-server.key",
                     dbContexts: new Dictionary<string, Type>()
                     {
                         { _droppedMessagesDbName, typeof(DroppedMessagesDbContext) }

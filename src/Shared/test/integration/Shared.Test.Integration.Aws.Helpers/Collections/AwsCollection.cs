@@ -21,8 +21,8 @@ namespace Shared.Test.Integration.Aws.Helpers.Collections
             WebApiFixture = new WebApiFixture(
                 sslEnabled: true,
                 caBundlePath: "Certs/test-ca-bundle.crt",
-                serverKeyFilePath: "Certs/WebApi/test-webapi-server.key",
-                serverCertificateFilePath: "Certs/WebApi/test-webapi-server.crt");
+                serverCertificatePath: "Certs/WebApi/test-webapi-server.crt",
+                serverCertificatePrivateKeyPath: "Certs/WebApi/test-webapi-server.key");
         }
 
         public async Task InitializeAsync()
