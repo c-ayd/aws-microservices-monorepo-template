@@ -14,17 +14,17 @@ namespace AuthService.Persistence
     {
         public static void AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
+            var connectionsOptions = configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!;
+            var caBundleOptions = configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!;
             services.AddDbContext<AuthDbContext>(builder =>
             {
-                builder.ConfigureDbContext(configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.AuthDb,
-                    configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
+                builder.ConfigureDbContext(connectionsOptions.AuthDb, caBundleOptions.Value);
             });
             services.AddScoped<IAuthDbContext>(sp => sp.GetRequiredService<AuthDbContext>());
 
             services.AddDbContext<DroppedMessagesDbContext>(builder =>
             {
-                builder.ConfigureDbContext(configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.DroppedMessagesDb,
-                    configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
+                builder.ConfigureDbContext(connectionsOptions.DroppedMessagesDb, caBundleOptions.Value);
             });
 
             services.AddSingleton<ITokenBlacklistRedis, TokenBlacklistRedis>();

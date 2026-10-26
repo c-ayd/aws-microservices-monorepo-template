@@ -39,10 +39,11 @@ builder.Services.AddSingleton(portConfigs);
 builder.Services.AddHostedService<DatabaseBackgroundService>();
 builder.Services.AddHostedService<StorageBackgroundService>();
 
-builder.Services.AddDbContext<DroppedMessagesDbContext>(optionsBuilder =>
+var connectionsOptions = builder.Configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!;
+var caBudleOptions = builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!;
+builder.Services.AddDbContext<DroppedMessagesDbContext>(builder =>
 {
-    optionsBuilder.ConfigureDbContext(builder.Configuration.GetSection(ConnectionsOptions.Key).Get<ConnectionsOptions>()!.DroppedMessagesDb,
-        builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!.Value);
+    builder.ConfigureDbContext(connectionsOptions.DroppedMessagesDb, caBudleOptions.Value);
 });
 
 builder.Services.AddHealthChecks();
