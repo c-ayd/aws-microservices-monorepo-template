@@ -56,9 +56,8 @@ namespace RecoveryService.Worker.BackgroundServices
 
             foreach (var fileName in fileNames)
             {
-                var fileContent = await _awsS3Bucket.DownloadFileAsync(bucketName, folder, fileName, cancellationToken);
-                var json = Encoding.UTF8.GetString(fileContent.ToArray());
-                var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(json)!;
+                await using var fileContent = await _awsS3Bucket.DownloadFileAsync(bucketName, folder, fileName, cancellationToken);
+                var messageFileContent = JsonSerializer.Deserialize<MessageFileContent>(Encoding.UTF8.GetString(fileContent.ToArray()))!;
 
                 var dataKeyPlaintext = await _awsKms.DecryptAsync(messageFileContent.WrappedDataKey, aad: null, cancellationToken);
                 foreach (var droppedMessage in messageFileContent.Messages)
