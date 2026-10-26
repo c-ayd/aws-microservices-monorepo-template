@@ -64,8 +64,8 @@ namespace AuthService.Test.Integration.Api.Collections
                     redisCertificateFolder: "Certs/Redis")
             );
 
-            await AwsFixture.KMS_CreateKekAsync("alias/auth-svc");
-            await AwsFixture.S3Bucket_CreateBucketAsync("template-graceful-shutdown");
+            await AwsFixture.KMS_CreateKekAsync("alias/dropped-messages");
+            await AwsFixture.S3Bucket_CreateBucketAsync("template-dropped-messages");
 
             await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
                 new
@@ -92,11 +92,11 @@ namespace AuthService.Test.Integration.Api.Collections
                 {
                     Encryption = new
                     {
-                        AwsKmsAlias = "alias/auth-svc"
+                        DroppedMessagesKeyAlias = "alias/dropped-messages"
                     },
                     Storage = new
                     {
-                        AwsS3BucketName = "template-graceful-shutdown"
+                        DroppedMessagesBucketName = "template-dropped-messages"
                     }
                 }));
             await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(

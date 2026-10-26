@@ -54,7 +54,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
                 {
                     Smtp = new
                     {
-                        AwsSesFromEmailAddress = AwsTestConstants.SesFromEmail
+                        FromEmailAddress = AwsTestConstants.SesFromEmail
                     }
                 }));
             await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(

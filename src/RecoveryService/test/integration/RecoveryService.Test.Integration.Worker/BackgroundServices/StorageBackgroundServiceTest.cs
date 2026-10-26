@@ -32,7 +32,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                 Assert.Fail($"The queues is not empty. Count: {queueMessageCount}.");
 
             var awsKms = _collectionCluster.RecoveryWebApp.GetService<IAwsKms>();
-            var dataKey = await awsKms.GenerateDataKeyAsync("alias/test-alias");
+            var dataKey = await awsKms.GenerateDataKeyAsync("alias/dropped-messages");
 
             var wrappedDataKey = new WrappedDataKey(dataKey.Encrypted);
             var message = "Test message";
@@ -57,7 +57,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             var storageOptions = _collectionCluster.RecoveryWebApp.GetOptions<StorageOptions>();
             var jsonString = JsonSerializer.Serialize(new MessageFileContent(wrappedDataKey));
             await awsS3Bucket.UploadFileAsync(
-                storageOptions.AwsS3BucketName,
+                storageOptions.DroppedMessagesBucketName,
                 storageOptions.Folders[0],
                 "test-file.json",
                 Encoding.UTF8.GetBytes(jsonString),
@@ -70,7 +70,7 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             var elapsedTime = 0;
             while (true)
             {
-                var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync(storageOptions.AwsS3BucketName, storageOptions.Folders[0]);
+                var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync(storageOptions.DroppedMessagesBucketName, storageOptions.Folders[0]);
                 if (fileNames.Count == 0)
                     break;
 

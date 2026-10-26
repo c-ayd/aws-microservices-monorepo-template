@@ -6,6 +6,6 @@ namespace AuthService.Application.Options
     {
         public static string Key => "Encryption";
 
-        public required string AwsKmsAlias { get; set; }
+        public required string DroppedMessagesKeyAlias { get; set; }
     }
 }

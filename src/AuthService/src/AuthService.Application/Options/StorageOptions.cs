@@ -6,6 +6,6 @@ namespace AuthService.Application.Options
     {
         public static string Key => "Storage";
 
-        public required string AwsS3BucketName { get; set; }
+        public required string DroppedMessagesBucketName { get; set; }
     }
 }

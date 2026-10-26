@@ -149,10 +149,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
 
             var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
-            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-graceful-shutdown", "auth-svc");
+            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-dropped-messages", "auth-svc");
             Assert.Single(fileNames);
             
-            await awsS3Bucket.DeleteFilesAsync("template-graceful-shutdown", "auth-svc", fileNames);
+            await awsS3Bucket.DeleteFilesAsync("template-dropped-messages", "auth-svc", fileNames);
         }
 
         [Fact]
@@ -186,10 +186,10 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             await _collectionCluster.PostgreSqlFixture.UnblockTrafficAsync();
 
             var awsS3Bucket = _collectionCluster.AuthApiWebApp.GetService<IAwsS3Bucket>();
-            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-graceful-shutdown", "auth-svc");
+            var fileNames = await awsS3Bucket.GetFileNamesUnderFolderAsync("template-dropped-messages", "auth-svc");
             Assert.Single(fileNames);
 
-            await awsS3Bucket.DeleteFilesAsync("template-graceful-shutdown", "auth-svc", fileNames);
+            await awsS3Bucket.DeleteFilesAsync("template-dropped-messages", "auth-svc", fileNames);
         }
     }
 }

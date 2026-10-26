@@ -15,7 +15,7 @@ namespace NotificationService.Worker.BackgroundServices
         private readonly TimeSpan _retryDelayTime = TimeSpan.FromMinutes(1);
         private const int _maxRetry = 5;
 
-        private readonly string _fromEmail;
+        private readonly SmtpOptions _smtpOptions;
         private readonly IAwsSes _awsSes;
         private readonly ILogger<EmailBackgroundService> _logger;
 
@@ -34,7 +34,7 @@ namespace NotificationService.Worker.BackgroundServices
             prefetchCount: 1,
             logger)
         {
-            _fromEmail = smtpOptions.Value.AwsSesFromEmailAddress;
+            _smtpOptions = smtpOptions.Value;
             _awsSes = awsSes;
             _logger = logger;
         }
@@ -159,7 +159,7 @@ namespace NotificationService.Worker.BackgroundServices
             try
             {
                 await _awsSes.SendEmailAsync(
-                    _fromEmail,
+                    _smtpOptions.FromEmailAddress,
                     message.To,
                     templateName: $"{message.TemplateId}-{message.Language}",
                     message.Parameters);
