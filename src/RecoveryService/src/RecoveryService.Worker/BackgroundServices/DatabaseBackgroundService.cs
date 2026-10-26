@@ -38,9 +38,9 @@ namespace RecoveryService.Worker.BackgroundServices
         protected override async Task RepublishAsync(CancellationToken cancellationToken)
         {
             await using var scope = _scopeFactory.CreateAsyncScope();
-            await using var dbContext = scope.ServiceProvider.GetRequiredService<DroppedMessagesDbContext>();
+            await using var droppedMessagesDbContext = scope.ServiceProvider.GetRequiredService<DroppedMessagesDbContext>();
 
-            await HandleDroppedMessagesInDbAsync(dbContext, cancellationToken);
+            await HandleDroppedMessagesInDbAsync(droppedMessagesDbContext, cancellationToken);
         }
 
         private async Task HandleDroppedMessagesInDbAsync(DroppedMessagesDbContext dbContext, CancellationToken cancellationToken)

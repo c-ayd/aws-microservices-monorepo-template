@@ -53,9 +53,9 @@ namespace Initializer.Test.Integration.Databases
             await AuthDb.RolloutAsync(_connectionOptions, _caBundleOptions, _seedDataOptions);
 
             // Assert
-            await using var dbContext = _postgreSqlFixture.CreateDbContext<AuthDbContext>();
-            var rolesFromDb = await dbContext.Roles.ToListAsync();
-            var accountsFromDb = await dbContext.Accounts.Include(a => a.Roles).ToListAsync();
+            await using var authDbContext = _postgreSqlFixture.CreateDbContext<AuthDbContext>();
+            var rolesFromDb = await authDbContext.Roles.ToListAsync();
+            var accountsFromDb = await authDbContext.Accounts.Include(a => a.Roles).ToListAsync();
             Assert.Single(rolesFromDb);
             Assert.Single(accountsFromDb);
 
@@ -71,18 +71,18 @@ namespace Initializer.Test.Integration.Databases
             // Arrange
             await _postgreSqlFixture.ClearDatabaseAsync<AuthDbContext>();
 
-            await using var dbContext = _postgreSqlFixture.CreateDbContext<AuthDbContext>();
-            await dbContext.Roles.AddAsync(new Role(StringGenerator.GenerateAlphanumeric()));
-            await dbContext.Accounts.AddAsync(new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), "abc"));
-            await dbContext.SaveChangesAsync();
+            await using var authDbContext = _postgreSqlFixture.CreateDbContext<AuthDbContext>();
+            await authDbContext.Roles.AddAsync(new Role(StringGenerator.GenerateAlphanumeric()));
+            await authDbContext.Accounts.AddAsync(new Account(EmailGenerator.Generate(), PasswordGenerator.Generate(), "abc"));
+            await authDbContext.SaveChangesAsync();
 
             // Act
             await AuthDb.RolloutAsync(_connectionOptions, _caBundleOptions, _seedDataOptions);
 
             // Assert
-            dbContext.ChangeTracker.Clear();
-            var rolesFromDb = await dbContext.Roles.ToListAsync();
-            var accountsFromDb = await dbContext.Accounts.Include(a => a.Roles).ToListAsync();
+            authDbContext.ChangeTracker.Clear();
+            var rolesFromDb = await authDbContext.Roles.ToListAsync();
+            var accountsFromDb = await authDbContext.Accounts.Include(a => a.Roles).ToListAsync();
 
             Assert.NotNull(rolesFromDb.FirstOrDefault(r => r.Name == "Admin"));
             Assert.NotNull(accountsFromDb.FirstOrDefault(a => a.Email == "test@test.com"));

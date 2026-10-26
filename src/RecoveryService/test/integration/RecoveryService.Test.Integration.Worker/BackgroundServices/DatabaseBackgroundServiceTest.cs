@@ -25,21 +25,21 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
         public async Task RepublishAsync_WhenThereIsKeyInDbButHasNoMessages_ShouldDeleteKey()
         {
             // Arrange
-            await using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
+            await using var droppedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
 
-            dbContext.WrappedDataKeys.Add(new WrappedDataKey([1, 2, 3, 4, 5]));
-            await dbContext.SaveChangesAsync();
+            droppedMessagesDbContext.WrappedDataKeys.Add(new WrappedDataKey([1, 2, 3, 4, 5]));
+            await droppedMessagesDbContext.SaveChangesAsync();
 
             // Act
             // DatabaseBackgroundService should handle it automaticaly.
 
             // Arrange
-            dbContext.ChangeTracker.Clear();
+            droppedMessagesDbContext.ChangeTracker.Clear();
 
             var elapsedTime = 0;
             while (true)
             {
-                if (await dbContext.WrappedDataKeys.CountAsync() == 0)
+                if (await droppedMessagesDbContext.WrappedDataKeys.CountAsync() == 0)
                     break;
 
                 if (elapsedTime >= _timeoutInSeconds)
@@ -83,21 +83,21 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
                     bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(message), dataKey.Plaintext, deleteKey: false)));
             }
 
-            await using var dbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
+            await using var droppedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();
 
-            dbContext.WrappedDataKeys.Add(wrappedDataKey);
-            await dbContext.SaveChangesAsync();
+            droppedMessagesDbContext.WrappedDataKeys.Add(wrappedDataKey);
+            await droppedMessagesDbContext.SaveChangesAsync();
 
             // Act
             // DatabaseBackgroundService should handle it automaticaly.
 
             // Arrange
-            dbContext.ChangeTracker.Clear();
+            droppedMessagesDbContext.ChangeTracker.Clear();
 
             var elapsedTime = 0;
             while (true)
             {
-                if (await dbContext.WrappedDataKeys.CountAsync() == 0)
+                if (await droppedMessagesDbContext.WrappedDataKeys.CountAsync() == 0)
                     break;
 
                 if (elapsedTime >= _timeoutInSeconds)
