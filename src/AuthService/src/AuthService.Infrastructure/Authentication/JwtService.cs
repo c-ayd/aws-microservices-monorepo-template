@@ -22,7 +22,7 @@ namespace AuthService.Infrastructure.Authentication
             _jwtKeyService = jwtKeyService;
         }
 
-        public JwtDto GenerateTokens(ICollection<Claim>? claims = null, DateTimeOffset? notBefore = null)
+        public JwtDto GenerateTokens(IEnumerable<Claim>? claims = null, DateTimeOffset? notBefore = null)
         {
             var now = DateTimeOffset.UtcNow;
             var accessTokenExpirationDate = now.AddMinutes(_jwtOptions.AccessTokenLifespanInMinutes);
