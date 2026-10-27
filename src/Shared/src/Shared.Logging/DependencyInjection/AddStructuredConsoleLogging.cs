@@ -7,7 +7,7 @@ namespace Shared.Logging.DependencyInjection
     {
         public static void AddStructuredConsoleLogging(this ILoggingBuilder logging, bool isProduction, string? healthEndpoint = null)
         {
-            LoggingOptions.HealthEndpoint = healthEndpoint;
+            LoggingConfiguration.HealthEndpoint = healthEndpoint;
 
             logging.ClearProviders();
             logging.AddJsonConsole(config =>

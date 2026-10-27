@@ -39,7 +39,7 @@ namespace Shared.Logging.Middlewares
         private void LogMetrics(ILogger<MetricsLoggingMiddleware> logger, string endpoint, int statusCode, double elapsedTimeMs)
         {
             if (endpoint.StartsWith("/.well-known") ||
-                (LoggingOptions.HealthEndpoint != null && endpoint == LoggingOptions.HealthEndpoint))
+                (LoggingConfiguration.HealthEndpoint != null && endpoint == LoggingConfiguration.HealthEndpoint))
                 return;
 
             logger.LogInformation("Status Code: {StatusCode} - Elapsed Time: {ElapsedTime} ms",

@@ -1,6 +1,6 @@
 namespace Shared.Logging
 {
-    public static class LoggingOptions
+    public static class LoggingConfiguration
     {
         public static string? HealthEndpoint = null;
     }
