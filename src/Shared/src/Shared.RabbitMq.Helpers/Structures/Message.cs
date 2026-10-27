@@ -1,3 +1,4 @@
+using System.Text;
 using RabbitMQ.Client;
 
 namespace Shared.RabbitMq.Helpers.Structures
@@ -13,6 +14,7 @@ namespace Shared.RabbitMq.Helpers.Structures
         public string ExchangeName { get; init; }
         public string RoutingKey { get; init; }
         public BasicProperties Properties { get; init; }
+        public bool IsReturned { get; init; }
         public byte[] Body { get; init; }
 
         internal ulong DeliveryTag { get; set; }
@@ -24,6 +26,7 @@ namespace Shared.RabbitMq.Helpers.Structures
             string exchangeName,
             string routingKey,
             BasicProperties properties,
+            bool isReturned,
             byte[] body)
         {
             ServiceName = serviceName;
@@ -31,9 +34,29 @@ namespace Shared.RabbitMq.Helpers.Structures
             ExchangeName = exchangeName;
             RoutingKey = routingKey;
             Properties = properties;
+            IsReturned = isReturned;
             Body = body;
             DeliveryTag = 0;
             RetryCount = 0;
+        }
+
+        public IDictionary<string, object?>? GetHeadersAsJsonString()
+        {
+            if (Properties.Headers == null)
+                return null;
+
+            if (!IsReturned)
+            {
+                return Properties.Headers;
+            }
+
+            var headers = new Dictionary<string, object?>();
+            foreach (var header in Properties.Headers)
+            {
+                headers.Add(header.Key, Encoding.UTF8.GetString((byte[])header.Value!));
+            }
+
+            return headers;
         }
 
         public override int GetHashCode()
