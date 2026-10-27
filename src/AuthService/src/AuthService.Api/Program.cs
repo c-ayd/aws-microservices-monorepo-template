@@ -71,6 +71,11 @@ builder.Logging.AddStructuredConsoleLogging(
     builder.Environment.IsProduction(),
     healthEndpoint: "/health");
 
+builder.Host.ConfigureHostOptions(options =>
+{
+    options.ShutdownTimeout = TimeSpan.FromSeconds(60);
+});
+
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();

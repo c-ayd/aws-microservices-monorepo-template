@@ -30,7 +30,7 @@ namespace NotificationService.Worker.BackgroundServices
             connectionsOptions.Value.RabbitMq,
             caBundleOptions.Value.Value,
             healthCheckTime: TimeSpan.FromSeconds(10),
-            graceTime: TimeSpan.FromSeconds(5),
+            graceTime: TimeSpan.FromSeconds(10),
             queueName: EmailConfiguration.QueueName,
             prefetchCount: 1,
             logger)
