@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Security.Claims;
 using AuthService.Api.Middlewares;
 using Microsoft.AspNetCore.Http;

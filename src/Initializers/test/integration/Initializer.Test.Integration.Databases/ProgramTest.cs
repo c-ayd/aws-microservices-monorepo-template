@@ -1,6 +1,5 @@
 using Initializer.Databases;
 using Initializer.Test.Integration.Databases.Collections;
-using Shared.Test.Helpers.Fixtures;
 
 namespace Initializer.Test.Integration.Databases
 {

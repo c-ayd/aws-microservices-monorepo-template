@@ -9,6 +9,13 @@ namespace Shared.AspNetCore.Helpers.Kestrel
 {
     public static partial class KestrelHelper
     {
+        /// <summary>
+        /// Configures Kestrel for an HTTP port.
+        /// </summary>
+        /// <param name="name">Unique name of the port</param>
+        /// <param name="port">Desired port</param>
+        /// <param name="protocols">Allowed protocols for the port</param>
+        /// <param name="portConfigs">Variable that is used to save the configuration of the opened port</param>
         public static void ConfigureHttp(this KestrelServerOptions options,
             string name,
             int port,
@@ -31,24 +38,33 @@ namespace Shared.AspNetCore.Helpers.Kestrel
             });
         }
 
+        /// <summary>
+        /// Configures Kestrel for an HTTPS port.
+        /// </summary>
+        /// <param name="name">Unique name of the port</param>
+        /// <param name="serverCertificateValue">Value of the certificate of the application</param>
+        /// <param name="serverPrivateKeyValue">Value of the private key for the server certificate</param>
+        /// <param name="port">Desired port</param>
+        /// <param name="protocols">Allowed protocols for the port</param>
+        /// <param name="portConfigs">Variable that is used to save the configuration of the opened port</param>
         public static void ConfigureHttps(this KestrelServerOptions options,
             string name,
-            string serverCertificate,
-            string serverPrivateKey,
+            string serverCertificateValue,
+            string serverPrivateKeyValue,
             int port,
             HttpProtocols protocols,
             PortConfigs portConfigs)
         {
-            var certificate = TlsUtility.LoadCertificate(serverCertificate, serverPrivateKey);
-            var certificateChain = TlsUtility.LoadCertificateChain(serverCertificate, skipFirstInChain: true);
+            var serverCertificate = TlsUtility.LoadCertificate(serverCertificateValue, serverPrivateKeyValue);
+            var serverCertificateChain = TlsUtility.LoadCertificateChain(serverCertificateValue, skipFirstInChain: true);
 
             options.ListenAnyIP(port, config =>
             {
                 config.Protocols = protocols;
-                config.UseHttps(certificate, httpsOptions =>
+                config.UseHttps(serverCertificate, httpsOptions =>
                 {
                     httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-                    httpsOptions.ServerCertificateChain = certificateChain;
+                    httpsOptions.ServerCertificateChain = serverCertificateChain;
                     httpsOptions.ClientCertificateMode = ClientCertificateMode.NoCertificate;
                 });
 

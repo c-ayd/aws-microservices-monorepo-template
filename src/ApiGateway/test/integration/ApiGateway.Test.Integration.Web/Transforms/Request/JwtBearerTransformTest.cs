@@ -4,7 +4,6 @@ using ApiGateway.Test.Integration.Web.Collections;
 using Microsoft.Net.Http.Headers;
 using Shared.Http.Authentication.Constants;
 using Shared.Redis.Helpers.Extensions;
-using Shared.Test.Helpers.Fixtures;
 
 namespace ApiGateway.Test.Integration.Web.Transforms.Request
 {

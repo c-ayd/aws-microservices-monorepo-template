@@ -12,10 +12,6 @@ namespace Shared.Http.DependencyInjection
     {
         private static readonly ErrorItem _requestBodyMissingError = new ErrorItem("request_body_missing", "The request body is missing");
 
-        /// <summary>
-        /// Adds a validator to the endpoint.
-        /// </summary>
-        /// <typeparam name="T">Type of the value to validate</typeparam>
         public static IEndpointConventionBuilder AddValidation<T>(this IEndpointConventionBuilder builder)
         {
             return builder.AddEndpointFilter(async (context, next) =>
@@ -42,11 +38,7 @@ namespace Shared.Http.DependencyInjection
                 return await next(context);
             });
         }
-
-        /// <summary>
-        /// Adds an async validator to the endpoint.
-        /// </summary>
-        /// <typeparam name="T">Type of the value to validate</typeparam>
+        
         public static IEndpointConventionBuilder AddAsyncValidation<T>(this IEndpointConventionBuilder builder)
         {
             return builder.AddEndpointFilter(async (context, next) =>

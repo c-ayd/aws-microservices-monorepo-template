@@ -1,14 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 using AuthService.Domain.Entities;
 using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Application.Collections;
-using Microsoft.EntityFrameworkCore;
 using Shared.Constants;
-using Shared.Http.Authentication;
 using Shared.Http.Authentication.Constants;
-using Shared.Http.Response;
 using Shared.Test.Generators;
 
 namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.GetSessions

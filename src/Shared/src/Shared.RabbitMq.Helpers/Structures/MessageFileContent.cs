@@ -7,6 +7,9 @@ using Shared.RabbitMq.Helpers.Utilities;
 
 namespace Shared.RabbitMq.Helpers.Structures
 {
+    /// <summary>
+    /// Represents the JSON file containing dropped messages in storage.
+    /// </summary>
     public class MessageFileContent
     {
         public byte[] WrappedDataKey { get; set; }

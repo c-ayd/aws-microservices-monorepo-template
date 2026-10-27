@@ -25,7 +25,7 @@ builder.WebHost.ConfigureKestrel(options =>
     // the health check endpoint, which can be plain HTTP instead of HTTPS.
     options.ConfigureHttp(
         name: "Http",
-        port: builder.Configuration.GetValue<int>("HttpPort"),
+        builder.Configuration.GetValue<int>("HttpPort"),
         HttpProtocols.Http1,
         portConfigs);
 });

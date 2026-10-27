@@ -1,7 +1,5 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Shared.Http.Authentication.Constants;
 
 namespace Shared.Logging.Middlewares
 {

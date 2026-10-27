@@ -7,34 +7,12 @@ namespace Shared.RabbitMq.Helpers.Structures
     /// </summary>
     public class Message
     {
-        /// <summary>
-        /// The name of the microservice that has sent or has tried to sent this message
-        /// </summary>
         public string ServiceName { get; init; }
-
-        /// <summary>
-        /// The name of the publisher that has sent or has tried to sent this message
-        /// </summary>
         public string PublisherName { get; init; }
 
-        /// <summary>
-        /// The name of the exchange that this message is sent to
-        /// </summary>
         public string ExchangeName { get; init; }
-
-        /// <summary>
-        /// The routing key for this message
-        /// </summary>
         public string RoutingKey { get; init; }
-
-        /// <summary>
-        /// The properties of the message
-        /// </summary>
         public BasicProperties Properties { get; init; }
-
-        /// <summary>
-        /// The message body
-        /// </summary>
         public byte[] Body { get; init; }
 
         internal ulong DeliveryTag { get; set; }

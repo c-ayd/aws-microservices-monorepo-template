@@ -1,5 +1,4 @@
 using System.Net;
-using System.Security.Cryptography;
 using AuthService.Application.Abstractions.Crypto;
 using AuthService.Application.Abstractions.DbContexts;
 using AuthService.Application.Dtos.Crypto;

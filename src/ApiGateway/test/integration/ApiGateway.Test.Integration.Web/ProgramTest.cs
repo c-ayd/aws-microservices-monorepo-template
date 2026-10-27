@@ -1,7 +1,6 @@
 using System.Net;
 using ApiGateway.Test.Integration.Web.Collections;
 using Microsoft.Net.Http.Headers;
-using Shared.Test.Helpers.Fixtures;
 
 namespace ApiGateway.Test.Integration.Web
 {

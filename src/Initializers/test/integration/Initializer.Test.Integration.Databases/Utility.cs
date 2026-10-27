@@ -6,6 +6,9 @@ namespace Initializer.Test.Integration.Databases
 {
     public static class Utility
     {
+        public const string AuthDbName = "auth-db";
+        public const string DroppedMessagesDbName = "dropped-messages-db";
+
         public static async Task InitializePostgreSqlFixtureAsync(PostgreSqlFixture postgreSqlFixture)
         {
             await postgreSqlFixture.InitializeAsync(
@@ -15,8 +18,8 @@ namespace Initializer.Test.Integration.Databases
                 serverCertificatePrivateKeyPath: "Certs/PostgreSql/test-postgresql-server.key",
                 dbContexts: new Dictionary<string, Type>()
                 {
-                    { "auth-db", typeof(AuthDbContext) },
-                    { "dropped-messages-db", typeof(DroppedMessagesDbContext) }
+                    { AuthDbName, typeof(AuthDbContext) },
+                    { DroppedMessagesDbName, typeof(DroppedMessagesDbContext) }
                 },
                 runMigrations: false);
         }

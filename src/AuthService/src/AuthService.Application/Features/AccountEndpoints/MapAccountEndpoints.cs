@@ -22,7 +22,7 @@ namespace AuthService.Application.Features.AccountEndpoints
                 .AddValidation<LoginRequest>();
 
             group.MapDelete("/logout", LogoutHandler.HandleAsync)
-                .RequireAuthorization();    // Since the endpoint deletes open session, it requires authorization.
+                .RequireAuthorization(); // Since the endpoint deletes open session, it requires authorization.
 
             group.MapGet("/sessions", GetSessionsHandler.HandleAsync)
                 .RequireAuthorization();

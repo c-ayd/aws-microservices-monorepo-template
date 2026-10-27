@@ -1,6 +1,5 @@
 using System.Net.Security;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
 using Shared.Redis.Helpers.Options.Extensions;
 using StackExchange.Redis;

@@ -12,7 +12,8 @@ namespace Shared.Http.Authentication
         public ApiGatewayAuthHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
-            UrlEncoder encoder) : base(options, logger, encoder)
+            UrlEncoder encoder) 
+            : base(options, logger, encoder)
         {
         }
 

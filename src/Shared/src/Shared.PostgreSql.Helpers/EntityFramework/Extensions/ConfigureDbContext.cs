@@ -8,6 +8,12 @@ namespace Shared.PostgreSql.Helpers.EntityFramework.Extensions
 {
     public static partial class EFCoreExtensions
     {
+        /// <summary>
+        /// Configures connection to PostgreSQL along with the retry mechanism and
+        /// sets TLS for HTTPS.
+        /// </summary>
+        /// <param name="connectionOptions">Connection options for PostgreSQL</param>
+        /// <param name="caBundleValue">Value of the CA Bundle for TLS</param>
         public static void ConfigureDbContext(this DbContextOptionsBuilder builder,
             PostgreSqlConnectionOptions connectionOptions,
             string? caBundleValue = null)

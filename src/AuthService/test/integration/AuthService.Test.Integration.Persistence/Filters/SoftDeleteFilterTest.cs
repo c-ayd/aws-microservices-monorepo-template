@@ -4,7 +4,6 @@ using AuthService.Test.Integration.Persistence.Collections;
 using Microsoft.EntityFrameworkCore;
 using Shared.Constants;
 using Shared.Test.Generators;
-using Shared.Test.Helpers.Fixtures;
 
 namespace AuthService.Test.Integration.Persistence.Filters
 {

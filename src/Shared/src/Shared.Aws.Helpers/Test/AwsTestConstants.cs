@@ -2,6 +2,9 @@ using Amazon.Runtime;
 
 namespace Shared.Aws.Helpers.Test
 {
+    /// <summary>
+    /// Holds variables that are used in test cases.
+    /// </summary>
     public static class AwsTestConstants
     {
         public static readonly BasicAWSCredentials Credentials = new BasicAWSCredentials("test", "test");

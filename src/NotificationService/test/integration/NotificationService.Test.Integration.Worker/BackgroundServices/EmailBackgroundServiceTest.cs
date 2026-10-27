@@ -9,7 +9,7 @@ using Shared.Constants;
 using Shared.RabbitMq.Notifications.Configurations;
 using Shared.RabbitMq.Notifications.Messages;
 using Shared.Test.Generators;
-using Shared.Test.Helpers.Fixtures;
+using Shared.Test.Helpers.Structures;
 
 namespace NotificationService.Test.Integration.Worker.BackgroundServices
 {
@@ -113,7 +113,7 @@ namespace NotificationService.Test.Integration.Worker.BackgroundServices
 
             // Assert
             var elapsedTime = 0;
-            AwsFixture.SesMessage? sentEmail = null;
+            SesMessage? sentEmail = null;
             while (true)
             {
                 var sentEmails = await _collectionCluster.AwsFixture.SES_GetSentEmailsAsync();

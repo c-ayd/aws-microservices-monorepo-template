@@ -8,6 +8,13 @@ namespace Shared.RabbitMq.Helpers.Utilities
 {
     public static partial class Utility
     {
+        /// <summary>
+        /// Creates the <see cref="RabbitMQ.Client.ConnectionFactory"/> instance and sets the TLS
+        /// for HTTPS. It does not set up automatic recovery.
+        /// </summary>
+        /// <param name="connectionOptions">Connection options for RabbitMQ</param>
+        /// <param name="caBundleValue">Value of the CA Bundle for TLS</param>
+        /// <returns>Returns the created connection factory.</returns>
         public static ConnectionFactory SetupConnectionFactory(
             RabbitMqConnectionOptions connectionOptions,
             string? caBundleValue)

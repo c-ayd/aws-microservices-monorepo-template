@@ -1,6 +1,5 @@
 using System.Net.Security;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using RabbitMQ.Client;

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
-using Shared.Aws.Helpers.Test;
 using Shared.Constants;
 using Shared.Test.Helpers;
 using Shared.Test.Helpers.Fixtures;
@@ -48,7 +47,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
             await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetPort();
-            NotificationServicePort = KestrelTestHelper.GetFreePort();
+            NotificationServicePort = KestrelTestHelper.GetAvailablePortNumber();
 
             NotificationWebApp = new NotificationWebAppFactory();
             NotificationWebApp.StartServer();
