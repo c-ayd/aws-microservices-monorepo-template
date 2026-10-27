@@ -98,6 +98,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 {
                     CorrelationId = Guid.NewGuid().ToString()
                 },
+                isReturned: false,
                 body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             
             GetDroppedMessages(publisher).TryAdd(droppedMessage.GetHashCode(), droppedMessage);
@@ -150,7 +151,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 {
                     CorrelationId = Guid.NewGuid().ToString()
                 },
-                JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
+                isReturned: false,
+                body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             SetRetryCount(droppedMessage, 1);
 
             GetDroppedMessages(publisher).TryAdd(droppedMessage.GetHashCode(), droppedMessage);
@@ -250,6 +252,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 {
                     CorrelationId = Guid.NewGuid().ToString()
                 },
+                isReturned: false,
                 body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             var droppedMessage = new Message(
                 RabbitMqCollectionCluster.TestServiceName,
@@ -260,6 +263,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 {
                     CorrelationId = Guid.NewGuid().ToString()
                 },
+                isReturned: false,
                 body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
             var droppedMessageInBackgroundService = new Message(
                 RabbitMqCollectionCluster.TestServiceName,
@@ -270,6 +274,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 {
                     CorrelationId = Guid.NewGuid().ToString()
                 },
+                isReturned: false,
                 body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GeneratePrintableAscii()));
 
             GetPendingMessages(publisher).TryAdd(0, pendingMessage);
@@ -443,30 +448,30 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             protected override async Task DeclareExchangesAsync(CancellationToken cancellationToken)
             {
                 await Channel!.ExchangeDeclareAsync(
-                    exchange: _normalExchange,
-                    type: ExchangeType.Direct,
+                    _normalExchange,
+                    ExchangeType.Direct,
                     durable: true,
                     autoDelete: false);
 
                 await Channel.ExchangeDeclareAsync(
-                    exchange: _rejectExchange,
-                    type: ExchangeType.Direct,
+                    _rejectExchange,
+                    ExchangeType.Direct,
                     durable: true,
                     autoDelete: false);
 
                 // Declare queues for test
                 await Channel.QueueDeclareAsync(
-                    queue: _normalQueue,
+                    _normalQueue,
                     durable: true,
                     exclusive: false,
                     autoDelete: false);
                 await Channel.QueueBindAsync(
-                    queue: _normalQueue,
-                    exchange: _normalExchange,
-                    routingKey: _normalRouting);
+                    _normalQueue,
+                    _normalExchange,
+                    _normalRouting);
 
                 await Channel.QueueDeclareAsync(
-                    queue: _rejectQueue,
+                    _rejectQueue,
                     durable: true,
                     exclusive: false,
                     autoDelete: false,
@@ -476,9 +481,9 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                         { "x-overflow", "reject-publish" }
                     });
                 await Channel.QueueBindAsync(
-                    queue: _rejectQueue,
-                    exchange: _rejectExchange,
-                    routingKey: _rejectRouting);
+                    _rejectQueue,
+                    _rejectExchange,
+                    _rejectRouting);
             }
         }
     }

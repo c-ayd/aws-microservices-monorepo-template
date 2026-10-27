@@ -43,10 +43,11 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
-                    properties: new BasicProperties()
+                    new BasicProperties()
                     {
                         CorrelationId = Guid.NewGuid().ToString()
                     },
+                    isReturned: false,
                     body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())));
             }
 
@@ -91,10 +92,11 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
-                    properties: new BasicProperties()
+                    new BasicProperties()
                     {
                         CorrelationId = Guid.NewGuid().ToString()
                     },
+                    isReturned: false,
                     body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())));
             }
 
@@ -147,10 +149,11 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
-                    properties: new BasicProperties()
+                    new BasicProperties()
                     {
                         CorrelationId = Guid.NewGuid().ToString()
                     },
+                    isReturned: false,
                     body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())));
             }
 
@@ -210,10 +213,11 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                     publisherName: StringGenerator.GenerateAlphanumeric(),
                     exchangeName: StringGenerator.GenerateAlphanumeric(),
                     routingKey: StringGenerator.GenerateAlphanumeric(),
-                    properties: new BasicProperties()
+                    new BasicProperties()
                     {
                         CorrelationId = Guid.NewGuid().ToString()
                     },
+                    isReturned: false,
                     body: JsonSerializer.SerializeToUtf8Bytes(StringGenerator.GenerateAlphanumeric())));
             }
 

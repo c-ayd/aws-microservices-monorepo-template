@@ -38,18 +38,22 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             var wrappedDataKey = new WrappedDataKey(dataKey.Encrypted);
             for (int i = 0; i < 100; ++i)
             {
+                var body = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
                 wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
-                    WorkerCollectionCluster.TestServiceName,
-                    WorkerCollectionCluster.TestPublisherName,
-                    WorkerCollectionCluster.TestExchangeName,
-                    WorkerCollectionCluster.TestRoutingKey,
-                    properties: new BasicProperties()
-                    {
-                        DeliveryMode = DeliveryModes.Persistent,
-                        CorrelationId = Guid.NewGuid().ToString()
-                    },
-                    bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric()), dataKey.Plaintext, deleteKey: false)));
+                    new Message(
+                        WorkerCollectionCluster.TestServiceName,
+                        WorkerCollectionCluster.TestPublisherName,
+                        WorkerCollectionCluster.TestExchangeName,
+                        WorkerCollectionCluster.TestRoutingKey,
+                        new BasicProperties()
+                        {
+                            DeliveryMode = DeliveryModes.Persistent,
+                            CorrelationId = Guid.NewGuid().ToString()
+                        },
+                        isReturned: false,
+                        body),
+                    bodyEncrypted: AesGcmEncryption.Encrypt(body, dataKey.Plaintext, deleteKey: false)));
             }
 
             var awsS3Bucket = _collectionCluster.RecoveryWebApp.GetService<IAwsS3Bucket>();
