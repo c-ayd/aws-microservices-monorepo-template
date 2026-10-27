@@ -56,7 +56,7 @@ builder.Services.AddApplicationServices();
 
 builder.Services.AddHealthChecks();
 
-builder.Services.AddHostedService<RabbitMqPublisherBackgroundService>();
+builder.Services.AddHostedService<RabbitMqPublishersBackgroundService>();
 builder.Services.AddHostedService<RedisBackgroundServices>();
 
 builder.RegisterOptionsFromAssemblies(Assembly.GetAssembly(typeof(AuthService.Application.ServiceRegistration))!);
