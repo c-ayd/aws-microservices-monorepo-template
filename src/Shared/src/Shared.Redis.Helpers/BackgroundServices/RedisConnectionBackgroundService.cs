@@ -3,6 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Shared.Redis.Helpers.BackgroundServices
 {
+    /// <summary>
+    /// Handles all Redis connections in the application.
+    /// </summary>
     public abstract class RedisConnectionBackgroundService : IHostedService
     {
         private readonly List<RedisConnection> _redisConnections;

@@ -7,7 +7,6 @@ using Shared.Http.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Shared.Test.Integration.Http.Collections;
-using Shared.Test.Helpers.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Routing;
 

@@ -1,5 +1,4 @@
 using System.Net;
-using System.Runtime.InteropServices;
 using AuthService.Application.Abstractions.Crypto;
 using AuthService.Domain.Entities;
 using AuthService.Persistence.DbContexts;

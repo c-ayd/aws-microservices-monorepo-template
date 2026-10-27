@@ -7,6 +7,14 @@ namespace Shared.AspNetCore.Helpers.Kestrel.Utilities
 {
     public static partial class TlsUtility
     {
+        /// <summary>
+        /// Validates certificate by using the custom CA bundle.
+        /// </summary>
+        /// <param name="certificate">Server certificate to validate</param>
+        /// <param name="chain">Server certificate chain</param>
+        /// <param name="caBundle">Custom CA bundle</param>
+        /// <param name="sslPolicyErrors">Any occured error from the default server certificate check</param>
+        /// <returns>Returns true if certificate passes the validation, otherwise false.</returns>
         public static bool ValidateServerCertificate(
             X509Certificate? certificate,
             X509Chain? chain,

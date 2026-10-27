@@ -3,9 +3,16 @@ using System.Net.Sockets;
 
 namespace Shared.Test.Helpers
 {
+    /// <summary>
+    /// Provides methods related to Kestrel for tests.
+    /// </summary>
     public static class KestrelTestHelper
     {
-        public static int GetFreePort()
+        /// <summary>
+        /// Checks an available port on the local machine and returns the port.
+        /// </summary>
+        /// <returns>Returns an available port.</returns>
+        public static int GetAvailablePortNumber()
         {
             var listener = new TcpListener(IPAddress.Loopback, 0);
             listener.Start();

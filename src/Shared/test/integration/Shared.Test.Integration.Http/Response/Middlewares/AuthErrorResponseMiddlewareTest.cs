@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Shared.Http.Authentication.Constants;
 using Shared.Http.Response.Middlewares;
-using Shared.Test.Helpers.Fixtures;
 using Shared.Test.Integration.Http.Collections;
 
 namespace Shared.Test.Integration.Http.Response.Middlewares

@@ -1,5 +1,8 @@
 namespace Shared.Aws.Helpers.Abstractions
 {
+    /// <summary>
+    /// Provides methods to interact with AWS S3 Bucket.
+    /// </summary>
     public interface IAwsS3Bucket
     {
         Task UploadFileAsync(string bucketName, string folder, string fileName, Stream content, string? contentType = null, CancellationToken cancellationToken = default);

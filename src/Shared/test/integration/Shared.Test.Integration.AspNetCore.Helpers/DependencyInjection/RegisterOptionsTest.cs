@@ -1,9 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Shared.AspNetCore.Helpers.DependencyInjection;
-using Shared.Test.Helpers.Fixtures;
 using Shared.Test.Integration.AspNetCore.Helpers.Collections;
 using Shared.AspNetCore.Helpers.Options;
 

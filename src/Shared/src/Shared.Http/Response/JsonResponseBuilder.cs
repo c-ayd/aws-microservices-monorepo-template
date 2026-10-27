@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace Shared.Http.Response
 {
     /// <summary>
-    /// Builds JSON HTTP responses to standardize formats across endpoints.
+    /// Builds JSON HTTP responses to standardize the response format across endpoints.
     /// </summary>
     public static class JsonResponseBuilder
     {

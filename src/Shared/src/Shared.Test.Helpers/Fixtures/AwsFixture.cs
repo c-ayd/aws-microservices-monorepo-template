@@ -11,9 +11,13 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Shared.Aws.Helpers.Test;
 using Shared.Test.Helpers.Fixtures.SeedWork;
+using Shared.Test.Helpers.Structures;
 
 namespace Shared.Test.Helpers.Fixtures
 {
+    /// <summary>
+    /// Is an AWS emulator for test cases requiring AWS.
+    /// </summary>
     public class AwsFixture : ContainerFixtureBase
     {
         protected override IContainer Container => _container;
@@ -152,6 +156,10 @@ namespace Shared.Test.Helpers.Fixtures
             });
         }
 
+        private record SesResponse(
+            Dictionary<string, List<SesMessage>>? Messages
+        );
+
         public async Task<List<SesMessage>> SES_GetSentEmailsAsync()
         {
             using var client = new HttpClient()
@@ -239,8 +247,5 @@ namespace Shared.Test.Helpers.Fixtures
         {
             await _container.DisposeAsync();
         }
-
-        public record SesResponse(Dictionary<string, List<SesMessage>>? Messages);
-        public record SesMessage(string? MessageId, string? Source, List<string> To, string? Subject, string? BodyText);
     }
 }

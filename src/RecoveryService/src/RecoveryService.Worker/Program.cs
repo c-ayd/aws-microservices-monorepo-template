@@ -30,7 +30,7 @@ builder.WebHost.ConfigureKestrel(options =>
     // plain HTTP instead of HTTPS.
     options.ConfigureHttp(
         name: "Http",
-        port: builder.Configuration.GetValue<int>("HttpPort"),
+        builder.Configuration.GetValue<int>("HttpPort"),
         HttpProtocols.Http1,
         portConfigs);
 });

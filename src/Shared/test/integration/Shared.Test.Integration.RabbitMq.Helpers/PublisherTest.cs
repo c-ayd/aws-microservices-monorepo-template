@@ -7,7 +7,6 @@ using RabbitMQ.Client.Events;
 using Shared.RabbitMq.Helpers;
 using Shared.RabbitMq.Helpers.Structures;
 using Shared.Test.Generators;
-using Shared.Test.Helpers.Fixtures;
 using Shared.Test.Integration.RabbitMq.Helpers.Collections;
 
 namespace Shared.Test.Integration.RabbitMq.Helpers
@@ -88,7 +87,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.Single(droppedMessages);
 
             var headers = droppedMessages.Values.First().Properties.Headers;
-            CheckHeaders(headers, true);
+            CheckHeaders(headers, isReturned: true);
         }
 
         [Fact]
@@ -126,7 +125,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.Single(droppedMessages);
 
             var headers = droppedMessages.Values.First().Properties.Headers;
-            CheckHeaders(headers, false);
+            CheckHeaders(headers, isReturned: false);
         }
 
         [Fact]
@@ -173,7 +172,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.NotNull(messageFromRabbitMq);
             Assert.Equal(message, Encoding.UTF8.GetString(messageFromRabbitMq.Body.ToArray()));
             Assert.Equal(properties.CorrelationId, messageFromRabbitMq.BasicProperties.CorrelationId);
-            CheckHeaders(messageFromRabbitMq.BasicProperties.Headers, true);
+            CheckHeaders(messageFromRabbitMq.BasicProperties.Headers, isReturned: true);
         }
 
         [Fact]
@@ -207,7 +206,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.Single(droppedMessages);
 
             var headers = droppedMessages.Values.First().Properties.Headers;
-            CheckHeaders(headers, false);
+            CheckHeaders(headers, isReturned: false);
         }
 
         private async Task InitializePublisherAsync(TestPublisher publisher,

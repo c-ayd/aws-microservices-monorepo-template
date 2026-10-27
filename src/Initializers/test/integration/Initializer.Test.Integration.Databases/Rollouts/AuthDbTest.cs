@@ -11,6 +11,9 @@ namespace Initializer.Test.Integration.Databases
 {
     public class AuthDbTest : IAsyncLifetime
     {
+        private const string _roleName = "Admin";
+        private const string _email = "test@test.com";
+
         private readonly PostgreSqlFixture _postgreSqlFixture;
 
         private PostgreSqlConnectionOptions _connectionOptions = null!;
@@ -20,10 +23,10 @@ namespace Initializer.Test.Integration.Databases
         };
         private readonly AuthDb.SeedDataOptions _seedDataOptions = new AuthDb.SeedDataOptions()
         {
-            Roles = new List<string>() { "Admin" },
+            Roles = new List<string>() { _roleName },
             Accounts = new List<AuthDb.SeedDataOptions.AccountDetails>()
             {
-                new AuthDb.SeedDataOptions.AccountDetails() { Email = "test@test.com", Roles = ["Admin"] }
+                new AuthDb.SeedDataOptions.AccountDetails() { Email = _email, Roles = [_roleName] }
             }
         };
 
@@ -35,7 +38,7 @@ namespace Initializer.Test.Integration.Databases
         public async Task InitializeAsync()
         {
             await Utility.InitializePostgreSqlFixtureAsync(_postgreSqlFixture);
-            _connectionOptions = _postgreSqlFixture.GetConnectionOptions("auth-db");
+            _connectionOptions = _postgreSqlFixture.GetConnectionOptions(Utility.AuthDbName);
         }
 
         public async Task DisposeAsync()
@@ -59,10 +62,10 @@ namespace Initializer.Test.Integration.Databases
             Assert.Single(rolesFromDb);
             Assert.Single(accountsFromDb);
 
-            Assert.Equal("Admin", rolesFromDb[0].Name);
+            Assert.Equal(_roleName, rolesFromDb[0].Name);
 
-            Assert.Equal("test@test.com", accountsFromDb[0].Email);
-            Assert.Equal("Admin", accountsFromDb[0].Roles.ElementAt(0).Name);
+            Assert.Equal(_email, accountsFromDb[0].Email);
+            Assert.Equal(_roleName, accountsFromDb[0].Roles.ElementAt(0).Name);
         }
 
         [Fact]
@@ -84,8 +87,8 @@ namespace Initializer.Test.Integration.Databases
             var rolesFromDb = await authDbContext.Roles.ToListAsync();
             var accountsFromDb = await authDbContext.Accounts.Include(a => a.Roles).ToListAsync();
 
-            Assert.NotNull(rolesFromDb.FirstOrDefault(r => r.Name == "Admin"));
-            Assert.NotNull(accountsFromDb.FirstOrDefault(a => a.Email == "test@test.com"));
+            Assert.NotNull(rolesFromDb.FirstOrDefault(r => r.Name == _roleName));
+            Assert.NotNull(accountsFromDb.FirstOrDefault(a => a.Email == _email));
         }
     }
 }

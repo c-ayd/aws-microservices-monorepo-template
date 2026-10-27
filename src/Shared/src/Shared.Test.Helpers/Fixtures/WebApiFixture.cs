@@ -9,6 +9,10 @@ using Shared.AspNetCore.Helpers.Kestrel.Structures;
 
 namespace Shared.Test.Helpers.Fixtures
 {
+    /// <summary>
+    /// Is a test web API for test cases, where a web API is needed but the test cases
+    /// do not have any entry point for <see cref="WebAppFactoryFixture{TEntryPoint}"/>.
+    /// </summary>
     public class WebApiFixture : WebAppFactoryFixture<Shared.Test.WebApi.Program>
     {
         public const string HttpPortConfigName = "Http";

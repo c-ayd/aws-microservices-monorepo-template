@@ -3,7 +3,6 @@ using Shared.Http.DependencyInjection;
 using Shared.Http.Response.Structures;
 using Shared.Http.Validation;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Test.Helpers.Fixtures;
 using Shared.Test.Integration.Http.Collections;
 
 namespace Shared.Test.Integration.Http.DependencyInjection

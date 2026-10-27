@@ -4,19 +4,13 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using ApiGateway.Web.Options;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
-using Shared.Redis.Helpers.Options.Extensions;
 using Shared.Test.Helpers;
 using Shared.Test.Helpers.Fixtures;
 
@@ -115,7 +109,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
             await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetPort();
-            ApiGatewayPort = KestrelTestHelper.GetFreePort();
+            ApiGatewayPort = KestrelTestHelper.GetAvailablePortNumber();
             AuthServicePort = AuthServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
             ProtectedServicePort = ProtectedServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
             AdminServicePort = AdminServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);

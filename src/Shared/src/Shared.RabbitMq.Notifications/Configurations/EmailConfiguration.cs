@@ -1,5 +1,8 @@
 namespace Shared.RabbitMq.Notifications.Configurations
 {
+    /// <summary>
+    /// Holds information about the exchanges, queues and routing keys related to the sending email process.
+    /// </summary>
     public static class EmailConfiguration
     {
         public const string ExchangeName = "notification.email";

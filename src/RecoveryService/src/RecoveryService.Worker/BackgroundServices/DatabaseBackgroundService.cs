@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using RabbitMQ.Client;
 using RecoveryService.Worker.BackgroundServices.SeedWork;
 using RecoveryService.Worker.Options;
 using Shared.Aws.Helpers.Abstractions;

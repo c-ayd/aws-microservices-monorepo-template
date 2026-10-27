@@ -22,7 +22,10 @@ namespace Shared.RabbitMq.Helpers
 
         internal int MaxRetry { get; private set; }
 
-        public Publisher(string serviceName, string publisherName, int maxRetryForMesages)
+        public Publisher(
+            string serviceName,
+            string publisherName,
+            int maxRetryForMesages)
         {
             ServiceName = serviceName;
             PublisherName = publisherName;

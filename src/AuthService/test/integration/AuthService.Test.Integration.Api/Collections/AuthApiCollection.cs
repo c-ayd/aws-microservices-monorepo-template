@@ -71,7 +71,7 @@ namespace AuthService.Test.Integration.Api.Collections
             await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetPort();
-            AuthServicePort = KestrelTestHelper.GetFreePort();
+            AuthServicePort = KestrelTestHelper.GetAvailablePortNumber();
 
             AuthApiWebApp = new AuthApiWebAppFactory(
                 new JwtKeysOptions()

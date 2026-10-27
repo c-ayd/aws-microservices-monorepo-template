@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Shared.AspNetCore.Helpers.Kestrel.Structures
 {
+    /// <summary>
+    /// Holds information about the opened ports.
+    /// </summary>
     public class PortConfigs
     {
         internal Dictionary<string, PortConfig> ports = new Dictionary<string, PortConfig>();

@@ -7,6 +7,9 @@ using Shared.RabbitMq.Helpers.Utilities;
 
 namespace Shared.RabbitMq.Helpers.BackgroundServices
 {
+    /// <summary>
+    /// Handles all RabbitMQ connection, channels and consumers in the application.
+    /// </summary>
     public abstract class ConsumerBackgroundService : BackgroundService
     {
         private readonly ConnectionFactory _connectionFactory;

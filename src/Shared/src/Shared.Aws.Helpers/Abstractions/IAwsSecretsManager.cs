@@ -1,5 +1,8 @@
 namespace Shared.Aws.Helpers.Abstractions
 {
+    /// <summary>
+    /// Provides methods to interact with AWS Secrets Manager.
+    /// </summary>
     public interface IAwsSecretsManager
     {
         Task<string> GetSecretStringAsync(string id, bool cache = true, CancellationToken cancellationToken = default);

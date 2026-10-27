@@ -110,7 +110,8 @@ namespace Shared.Test.Helpers.Fixtures
                 typeof(DbContextOptions<>).MakeGenericType(dbContextType)
             ])!;
 
-            var optionsBuilder = (DbContextOptionsBuilder)Activator.CreateInstance(typeof(DbContextOptionsBuilder<>).MakeGenericType(dbContextType))!;
+            var optionsBuilder = (DbContextOptionsBuilder)Activator.CreateInstance(typeof(DbContextOptionsBuilder<>)
+                .MakeGenericType(dbContextType))!;
             optionsBuilder.ConfigureDbContext(connectionOptions, _caBundleValue);
 
             return (T)ctor.Invoke([optionsBuilder.Options]);

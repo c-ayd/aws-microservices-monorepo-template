@@ -100,7 +100,7 @@ namespace Shared.Test.Helpers.Fixtures
                 Host = _container.Hostname,
                 Port = _container.GetMappedPublicPort(_sslEnabled ? 6380 : 6379),
                 Password = "redis-password",
-                AbortOnConnectionFail = true,  // For tests, it throws an exception immediately when the connection is initially not established
+                AbortOnConnectionFail = true, // For tests, it throws an exception immediately when the connection is initially not established
                 Ssl = new SslOptions()
                 {
                     Enabled = _sslEnabled,

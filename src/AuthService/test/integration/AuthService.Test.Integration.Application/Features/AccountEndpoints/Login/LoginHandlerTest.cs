@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 using AuthService.Application.Abstractions.Crypto;
 using AuthService.Application.Features.AccountEndpoints.Login;
 using AuthService.Application.Options;
@@ -10,7 +9,6 @@ using AuthService.Test.Integration.Application.Collections;
 using Microsoft.EntityFrameworkCore;
 using Shared.Constants;
 using Shared.Http.Authentication.Constants;
-using Shared.Http.Response;
 using Shared.Test.Generators;
 
 namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Login

@@ -42,22 +42,22 @@ namespace NotificationService.Worker.BackgroundServices
         protected override async Task DeclareExchangesAsync(CancellationToken cancellationToken)
         {
             await Channel!.ExchangeDeclareAsync(
-                exchange: EmailConfiguration.ExchangeName,
-                type: EmailConfiguration.ExchangeType,
+                EmailConfiguration.ExchangeName,
+                EmailConfiguration.ExchangeType,
                 durable: true,
                 autoDelete: false,
                 cancellationToken: cancellationToken);
 
             await Channel.ExchangeDeclareAsync(
-                exchange: EmailConfiguration.RetryExchangeName,
-                type: EmailConfiguration.RetryExchangeType,
+                EmailConfiguration.RetryExchangeName,
+                EmailConfiguration.RetryExchangeType,
                 durable: true,
                 autoDelete: false,
                 cancellationToken: cancellationToken);
 
             await Channel.ExchangeDeclareAsync(
-                exchange: EmailConfiguration.DlxName,
-                type: EmailConfiguration.DlxExchangeType,
+                EmailConfiguration.DlxName,
+                EmailConfiguration.DlxExchangeType,
                 durable: true,
                 autoDelete: false,
                 cancellationToken: cancellationToken);
@@ -66,19 +66,19 @@ namespace NotificationService.Worker.BackgroundServices
         protected override async Task DeclareQueuesAsync(CancellationToken cancellationToken)
         {
             await Channel!.QueueDeclareAsync(
-                queue: EmailConfiguration.DlqName,
+                EmailConfiguration.DlqName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
                 cancellationToken: cancellationToken);
             await Channel.QueueBindAsync(
-                queue: EmailConfiguration.DlqName,
-                exchange: EmailConfiguration.DlxName,
-                routingKey: EmailConfiguration.DeadLetterRoutingKey,
+                EmailConfiguration.DlqName,
+                EmailConfiguration.DlxName,
+                EmailConfiguration.DeadLetterRoutingKey,
                 cancellationToken: cancellationToken);
 
             await Channel.QueueDeclareAsync(
-                queue: EmailConfiguration.RetryQueueName,
+                EmailConfiguration.RetryQueueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
@@ -89,13 +89,13 @@ namespace NotificationService.Worker.BackgroundServices
                 },
                 cancellationToken: cancellationToken);
             await Channel.QueueBindAsync(
-                queue: EmailConfiguration.RetryQueueName,
-                exchange: EmailConfiguration.RetryExchangeName,
-                routingKey: EmailConfiguration.RetryRoutingKey,
+                EmailConfiguration.RetryQueueName,
+                EmailConfiguration.RetryExchangeName,
+                EmailConfiguration.RetryRoutingKey,
                 cancellationToken: cancellationToken);
 
             await Channel.QueueDeclareAsync(
-                queue: EmailConfiguration.QueueName,
+                EmailConfiguration.QueueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false,
@@ -107,9 +107,9 @@ namespace NotificationService.Worker.BackgroundServices
                 },
                 cancellationToken: cancellationToken);
             await Channel.QueueBindAsync(
-                queue: EmailConfiguration.QueueName,
-                exchange: EmailConfiguration.ExchangeName,
-                routingKey: EmailConfiguration.RoutingKey,
+                EmailConfiguration.QueueName,
+                EmailConfiguration.ExchangeName,
+                EmailConfiguration.RoutingKey,
                 cancellationToken: cancellationToken);
         }
 
@@ -132,10 +132,7 @@ namespace NotificationService.Worker.BackgroundServices
                         args.BasicProperties.Headers != null && args.BasicProperties.Headers.TryGetValue("UserId", out var userId) ?
                             userId : null);
 
-                    await Channel!.BasicRejectAsync(
-                        deliveryTag: args.DeliveryTag,
-                        requeue: false);
-
+                    await Channel!.BasicRejectAsync(args.DeliveryTag, requeue: false);
                     return;
                 }
             }
@@ -148,10 +145,7 @@ namespace NotificationService.Worker.BackgroundServices
                         userId : null,
                     exception.Message);
 
-                await Channel!.BasicRejectAsync(
-                        deliveryTag: args.DeliveryTag,
-                        requeue: false);
-
+                await Channel!.BasicRejectAsync(args.DeliveryTag, requeue: false);
                 return;
             }
 
@@ -164,9 +158,7 @@ namespace NotificationService.Worker.BackgroundServices
                     templateName: $"{message.TemplateId}-{message.Language}",
                     message.Parameters);
 
-                await Channel!.BasicAckAsync(
-                    deliveryTag: args.DeliveryTag,
-                    multiple: false);
+                await Channel!.BasicAckAsync(args.DeliveryTag, multiple: false);
             }
             catch (Exception exception)
             {
@@ -189,24 +181,20 @@ namespace NotificationService.Worker.BackgroundServices
                     properties.Expiration = ((int)_retryDelayTime.TotalMilliseconds).ToString();
 
                     await Channel!.BasicPublishAsync(
-                        exchange: EmailConfiguration.RetryExchangeName,
-                        routingKey: EmailConfiguration.RetryRoutingKey,
+                        EmailConfiguration.RetryExchangeName,
+                        EmailConfiguration.RetryRoutingKey,
                         mandatory: true,
-                        basicProperties: properties,
-                        body: args.Body);
+                        properties,
+                        args.Body);
 
-                    await Channel.BasicAckAsync(
-                        deliveryTag: args.DeliveryTag,
-                        multiple: false);
+                    await Channel.BasicAckAsync(args.DeliveryTag, multiple: false);
                 }
                 else
                 {
                     if ((int)retryCount! >= _maxRetry)
                     {
                         // The message has been requeued many times. Thefore, the message should go to the DLQ.
-                        await Channel!.BasicRejectAsync(
-                            deliveryTag: args.DeliveryTag,
-                            requeue: false);
+                        await Channel!.BasicRejectAsync(args.DeliveryTag, requeue: false);
                     }
                     else
                     {
@@ -217,15 +205,13 @@ namespace NotificationService.Worker.BackgroundServices
                         properties.Expiration = ((int)_retryDelayTime.TotalMilliseconds * (int)retryCount).ToString();
 
                         await Channel!.BasicPublishAsync(
-                            exchange: EmailConfiguration.RetryExchangeName,
-                            routingKey: EmailConfiguration.RetryRoutingKey,
+                            EmailConfiguration.RetryExchangeName,
+                            EmailConfiguration.RetryRoutingKey,
                             mandatory: true,
-                            basicProperties: properties,
-                            body: args.Body);
+                            properties,
+                            args.Body);
 
-                        await Channel.BasicAckAsync(
-                            deliveryTag: args.DeliveryTag,
-                            multiple: false);
+                        await Channel.BasicAckAsync(args.DeliveryTag, multiple: false);
                     }
                 }
             }

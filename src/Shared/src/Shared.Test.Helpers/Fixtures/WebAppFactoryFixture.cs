@@ -15,7 +15,7 @@ namespace Shared.Test.Helpers.Fixtures
     /// <summary>
     /// Is a web application factory to centralize common functionalities for test cases.
     /// </summary>
-    /// <typeparam name="TEntryPoint">Entry point of the web application, usually the main Program.cs</typeparam>
+    /// <typeparam name="TEntryPoint">Entry point of the web application</typeparam>
     public abstract class WebAppFactoryFixture<TEntryPoint> : WebApplicationFactory<TEntryPoint>
         where TEntryPoint : class
     {

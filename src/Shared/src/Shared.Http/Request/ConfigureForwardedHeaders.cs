@@ -6,6 +6,10 @@ namespace Shared.Http.Request
 {
     public static partial class RequestHelper
     {
+        /// <summary>
+        /// Configures which IP addresses are trusted for reading forwarded headers.
+        /// </summary>
+        /// <param name="cidrBlocks">IP range of the trusted IPs</param>
         public static void ConfigureForwardedHeaders(this IServiceCollection services, params string[] cidrBlocks)
         {
             services.Configure<ForwardedHeadersOptions>(options =>
