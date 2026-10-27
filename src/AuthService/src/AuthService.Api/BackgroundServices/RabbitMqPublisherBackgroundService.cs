@@ -44,7 +44,7 @@ namespace AuthService.Api.BackgroundServices
                 (Publisher)emailService
             },
             retryPublishTime: TimeSpan.FromSeconds(5),
-            graceTime: TimeSpan.FromSeconds(5),
+            graceTime: TimeSpan.FromSeconds(10),
             logger)
         {
             _encryptionOptions = encryptionOptions.Value;
