@@ -12,13 +12,15 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
     /// </summary>
     public abstract class ConsumerBackgroundService : BackgroundService
     {
-        private readonly ConnectionFactory _connectionFactory;
+        private readonly RabbitMqConnectionOptions _connectionOptions;
+        private readonly string? _caBundleValue;
         private readonly TimeSpan _healthCheckTime;
         private readonly TimeSpan _graceTime;
         private readonly string _queueName;
         private readonly ushort _prefetchCount;
         private readonly ILogger _logger;
 
+        private ConnectionFactory? _connectionFactory;
         private IConnection? _connection;
         public IChannel? Channel { get; private set; }
         private string? _consumerTag;
@@ -32,7 +34,8 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
             ushort prefetchCount,
             ILogger logger)
         {
-            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions, caBundleValue);
+            _connectionOptions = connectionOptions;
+            _caBundleValue = caBundleValue;
             _healthCheckTime = healthCheckTime;
             _graceTime = graceTime;
             _queueName = queueName;
@@ -44,6 +47,10 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
         {
             try
             {
+                _connectionFactory = await Utility.InitializeConnectionFactoryAsync(
+                    _connectionOptions,
+                    _caBundleValue,
+                    cancellationToken);
                 await InitializeConnectionAsync(cancellationToken);
 
                 await base.StartAsync(cancellationToken);
@@ -69,7 +76,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                 await _connection.DisposeAsync();
             }
 
-            _connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+            _connection = await _connectionFactory!.CreateConnectionAsync(cancellationToken);
             
             await InitializeChannelAsync(cancellationToken);
         }

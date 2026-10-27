@@ -8,6 +8,7 @@ using Shared.RabbitMq.Helpers;
 using Shared.RabbitMq.Helpers.BackgroundServices;
 using Shared.RabbitMq.Helpers.Options.Extensions;
 using Shared.RabbitMq.Helpers.Structures;
+using Shared.RabbitMq.Helpers.Utilities;
 using Shared.Test.Generators;
 using Shared.Test.Helpers.Fixtures;
 using Shared.Test.Integration.RabbitMq.Helpers.Collections;
@@ -305,12 +306,14 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             AsyncEventHandler<BasicReturnEventArgs>? returnEvent = null)
         {
             // Backgroung service
-            var connFactoryfieldInfo = typeof(PublisherBackgroundService)
+            await backgroundService.InitializeConnectionFactoryAsync();
+
+            var connFactoryfieldInfo = typeof(PublishersBackgroundService)
                 .GetField("_connectionFactory", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var connFactory = (ConnectionFactory)connFactoryfieldInfo.GetValue(backgroundService)!;
             var connection = await connFactory.CreateConnectionAsync();
 
-            var connectionFieldInfo = typeof(PublisherBackgroundService)
+            var connectionFieldInfo = typeof(PublishersBackgroundService)
                 .GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
             connectionFieldInfo.SetValue(backgroundService, connection);
 
@@ -349,7 +352,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private IConnection GetConnection(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(PublisherBackgroundService)
+            var fieldInfo = typeof(PublishersBackgroundService)
                 .GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (IConnection)fieldInfo.GetValue(backgroundService)!;
         }
@@ -373,7 +376,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private Task ExecuteAsync(TestBackgroundService backgroundService, CancellationToken cancellationToken)
         {
-            var methodInfo = typeof(PublisherBackgroundService)
+            var methodInfo = typeof(PublishersBackgroundService)
                 .GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (Task)methodInfo.Invoke(backgroundService, [cancellationToken])!;
         }
@@ -401,13 +404,16 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private Dictionary<int, Message> GetDroppedMessages(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(PublisherBackgroundService)
+            var fieldInfo = typeof(PublishersBackgroundService)
                 .GetField("_droppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (Dictionary<int, Message>)fieldInfo.GetValue(backgroundService)!;
         }
 
-        private class TestBackgroundService : PublisherBackgroundService
+        private class TestBackgroundService : PublishersBackgroundService
         {
+            private readonly RabbitMqConnectionOptions _connectionOptions;
+            private readonly string _caBundleValue;
+
             public List<Message> DroppedMessages { get; private set; }
             public bool IsShuttingDown { get; private set; }
 
@@ -420,7 +426,18 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 ILogger logger)
                 : base(connectionOptions, caBundleValue, publishers, publishRetryTime, graceTime, logger)
             {
+                _connectionOptions = connectionOptions;
+                _caBundleValue = caBundleValue;
+
                 DroppedMessages = new List<Message>();
+            }
+
+            public async Task InitializeConnectionFactoryAsync()
+            {
+                var connectionFactory = await Utility.InitializeConnectionFactoryAsync(_connectionOptions, _caBundleValue, default);
+                typeof(PublishersBackgroundService)
+                    .GetField("_connectionFactory", BindingFlags.NonPublic | BindingFlags.Instance)!
+                    .SetValue(this, connectionFactory);
             }
 
             protected override async Task<bool> SaveDroppedMessagesAsync(

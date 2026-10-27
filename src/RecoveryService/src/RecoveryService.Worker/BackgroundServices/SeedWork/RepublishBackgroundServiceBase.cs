@@ -6,10 +6,12 @@ namespace RecoveryService.Worker.BackgroundServices.SeedWork
 {
     public abstract class RepublishBackgroundServiceBase : BackgroundService
     {
+        private readonly RabbitMqConnectionOptions _connectionOptions;
+        private readonly string? _caBundleValue;
         private readonly TimeSpan _sleepTime;
         private readonly ILogger _logger;
 
-        private readonly ConnectionFactory _connectionFactory;
+        private ConnectionFactory? _connectionFactory;
         private IConnection? _connection;
         protected IChannel? Channel { get; private set; }
 
@@ -19,17 +21,22 @@ namespace RecoveryService.Worker.BackgroundServices.SeedWork
             TimeSpan sleepTime,
             ILogger logger)
         {
+            _connectionOptions = connectionOptions;
+            _caBundleValue = caBundleValue;
             _sleepTime = sleepTime;
             _logger = logger;
-            
-            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions, caBundleValue);
-            _connectionFactory.AutomaticRecoveryEnabled = true;
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
+                _connectionFactory = await Utility.InitializeConnectionFactoryAsync(
+                    _connectionOptions,
+                    _caBundleValue,
+                    cancellationToken);
+                _connectionFactory.AutomaticRecoveryEnabled = true;
+
                 _connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
                 Channel = await _connection.CreateChannelAsync(new CreateChannelOptions(
                     publisherConfirmationsEnabled: true,
