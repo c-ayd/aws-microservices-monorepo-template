@@ -22,6 +22,13 @@ namespace Shared.Logging.DependencyInjection
                     SkipValidation = isProduction,
                 };
             });
+
+            logging.AddFilter("Default", LogLevel.Information);
+            logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+            if (isProduction)
+            {
+                logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
+            }
         }
     }
 }
