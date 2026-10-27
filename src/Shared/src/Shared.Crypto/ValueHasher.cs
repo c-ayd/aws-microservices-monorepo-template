@@ -10,8 +10,6 @@ namespace Shared.Crypto
     /// </summary>
     public static class ValueHasher
     {
-        private const int _maxStackSize = 1024;
-
         /// <summary>
         /// Hashes a given value.
         /// </summary>
@@ -32,18 +30,14 @@ namespace Shared.Crypto
             // Hashed value bytes are: {Version}{Salt}{Hash}
             // Version bytes are 8 bits (1 byte)
             var bytesSize = 1 + hashOptions.SaltSize + hashSize;
-            Span<byte> bytes = bytesSize <= _maxStackSize ?
-                stackalloc byte[bytesSize] :
-                new byte[bytesSize];
+            Span<byte> bytes = new byte[bytesSize];
             
             var saltBytes = bytes.Slice(1, hashOptions.SaltSize);
             var hashBytes = bytes.Slice(1 + hashOptions.SaltSize, hashSize);
 
             var valueBytesSize = Encoding.UTF8.GetByteCount(value);
             var combinedSize = hashOptions.SaltSize + valueBytesSize;
-            Span<byte> combined = combinedSize <= _maxStackSize ?
-                stackalloc byte[combinedSize] :
-                new byte[combinedSize];
+            Span<byte> combined = new byte[combinedSize];
 
             // Fill the bytes
             bytes[0] = version;
@@ -94,17 +88,13 @@ namespace Shared.Crypto
             var valueBytesSize = Encoding.UTF8.GetByteCount(valuePlain);
             var combinedSize = hashOptions.SaltSize + valueBytesSize;
 
-            Span<byte> combined = combinedSize <= _maxStackSize ?
-                stackalloc byte[combinedSize] :
-                new byte[combinedSize];
+            Span<byte> combined = new byte[combinedSize];
             
             // Fill the bytes
             saltBytes.CopyTo(combined);
             Encoding.UTF8.GetBytes(valuePlain, combined.Slice(hashOptions.SaltSize));
             
-            Span<byte> computedHash = hashSize <= _maxStackSize ?
-                stackalloc byte[hashSize] :
-                new byte[hashSize];
+            Span<byte> computedHash = new byte[hashSize];
             
             hashAlgorithm.TryComputeHash(combined, computedHash, out _);
 

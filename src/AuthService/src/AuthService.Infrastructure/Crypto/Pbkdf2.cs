@@ -6,8 +6,6 @@ namespace AuthService.Infrastructure.Crypto
 {
     public class Pbkdf2 : IPasswordHasher
     {
-        private const int _maxAllowedBytes = 1024;
-
         public string Hash(string password)
         {
             if (string.IsNullOrEmpty(password))
@@ -17,7 +15,7 @@ namespace AuthService.Infrastructure.Crypto
 
             // Hashed password bytes are: {Version}{Salt}{Key}
             // Version bytes are 8 bits (1 byte)
-            Span<byte> bytes = stackalloc byte[1 + hashVersion.SaltSize + hashVersion.KeySize];
+            Span<byte> bytes = new byte[1 + hashVersion.SaltSize + hashVersion.KeySize];
             var saltBytes = bytes.Slice(1, hashVersion.SaltSize);
             var keyBytes = bytes.Slice(1 + hashVersion.SaltSize, hashVersion.KeySize);
             
@@ -53,7 +51,7 @@ namespace AuthService.Infrastructure.Crypto
             // to compare the new key bytes with the key bytes of the hashed password
             var saltBytes = bytes.Slice(1, hashVersion.SaltSize);
             var expectedKeyBytes = bytes.Slice(1 + hashVersion.SaltSize, hashVersion.KeySize);
-            Span<byte> keyBytes = stackalloc byte[hashVersion.KeySize];
+            Span<byte> keyBytes = new byte[hashVersion.KeySize];
             Rfc2898DeriveBytes.Pbkdf2(passwordPlain, saltBytes, keyBytes, hashVersion.Iterations, hashVersion.Algorithm);
 
             // To prevent timing attack, the comparison is made over CryptographicOperations
