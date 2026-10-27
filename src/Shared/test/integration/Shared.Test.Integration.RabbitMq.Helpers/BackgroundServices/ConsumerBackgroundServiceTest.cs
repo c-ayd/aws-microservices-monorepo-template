@@ -5,6 +5,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.RabbitMq.Helpers.BackgroundServices;
 using Shared.RabbitMq.Helpers.Options.Extensions;
+using Shared.RabbitMq.Helpers.Utilities;
 using Shared.Test.Generators;
 using Shared.Test.Helpers.Fixtures;
 using Shared.Test.Integration.RabbitMq.Helpers.Collections;
@@ -175,6 +176,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private async Task InitializeBackgroundServiceAsync(TestBackgroundService backgroundService)
         {
+            await backgroundService.InitializeConnectionFactoryAsync();
             var initializeConnectionMethodInfo = typeof(ConsumerBackgroundService)
                 .GetMethod("InitializeConnectionAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             await (Task)initializeConnectionMethodInfo.Invoke(backgroundService, [default])!;
@@ -213,6 +215,9 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private class TestBackgroundService : ConsumerBackgroundService
         {
+            private readonly RabbitMqConnectionOptions _connectionOptions;
+            private readonly string _caBundleValue;
+
             public TaskCompletionSource<bool> ReceivedTcs { get; private set; }
             public string? Message { get; private set; }
 
@@ -226,7 +231,18 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
                 ILogger logger)
                 : base(connectionOptions, caBundleValue, healthCheckTime, graceTime, queueName, prefetchCount, logger)
             {
+                _connectionOptions = connectionOptions;
+                _caBundleValue = caBundleValue;
+
                 ReceivedTcs = new TaskCompletionSource<bool>();
+            }
+
+            public async Task InitializeConnectionFactoryAsync()
+            {
+                var connectionFactory = await Utility.InitializeConnectionFactoryAsync(_connectionOptions, _caBundleValue, default);
+                typeof(ConsumerBackgroundService)
+                    .GetField("_connectionFactory", BindingFlags.NonPublic | BindingFlags.Instance)!
+                    .SetValue(this, connectionFactory);
             }
 
             protected override async Task DeclareExchangesAsync(CancellationToken cancellationToken)
