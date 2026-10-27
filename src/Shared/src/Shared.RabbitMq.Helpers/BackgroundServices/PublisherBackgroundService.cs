@@ -12,12 +12,14 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
     /// </summary>
     public abstract class PublisherBackgroundService : BackgroundService
     {
-        private readonly ConnectionFactory _connectionFactory;
+        private readonly RabbitMqConnectionOptions _connectionOptions;
+        private readonly string? _caBundleValue;
         private readonly List<Publisher> _publishers;
         private readonly TimeSpan _retryPublishTime;
         private readonly TimeSpan _graceTime;
         private readonly ILogger _logger;
 
+        private ConnectionFactory? _connectionFactory;
         private IConnection? _connection;
         private Dictionary<int, Message> _droppedMessages;
 
@@ -29,7 +31,8 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
             TimeSpan graceTime,
             ILogger logger)
         {
-            _connectionFactory = Utility.SetupConnectionFactory(connectionOptions, caBundleValue);
+            _connectionOptions = connectionOptions;
+            _caBundleValue = caBundleValue;
             _publishers = publishers;
             _retryPublishTime = retryPublishTime;
             _graceTime = graceTime;
@@ -42,6 +45,10 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
         {
             try
             {
+                _connectionFactory = await Utility.InitializeConnectionFactoryAsync(
+                    _connectionOptions,
+                    _caBundleValue,
+                    cancellationToken);
                 await InitializeAsync(cancellationToken);
 
                 await base.StartAsync(cancellationToken);
@@ -67,7 +74,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
                 await _connection.DisposeAsync();
             }
 
-            _connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+            _connection = await _connectionFactory!.CreateConnectionAsync(cancellationToken);
 
             foreach (var publisher in _publishers)
             {
