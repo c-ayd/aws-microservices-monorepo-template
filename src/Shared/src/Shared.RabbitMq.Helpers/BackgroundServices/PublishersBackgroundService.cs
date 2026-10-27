@@ -10,7 +10,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
     /// <summary>
     /// Handles all RabbitMQ connection, channels and publishers in the application.
     /// </summary>
-    public abstract class PublisherBackgroundService : BackgroundService
+    public abstract class PublishersBackgroundService : BackgroundService
     {
         private readonly RabbitMqConnectionOptions _connectionOptions;
         private readonly string? _caBundleValue;
@@ -23,7 +23,7 @@ namespace Shared.RabbitMq.Helpers.BackgroundServices
         private IConnection? _connection;
         private Dictionary<int, Message> _droppedMessages;
 
-        public PublisherBackgroundService(
+        public PublishersBackgroundService(
             RabbitMqConnectionOptions connectionOptions,
             string? caBundleValue,
             List<Publisher> publishers,

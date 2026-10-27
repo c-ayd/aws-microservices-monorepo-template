@@ -15,7 +15,7 @@ using Shared.RabbitMq.Helpers.Structures;
 
 namespace AuthService.Api.BackgroundServices
 {
-    public class RabbitMqPublisherBackgroundService : PublisherBackgroundService
+    public class RabbitMqPublishersBackgroundService : PublishersBackgroundService
     {
         private const int _minNumberOfDroppedMessagesForFallback = 1000;
 
@@ -24,9 +24,9 @@ namespace AuthService.Api.BackgroundServices
         private readonly IAwsKms _awsKms;
         private readonly IAwsS3Bucket _awsS3Bucket;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<RabbitMqPublisherBackgroundService> _logger;
+        private readonly ILogger<RabbitMqPublishersBackgroundService> _logger;
 
-        public RabbitMqPublisherBackgroundService(
+        public RabbitMqPublishersBackgroundService(
             IOptions<ConnectionsOptions> connectionsOptions,
             IOptions<CABundleOptions> caBundleOptions,
             IOptions<EncrpytionOptions> encryptionOptions,
@@ -35,7 +35,7 @@ namespace AuthService.Api.BackgroundServices
             IAwsS3Bucket awsS3Bucket,
             IServiceScopeFactory scopeFactory,
             IEmailService emailService,
-            ILogger<RabbitMqPublisherBackgroundService> logger)
+            ILogger<RabbitMqPublishersBackgroundService> logger)
             : base(
             connectionsOptions.Value.RabbitMq,
             caBundleOptions.Value.Value,

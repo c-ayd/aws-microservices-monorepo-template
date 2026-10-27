@@ -308,12 +308,12 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             // Backgroung service
             await backgroundService.InitializeConnectionFactoryAsync();
 
-            var connFactoryfieldInfo = typeof(PublisherBackgroundService)
+            var connFactoryfieldInfo = typeof(PublishersBackgroundService)
                 .GetField("_connectionFactory", BindingFlags.NonPublic | BindingFlags.Instance)!;
             var connFactory = (ConnectionFactory)connFactoryfieldInfo.GetValue(backgroundService)!;
             var connection = await connFactory.CreateConnectionAsync();
 
-            var connectionFieldInfo = typeof(PublisherBackgroundService)
+            var connectionFieldInfo = typeof(PublishersBackgroundService)
                 .GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
             connectionFieldInfo.SetValue(backgroundService, connection);
 
@@ -352,7 +352,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private IConnection GetConnection(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(PublisherBackgroundService)
+            var fieldInfo = typeof(PublishersBackgroundService)
                 .GetField("_connection", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (IConnection)fieldInfo.GetValue(backgroundService)!;
         }
@@ -376,7 +376,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private Task ExecuteAsync(TestBackgroundService backgroundService, CancellationToken cancellationToken)
         {
-            var methodInfo = typeof(PublisherBackgroundService)
+            var methodInfo = typeof(PublishersBackgroundService)
                 .GetMethod("ExecuteAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (Task)methodInfo.Invoke(backgroundService, [cancellationToken])!;
         }
@@ -404,12 +404,12 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
 
         private Dictionary<int, Message> GetDroppedMessages(TestBackgroundService backgroundService)
         {
-            var fieldInfo = typeof(PublisherBackgroundService)
+            var fieldInfo = typeof(PublishersBackgroundService)
                 .GetField("_droppedMessages", BindingFlags.NonPublic | BindingFlags.Instance)!;
             return (Dictionary<int, Message>)fieldInfo.GetValue(backgroundService)!;
         }
 
-        private class TestBackgroundService : PublisherBackgroundService
+        private class TestBackgroundService : PublishersBackgroundService
         {
             private readonly RabbitMqConnectionOptions _connectionOptions;
             private readonly string _caBundleValue;
@@ -435,7 +435,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             public async Task InitializeConnectionFactoryAsync()
             {
                 var connectionFactory = await Utility.InitializeConnectionFactoryAsync(_connectionOptions, _caBundleValue, default);
-                typeof(PublisherBackgroundService)
+                typeof(PublishersBackgroundService)
                     .GetField("_connectionFactory", BindingFlags.NonPublic | BindingFlags.Instance)!
                     .SetValue(this, connectionFactory);
             }

@@ -14,13 +14,13 @@ using Shared.Test.Generators;
 namespace AuthService.Test.Integration.Api.BackgroundServices
 {
     [Collection(nameof(AuthApiCollection))]
-    public class RabbitMqPublisherBackgroundServiceTest
+    public class RabbitMqPublishersBackgroundServiceTest
     {
         private const string _folderNameForDroppedMessages = "auth-svc";
 
         private readonly AuthApiCollectionCluster _collectionCluster;
 
-        public RabbitMqPublisherBackgroundServiceTest(AuthApiCollectionCluster collectionCluster)
+        public RabbitMqPublishersBackgroundServiceTest(AuthApiCollectionCluster collectionCluster)
         {
             _collectionCluster = collectionCluster;
         }
@@ -31,9 +31,9 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         public async Task SaveDroppedMessagesAsync_WhenThereAreMessagesAndNoExceptionIsThrown_ShouldSaveMessageInDb(bool isShuttingDown)
         {
             // Arrange
-            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService)
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublishersBackgroundService)
                 .GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
+            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublishersBackgroundService>();
 
             var droppedMessages = new List<Message>();
             for (int i = 0; i < 2; ++i)
@@ -80,9 +80,9 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         public async Task SaveDroppedMessagesAsync_WhenAppIsNotShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldDoNothing()
         {
             // Arrange
-            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService)
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublishersBackgroundService)
                 .GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
+            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublishersBackgroundService>();
 
             var droppedMessages = new List<Message>();
             for (int i = 0; i < 2; ++i)
@@ -134,12 +134,12 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         public async Task SaveDroppedMessagesAsync_WhenAppIsNotShuttinDownAndMessagesExceedMinBatchSizeAndExceptionIsThrown_ShouldSaveMessagesToStorage()
         {
             // Arrange
-            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService)
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublishersBackgroundService)
                 .GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
+            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublishersBackgroundService>();
 
             var droppedMessages = new List<Message>();
-            var minBatchSize = (int)typeof(RabbitMqPublisherBackgroundService)
+            var minBatchSize = (int)typeof(RabbitMqPublishersBackgroundService)
                 .GetField("_minNumberOfDroppedMessagesForFallback", BindingFlags.NonPublic | BindingFlags.Static)!
                 .GetValue(null)!;
             for (int i = 0; i < minBatchSize; ++i)
@@ -201,9 +201,9 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
         public async Task SaveDroppedMessagesAsync_WhenAppIsShuttinDownAndThereAreMessagesAndExceptionIsThrown_ShouldSaveMessagesToStorage()
         {
             // Arrange
-            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublisherBackgroundService)
+            var saveDroppedMessagesMethodInfo = typeof(RabbitMqPublishersBackgroundService)
                 .GetMethod("SaveDroppedMessagesAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublisherBackgroundService>();
+            var backgroundService = _collectionCluster.AuthApiWebApp.GetBackgroundService<RabbitMqPublishersBackgroundService>();
 
             var droppedMessages = new List<Message>();
             for (int i = 0; i < 2; ++i)
