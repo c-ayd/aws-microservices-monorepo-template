@@ -93,7 +93,14 @@ namespace Shared.RabbitMq.Helpers
             byte[] body,
             CancellationToken cancellationToken = default)
         {
-            var message = new Message(ServiceName, PublisherName, exchangeName, routingKey, properties, body);
+            var message = new Message(
+                ServiceName,
+                PublisherName,
+                exchangeName,
+                routingKey,
+                properties,
+                isReturned: false,
+                body);
 
             // To standardize the type of the header values for consumers, the header values are converted to
             // JSON strings. By doing this, when dropped messages are saved somewhere and are sent again later,
@@ -135,11 +142,11 @@ namespace Shared.RabbitMq.Helpers
                 PendingMessages.TryAdd(deliveryTag.Value, message);
 
                 await Channel.BasicPublishAsync(
-                    exchange: message.ExchangeName,
-                    routingKey: message.RoutingKey,
+                    message.ExchangeName,
+                    message.RoutingKey,
                     mandatory: true,
-                    basicProperties: message.Properties,
-                    body: message.Body);
+                    message.Properties,
+                    message.Body);
             }
             catch (Exception)
             {
@@ -195,8 +202,14 @@ namespace Shared.RabbitMq.Helpers
 
         private async Task HandleReturnedMessagesAsync(object obj, BasicReturnEventArgs args)
         {
-            var properties = new BasicProperties(args.BasicProperties);
-            var message = new Message(ServiceName, PublisherName, args.Exchange, args.RoutingKey, properties, args.Body.ToArray());
+            var message = new Message(
+                ServiceName,
+                PublisherName,
+                args.Exchange,
+                args.RoutingKey,
+                new BasicProperties(args.BasicProperties),
+                isReturned: true,
+                args.Body.ToArray());
 
             DroppedMessages.TryAdd(message.GetHashCode(), message);
         }

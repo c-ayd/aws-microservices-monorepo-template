@@ -6,6 +6,7 @@ using Shared.Aws.Helpers.Abstractions;
 using Shared.Crypto;
 using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
 using Shared.RabbitMq.Helpers.EntityFramework.Entities;
+using Shared.RabbitMq.Helpers.Structures;
 using Shared.Test.Generators;
 
 namespace RecoveryService.Test.Integration.Worker.BackgroundServices
@@ -69,18 +70,22 @@ namespace RecoveryService.Test.Integration.Worker.BackgroundServices
             var wrappedDataKey = new WrappedDataKey(dataKey.Encrypted);
             for (int i = 0; i < numberOfMessages; ++i)
             {
+                var body = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
                 wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
-                    WorkerCollectionCluster.TestServiceName,
-                    WorkerCollectionCluster.TestPublisherName,
-                    WorkerCollectionCluster.TestExchangeName,
-                    WorkerCollectionCluster.TestRoutingKey,
-                    properties: new BasicProperties()
-                    {
-                        DeliveryMode = DeliveryModes.Persistent,
-                        CorrelationId = Guid.NewGuid().ToString()
-                    },
-                    bodyEncrypted: AesGcmEncryption.Encrypt(Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric()), dataKey.Plaintext, deleteKey: false)));
+                    new Message(
+                        WorkerCollectionCluster.TestServiceName,
+                        WorkerCollectionCluster.TestPublisherName,
+                        WorkerCollectionCluster.TestExchangeName,
+                        WorkerCollectionCluster.TestRoutingKey,
+                        new BasicProperties()
+                        {
+                            DeliveryMode = DeliveryModes.Persistent,
+                            CorrelationId = Guid.NewGuid().ToString()
+                        },
+                        isReturned: false,
+                        body),
+                    bodyEncrypted: AesGcmEncryption.Encrypt(body, dataKey.Plaintext, deleteKey: false)));
             }
 
             await using var droppedMessagesDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<DroppedMessagesDbContext>();

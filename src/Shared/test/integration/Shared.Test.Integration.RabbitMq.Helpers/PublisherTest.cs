@@ -86,8 +86,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.Empty(pendingMessages);
             Assert.Single(droppedMessages);
 
-            var headers = droppedMessages.Values.First().Properties.Headers;
-            CheckHeaders(headers, isReturned: true);
+            CheckHeaders(droppedMessages.Values.First());
         }
 
         [Fact]
@@ -124,8 +123,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.Empty(pendingMessages);
             Assert.Single(droppedMessages);
 
-            var headers = droppedMessages.Values.First().Properties.Headers;
-            CheckHeaders(headers, isReturned: false);
+            CheckHeaders(droppedMessages.Values.First());
         }
 
         [Fact]
@@ -172,7 +170,15 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.NotNull(messageFromRabbitMq);
             Assert.Equal(message, Encoding.UTF8.GetString(messageFromRabbitMq.Body.ToArray()));
             Assert.Equal(properties.CorrelationId, messageFromRabbitMq.BasicProperties.CorrelationId);
-            CheckHeaders(messageFromRabbitMq.BasicProperties.Headers, isReturned: true);
+
+            CheckHeaders(new Message(
+                nameof(TestPublisher),
+                nameof(TestPublisher),
+                _normalExchange,
+                _normalRouting,
+                new BasicProperties(messageFromRabbitMq.BasicProperties),
+                isReturned: true,
+                messageFromRabbitMq.Body.ToArray()));
         }
 
         [Fact]
@@ -205,8 +211,7 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             Assert.Empty(pendingMessages);
             Assert.Single(droppedMessages);
 
-            var headers = droppedMessages.Values.First().Properties.Headers;
-            CheckHeaders(headers, isReturned: false);
+            CheckHeaders(droppedMessages.Values.First());
         }
 
         private async Task InitializePublisherAsync(TestPublisher publisher,
@@ -237,44 +242,20 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             return (ConcurrentDictionary<int, Message>)propertyInfo.GetValue(publisher)!;
         }
 
-        private void CheckHeaders(IDictionary<string, object?>? headers, bool isReturned)
+        private void CheckHeaders(Message message)
         {
+            var headers = message.GetHeadersAsJsonString();
             Assert.NotNull(headers);
 
-            int key1Value;
-            string key2Value;
-            bool key3Value;
-            double key4Value;
-            int[] key5Value;
-            byte[] key6Value;
-            TestClass key7Value;
-            Dictionary<int, string> key8Value;
-            string key9Value;
-
-            if (isReturned)
-            {
-                key1Value = JsonSerializer.Deserialize<int>((byte[])headers["Key1"]!);
-                key2Value = JsonSerializer.Deserialize<string>((byte[])headers["Key2"]!)!;
-                key3Value = JsonSerializer.Deserialize<bool>((byte[])headers["Key3"]!);
-                key4Value = JsonSerializer.Deserialize<double>((byte[])headers["Key4"]!);
-                key5Value = JsonSerializer.Deserialize<int[]>((byte[])headers["Key5"]!)!;
-                key6Value = JsonSerializer.Deserialize<byte[]>((byte[])headers["Key6"]!)!;
-                key7Value = JsonSerializer.Deserialize<TestClass>((byte[])headers["Key7"]!)!;
-                key8Value = JsonSerializer.Deserialize<Dictionary<int, string>>((byte[])headers["Key8"]!)!;
-                key9Value = JsonSerializer.Deserialize<string>((byte[])headers["Key9"]!)!;
-            }
-            else
-            {
-                key1Value = JsonSerializer.Deserialize<int>((string)headers["Key1"]!);
-                key2Value = JsonSerializer.Deserialize<string>((string)headers["Key2"]!)!;
-                key3Value = JsonSerializer.Deserialize<bool>((string)headers["Key3"]!);
-                key4Value = JsonSerializer.Deserialize<double>((string)headers["Key4"]!);
-                key5Value = JsonSerializer.Deserialize<int[]>((string)headers["Key5"]!)!;
-                key6Value = JsonSerializer.Deserialize<byte[]>((string)headers["Key6"]!)!;
-                key7Value = JsonSerializer.Deserialize<TestClass>((string)headers["Key7"]!)!;
-                key8Value = JsonSerializer.Deserialize<Dictionary<int, string>>((string)headers["Key8"]!)!;
-                key9Value = JsonSerializer.Deserialize<string>((string)headers["Key9"]!)!;
-            }
+            int key1Value = JsonSerializer.Deserialize<int>((string)headers["Key1"]!);
+            string key2Value = JsonSerializer.Deserialize<string>((string)headers["Key2"]!)!;
+            bool key3Value = JsonSerializer.Deserialize<bool>((string)headers["Key3"]!);
+            double key4Value = JsonSerializer.Deserialize<double>((string)headers["Key4"]!);
+            int[] key5Value = JsonSerializer.Deserialize<int[]>((string)headers["Key5"]!)!;
+            byte[] key6Value = JsonSerializer.Deserialize<byte[]>((string)headers["Key6"]!)!;
+            TestClass key7Value = JsonSerializer.Deserialize<TestClass>((string)headers["Key7"]!)!;
+            Dictionary<int, string> key8Value = JsonSerializer.Deserialize<Dictionary<int, string>>((string)headers["Key8"]!)!;
+            string key9Value = JsonSerializer.Deserialize<string>((string)headers["Key9"]!)!;
 
             Assert.Equal((int)_testHeaders["Key1"]!, key1Value);
             Assert.Equal((string)_testHeaders["Key2"]!, key2Value);
@@ -302,36 +283,36 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
             protected override async Task DeclareExchangesAsync(CancellationToken cancellationToken = default)
             {
                 await Channel!.ExchangeDeclareAsync(
-                    exchange: _normalExchange,
-                    type: ExchangeType.Direct,
+                    _normalExchange,
+                    ExchangeType.Direct,
                     durable: true,
                     autoDelete: false);
 
                 await Channel.ExchangeDeclareAsync(
-                    exchange: _rejectExchange,
-                    type: ExchangeType.Direct,
+                    _rejectExchange,
+                    ExchangeType.Direct,
                     durable: true,
                     autoDelete: false);
                 
                 await Channel.ExchangeDeclareAsync(
-                    exchange: _noQueueExchange,
-                    type: ExchangeType.Direct,
+                    _noQueueExchange,
+                    ExchangeType.Direct,
                     durable: true,
                     autoDelete: false);
 
                 // Declare queues for test
                 await Channel.QueueDeclareAsync(
-                    queue: _normalQueue,
+                    _normalQueue,
                     durable: true,
                     exclusive: false,
                     autoDelete: false);
                 await Channel.QueueBindAsync(
-                    queue: _normalQueue,
-                    exchange: _normalExchange,
-                    routingKey: _normalRouting);
+                    _normalQueue,
+                    _normalExchange,
+                    _normalRouting);
 
                 await Channel.QueueDeclareAsync(
-                    queue: _rejectQueue,
+                    _rejectQueue,
                     durable: true,
                     exclusive: false,
                     autoDelete: false,
@@ -341,9 +322,9 @@ namespace Shared.Test.Integration.RabbitMq.Helpers
                         { "x-overflow", "reject-publish" }
                     });
                 await Channel.QueueBindAsync(
-                    queue: _rejectQueue,
-                    exchange: _rejectExchange,
-                    routingKey: _rejectRouting);
+                    _rejectQueue,
+                    _rejectExchange,
+                    _rejectRouting);
             }
         }
 
