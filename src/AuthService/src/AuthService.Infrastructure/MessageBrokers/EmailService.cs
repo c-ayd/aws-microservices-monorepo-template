@@ -21,8 +21,8 @@ namespace AuthService.Infrastructure.MessageBrokers
         protected override async Task DeclareExchangesAsync(CancellationToken cancellationToken)
         {
             await Channel!.ExchangeDeclareAsync(
-                exchange: EmailConfiguration.ExchangeName,
-                type: EmailConfiguration.ExchangeType,
+                EmailConfiguration.ExchangeName,
+                EmailConfiguration.ExchangeType,
                 durable: true,
                 autoDelete: false,
                 cancellationToken: cancellationToken);
@@ -31,9 +31,9 @@ namespace AuthService.Infrastructure.MessageBrokers
         public async Task SendAsync(EmailMessage message, string? userId = null, CancellationToken cancellationToken = default)
         {
             await PublishMessageAsync(
-                exchangeName: EmailConfiguration.ExchangeName,
-                routingKey: EmailConfiguration.RoutingKey,
-                properties: new BasicProperties()
+                EmailConfiguration.ExchangeName,
+                EmailConfiguration.RoutingKey,
+                new BasicProperties()
                 {
                     DeliveryMode = DeliveryModes.Persistent,
                     CorrelationId = Activity.Current!.TraceId.ToString(),

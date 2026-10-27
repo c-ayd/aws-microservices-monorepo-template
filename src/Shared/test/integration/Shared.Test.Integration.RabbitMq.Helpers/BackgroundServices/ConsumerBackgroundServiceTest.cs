@@ -232,8 +232,8 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             protected override async Task DeclareExchangesAsync(CancellationToken cancellationToken)
             {
                 await Channel!.ExchangeDeclareAsync(
-                    exchange: _exchangeName,
-                    type: ExchangeType.Direct,
+                    _exchangeName,
+                    ExchangeType.Direct,
                     durable: true,
                     autoDelete: false);
             }
@@ -241,14 +241,14 @@ namespace Shared.Test.Integration.RabbitMq.Helpers.BackgroundServices
             protected override async Task DeclareQueuesAsync(CancellationToken cancellationToken)
             {
                 await Channel!.QueueDeclareAsync(
-                    queue: _queueName,
+                    _queueName,
                     durable: true,
                     exclusive: false,
                     autoDelete: false);
                 await Channel.QueueBindAsync(
-                    queue: _queueName,
-                    exchange: _exchangeName,
-                    routingKey: _routingKey);
+                    _queueName,
+                    _exchangeName,
+                    _routingKey);
             }
 
             protected override async Task ReceivedAsync(object obj, BasicDeliverEventArgs args)
