@@ -5,7 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <UserSecretsId>dd7d8e3e-031e-4c25-8dc2-591dc30630f9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
