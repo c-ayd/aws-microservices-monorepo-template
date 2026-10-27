@@ -4,6 +4,7 @@ using NotificationService.Worker.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Shared.Aws.Helpers.Abstractions;
+using Shared.Constants;
 using Shared.RabbitMq.Helpers.BackgroundServices;
 using Shared.RabbitMq.Notifications.Configurations;
 using Shared.RabbitMq.Notifications.Messages;
@@ -155,7 +156,7 @@ namespace NotificationService.Worker.BackgroundServices
                 await _awsSes.SendEmailAsync(
                     _smtpOptions.FromEmailAddress,
                     message.To,
-                    templateName: $"{message.TemplateId}-{message.Language}",
+                    templateName: $"{message.TemplateId}-{SupportedLanguages.CheckAndGetValidLanguage(message.Language)}",
                     message.Parameters);
 
                 await Channel!.BasicAckAsync(args.DeliveryTag, multiple: false);
