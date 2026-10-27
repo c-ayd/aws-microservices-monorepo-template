@@ -3,6 +3,7 @@
 using System.Text.Json;
 using RabbitMQ.Client;
 using Shared.RabbitMq.Helpers.JsonConverters;
+using Shared.RabbitMq.Helpers.Structures;
 using Shared.RabbitMq.Helpers.Utilities;
 
 namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
@@ -35,30 +36,29 @@ namespace Shared.RabbitMq.Helpers.EntityFramework.Entities
 
         public DroppedMessage(
             Guid wrappedDataKeyId,
-            string serviceName,
-            string publisherName,
-            string exchangeName,
-            string routingKey,
-            BasicProperties properties,
+            Message message,
             byte[] bodyEncrypted)
         {
             WrappedDataKeyId = wrappedDataKeyId;
 
             Id = Guid.CreateVersion7();
 
-            ServiceName = serviceName;
-            PublisherName = publisherName;
+            ServiceName = message.ServiceName;
+            PublisherName = message.PublisherName;
 
-            ExchangeName = exchangeName;
-            RoutingKey = routingKey;
-            Properties = JsonSerializer.Serialize(properties, new JsonSerializerOptions()
+            ExchangeName = message.ExchangeName;
+            RoutingKey = message.RoutingKey;
+            BodyEncrypted = bodyEncrypted;
+
+            // The message might be returned from RabbitMQ, which causes headers to be byte arrays.
+            // Therefore, the headers is converted back to JSON strings before saved to the DB.
+            message.Properties.Headers = message.GetHeadersAsJsonString();
+            Properties = JsonSerializer.Serialize(message.Properties, new JsonSerializerOptions()
             {
                 Converters = { new AmqpTimestampConverter(), new HeadersConverter() }
             });
-            BodyEncrypted = bodyEncrypted;
         }
 
-        
         public BasicProperties GetBasicProperties()
         {
             if (_basicProperties == null)

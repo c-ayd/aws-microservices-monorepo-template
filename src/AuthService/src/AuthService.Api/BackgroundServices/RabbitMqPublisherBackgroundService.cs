@@ -69,11 +69,7 @@ namespace AuthService.Api.BackgroundServices
             {
                 wrappedDataKey.DroppedMessages.Add(new DroppedMessage(
                     wrappedDataKey.Id,
-                    droppedMessage.ServiceName,
-                    droppedMessage.PublisherName,
-                    droppedMessage.ExchangeName,
-                    droppedMessage.RoutingKey,
-                    droppedMessage.Properties,
+                    droppedMessage,
                     AesGcmEncryption.Encrypt(droppedMessage.Body, dataKey.Plaintext, deleteKey: false)));
             }
 
