@@ -130,7 +130,7 @@ namespace NotificationService.Worker.BackgroundServices
                         args.BasicProperties.CorrelationId,
                         args.BasicProperties.Timestamp,
                         args.BasicProperties.Headers != null && args.BasicProperties.Headers.TryGetValue("UserId", out var userId) ?
-                            userId : null);
+                            (string?)userId : null);
 
                     await Channel!.BasicRejectAsync(args.DeliveryTag, requeue: false);
                     return;
@@ -142,7 +142,7 @@ namespace NotificationService.Worker.BackgroundServices
                     args.BasicProperties.CorrelationId,
                     args.BasicProperties.Timestamp,
                     args.BasicProperties.Headers != null && args.BasicProperties.Headers.TryGetValue("UserId", out var userId) ?
-                        userId : null,
+                        (string?)userId : null,
                     exception.Message);
 
                 await Channel!.BasicRejectAsync(args.DeliveryTag, requeue: false);
@@ -166,7 +166,7 @@ namespace NotificationService.Worker.BackgroundServices
                     args.BasicProperties.CorrelationId,
                     args.BasicProperties.Timestamp,
                     args.BasicProperties.Headers != null && args.BasicProperties.Headers.TryGetValue("UserId", out var userId) ?
-                        userId : null,
+                        (string?)userId : null,
                     exception.Message);
 
                 // Since the email service has failed, this message should be requeued after a small delay up to a specific max. retry count
@@ -191,18 +191,19 @@ namespace NotificationService.Worker.BackgroundServices
                 }
                 else
                 {
-                    if ((int)retryCount! >= _maxRetry)
+                    int retryCountValue = (int)retryCount!;
+                    if (retryCountValue >= _maxRetry)
                     {
-                        // The message has been requeued many times. Thefore, the message should go to the DLQ.
+                        // The message has been requeued too many times. Thefore, the message should go to the DLQ.
                         await Channel!.BasicRejectAsync(args.DeliveryTag, requeue: false);
                     }
                     else
                     {
-                        retryCount = (int)retryCount + 1;
+                        retryCountValue = retryCountValue + 1;
 
                         var properties = new BasicProperties(args.BasicProperties);
-                        properties.Headers!["Retry-Count"] = retryCount;
-                        properties.Expiration = ((int)_retryDelayTime.TotalMilliseconds * (int)retryCount).ToString();
+                        properties.Headers!["Retry-Count"] = retryCountValue;
+                        properties.Expiration = ((int)_retryDelayTime.TotalMilliseconds * retryCountValue).ToString();
 
                         await Channel!.BasicPublishAsync(
                             EmailConfiguration.RetryExchangeName,
