@@ -30,6 +30,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/WebApi/test-webapi-server.key" Link="Certs/WebApi/test-webapi-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/WebApi/test-webapi-server.crt" Link="Certs/WebApi/test-webapi-server.crt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Protobuf Include="Protos/*.proto" GrpcServices="Both" />
   </ItemGroup>
 
