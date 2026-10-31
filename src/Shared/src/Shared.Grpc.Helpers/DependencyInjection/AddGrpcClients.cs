@@ -1,5 +1,7 @@
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using Grpc.Core;
+using Grpc.Net.Client.Configuration;
 using Grpc.Net.ClientFactory;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.AspNetCore.Helpers.Kestrel.Utilities;
@@ -42,11 +44,38 @@ namespace Shared.Grpc.Helpers.DependencyInjection
                     options.Address = new Uri(urlAndClient.Key);
                 })])!)
                     .AddInterceptor<GrpcClientAuthInterceptor>()
+                    .ConfigureChannel(options =>
+                    {
+                        options.ServiceConfig = new ServiceConfig()
+                        {
+                            MethodConfigs =
+                            {
+                                new MethodConfig()
+                                {
+                                    Names = { MethodName.Default },
+                                    RetryPolicy = new RetryPolicy
+                                    {
+                                        MaxAttempts = 3,
+                                        InitialBackoff = TimeSpan.FromSeconds(1),
+                                        MaxBackoff = TimeSpan.FromSeconds(5),
+                                        BackoffMultiplier = 1.5,
+                                        RetryableStatusCodes =
+                                        {
+                                            StatusCode.Unavailable,
+                                            StatusCode.ResourceExhausted,
+                                            StatusCode.Internal
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                    })
                     .ConfigurePrimaryHttpMessageHandler(() =>
                     {
                         var handler = new SocketsHttpHandler()
                         {
                             EnableMultipleHttp2Connections = true,
+                            MaxConnectionsPerServer = 100,
                             PooledConnectionLifetime = TimeSpan.FromMinutes(5),
                             PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1),
                             KeepAlivePingDelay = TimeSpan.FromSeconds(20),
