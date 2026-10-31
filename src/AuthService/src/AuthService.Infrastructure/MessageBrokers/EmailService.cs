@@ -3,7 +3,7 @@ using System.Text.Json;
 using AuthService.Application.Abstractions.MessageBrokers;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
-using Shared.RabbitMq.Helpers;
+using Common.RabbitMq.Helpers;
 using Shared.RabbitMq.Notifications.Configurations;
 using Shared.RabbitMq.Notifications.Messages;
 

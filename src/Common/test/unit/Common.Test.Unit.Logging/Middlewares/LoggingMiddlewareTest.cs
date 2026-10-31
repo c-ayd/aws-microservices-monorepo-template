@@ -1,0 +1,107 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
+using Common.Logging;
+using Common.Logging.Middlewares;
+using Common.Test.Generators;
+using Common.Test.Helpers.Fixtures;
+
+namespace Common.Test.Unit.Logging.Middlewares
+{
+    public class LoggingMiddlewareTest : IClassFixture<LoggerFixture<LoggingMiddleware>>
+    {
+        private readonly LoggerFixture<LoggingMiddleware> _loggerFixture;
+
+        public LoggingMiddlewareTest(LoggerFixture<LoggingMiddleware> loggerFixture)
+        {
+            _loggerFixture = loggerFixture;
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("/health")]
+        public async Task Invoke_WhenRequestIsNotHealthEndpoint_ShouldLog(string? healthEndpoint)
+        {
+            // Arrange
+            _loggerFixture.Logs.Clear();
+
+            var middleware = new LoggingMiddleware(
+                async (context) => {},
+                _loggerFixture);
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddOptions<JsonOptions>();
+            var httpContext = new DefaultHttpContext()
+            {
+                RequestServices = services.BuildServiceProvider()
+            };
+
+            httpContext.Request.Path = "/" + StringGenerator.GenerateAlpha(healthEndpoint != null ? healthEndpoint.Length + 1 : 10);
+
+            // Act
+            await middleware.Invoke(httpContext);
+
+            // Assert
+            Assert.Single(_loggerFixture.Logs);
+        }
+
+        [Fact]
+        public async Task Invoke_WhenRequestIsHealthEndpoint_ShouldNotLog()
+        {
+            // Arrange
+            _loggerFixture.Logs.Clear();
+            
+            LoggingConfiguration.HealthEndpoint = "/health";
+
+            var middleware = new LoggingMiddleware(
+                async (context) => { },
+                _loggerFixture);
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddOptions<JsonOptions>();
+            var httpContext = new DefaultHttpContext()
+            {
+                RequestServices = services.BuildServiceProvider()
+            };
+
+            httpContext.Request.Path = LoggingConfiguration.HealthEndpoint;
+
+            // Act
+            await middleware.Invoke(httpContext);
+
+            // Assert
+            Assert.Empty(_loggerFixture.Logs);
+        }
+
+        [Theory]
+        [InlineData("/.well-known/openid-configuration")]
+        [InlineData("/.well-known/jwks.json")]
+        public async Task Invoke_WhenRequestIsWellKnownEndpoint_ShouldNotLog(string endpoint)
+        {
+            // Arrange
+            _loggerFixture.Logs.Clear();
+
+            var middleware = new LoggingMiddleware(
+                async (context) => { },
+                _loggerFixture);
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddOptions<JsonOptions>();
+            var httpContext = new DefaultHttpContext()
+            {
+                RequestServices = services.BuildServiceProvider()
+            };
+
+            httpContext.Request.Path = endpoint;
+
+            // Act
+            await middleware.Invoke(httpContext);
+
+            // Assert
+            Assert.Empty(_loggerFixture.Logs);
+        }
+    }
+}

@@ -102,7 +102,7 @@
       "authservice.domain": {
         "type": "Project"
       },
-      "shared.test.generators": {
+      "common.test.generators": {
         "type": "Project"
       }
     }

@@ -1,6 +1,6 @@
-using Shared.Aws.Helpers.Options;
-using Shared.PostgreSql.Helpers.Options.Extensions;
-using Shared.RabbitMq.Helpers.Options.Extensions;
+using Common.Aws.Helpers.Options;
+using Common.PostgreSql.Helpers.Options.Extensions;
+using Common.RabbitMq.Helpers.Options.Extensions;
 
 namespace RecoveryService.Worker.Options
 {

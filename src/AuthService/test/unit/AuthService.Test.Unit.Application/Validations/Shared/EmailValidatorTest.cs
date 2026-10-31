@@ -1,6 +1,6 @@
 using AuthService.Application.Validations.Constraints;
 using AuthService.Application.Validations.Shared;
-using Shared.Test.Generators;
+using Common.Test.Generators;
 
 namespace AuthService.Test.Unit.Application.Validations.Shared
 {

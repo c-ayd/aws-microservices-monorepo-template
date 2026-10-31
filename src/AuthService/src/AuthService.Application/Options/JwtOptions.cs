@@ -1,4 +1,4 @@
-using Shared.AspNetCore.Helpers.Options;
+using Common.AspNetCore.Helpers.Options;
 
 namespace AuthService.Application.Options
 {

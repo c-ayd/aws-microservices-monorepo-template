@@ -1,0 +1,98 @@
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using Grpc.Core;
+using Grpc.Net.Client.Configuration;
+using Grpc.Net.ClientFactory;
+using Microsoft.Extensions.DependencyInjection;
+using Common.AspNetCore.Helpers.Kestrel.Utilities;
+using Common.Grpc.Helpers.Interceptors;
+
+namespace Common.Grpc.Helpers.DependencyInjection
+{
+    public static partial class DependencyInjection
+    {
+        public static void AddGrpcClients(this IServiceCollection services,
+            Dictionary<string, Type> urlsAndClients,
+            string? caBundleValue)
+        {
+            services.AddHttpContextAccessor();
+            services.AddSingleton<GrpcClientAuthInterceptor>();
+
+            var addGrpcClientMethodInfo = typeof(GrpcClientServiceExtensions)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)!
+                .Where(m => m.Name == nameof(GrpcClientServiceExtensions.AddGrpcClient) &&
+                    m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1)
+                .FirstOrDefault(m =>
+                {
+                    var p = m.GetParameters();
+                    return p.Length == 2
+                        && p[0].ParameterType == typeof(IServiceCollection)
+                        && p[1].ParameterType == typeof(Action<GrpcClientFactoryOptions>);
+                })!;
+
+            X509Certificate2Collection? caBundle = null;
+            if (caBundleValue != null)
+            {
+                caBundle = TlsUtility.LoadCertificateChain(caBundleValue);
+            }
+
+            foreach (var urlAndClient in urlsAndClients)
+            {
+                var addGrpcClientMethod = addGrpcClientMethodInfo.MakeGenericMethod([urlAndClient.Value]);
+                ((IHttpClientBuilder)addGrpcClientMethod.Invoke(null, [services, new Action<GrpcClientFactoryOptions>(options =>
+                {
+                    options.Address = new Uri(urlAndClient.Key);
+                })])!)
+                    .AddInterceptor<GrpcClientAuthInterceptor>()
+                    .ConfigureChannel(options =>
+                    {
+                        options.ServiceConfig = new ServiceConfig()
+                        {
+                            MethodConfigs =
+                            {
+                                new MethodConfig()
+                                {
+                                    Names = { MethodName.Default },
+                                    RetryPolicy = new RetryPolicy
+                                    {
+                                        MaxAttempts = 3,
+                                        InitialBackoff = TimeSpan.FromSeconds(1),
+                                        MaxBackoff = TimeSpan.FromSeconds(5),
+                                        BackoffMultiplier = 1.5,
+                                        RetryableStatusCodes =
+                                        {
+                                            StatusCode.Unavailable,
+                                            StatusCode.ResourceExhausted,
+                                            StatusCode.Internal
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                    })
+                    .ConfigurePrimaryHttpMessageHandler(() =>
+                    {
+                        var handler = new SocketsHttpHandler()
+                        {
+                            EnableMultipleHttp2Connections = true,
+                            MaxConnectionsPerServer = 100,
+                            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1),
+                            KeepAlivePingDelay = TimeSpan.FromSeconds(20),
+                            KeepAlivePingTimeout = TimeSpan.FromSeconds(10)
+                        };
+
+                        if (caBundle != null)
+                        {
+                            handler.SslOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
+                            };
+                        }
+
+                        return handler;
+                    });
+            }
+        }
+    }
+}

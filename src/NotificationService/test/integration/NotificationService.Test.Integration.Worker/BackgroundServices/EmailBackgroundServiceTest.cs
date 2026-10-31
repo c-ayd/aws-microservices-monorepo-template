@@ -4,12 +4,12 @@ using System.Text.Json;
 using NotificationService.Test.Integration.Worker.Collections;
 using NotificationService.Worker.BackgroundServices;
 using RabbitMQ.Client;
-using Shared.Aws.Helpers.Test;
-using Shared.Constants;
+using Common.Aws.Helpers.Test;
+using Common.Constants;
 using Shared.RabbitMq.Notifications.Configurations;
 using Shared.RabbitMq.Notifications.Messages;
-using Shared.Test.Generators;
-using Shared.Test.Helpers.Structures;
+using Common.Test.Generators;
+using Common.Test.Helpers.Structures;
 
 namespace NotificationService.Test.Integration.Worker.BackgroundServices
 {

@@ -1,6 +1,6 @@
 using System.Net;
-using Shared.Http.Response;
-using Shared.Http.Response.Structures;
+using Common.Http.Response;
+using Common.Http.Response.Structures;
 
 namespace AuthService.Api.Middlewares
 {

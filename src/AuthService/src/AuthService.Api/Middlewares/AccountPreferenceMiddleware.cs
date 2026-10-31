@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using Shared.Constants;
-using Shared.Http.Authentication.Constants;
+using Common.Constants;
+using Common.Http.Authentication.Constants;
 
 namespace AuthService.Api.Middlewares
 {

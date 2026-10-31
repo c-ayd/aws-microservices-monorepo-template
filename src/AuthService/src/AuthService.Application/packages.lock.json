@@ -256,10 +256,10 @@
       "authservice.domain": {
         "type": "Project"
       },
-      "shared.aspnetcore.helpers": {
+      "common.aspnetcore.helpers": {
         "type": "Project"
       },
-      "shared.aws.helpers": {
+      "common.aws.helpers": {
         "type": "Project",
         "dependencies": {
           "AWSSDK.Extensions.NETCore.Setup": "[4.0.102.4, )",
@@ -267,47 +267,47 @@
           "AWSSDK.S3": "[4.0.104.4, )",
           "AWSSDK.SecretsManager": "[4.0.100.19, )",
           "AWSSDK.SimpleEmailV2": "[4.0.106.4, )",
-          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+          "Common.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
-      "shared.constants": {
+      "common.constants": {
         "type": "Project"
       },
-      "shared.crypto": {
+      "common.crypto": {
         "type": "Project"
       },
-      "shared.http": {
+      "common.http.helpers": {
         "type": "Project",
         "dependencies": {
           "System.IdentityModel.Tokens.Jwt": "[8.19.2, )"
         }
       },
-      "shared.postgresql.helpers": {
+      "common.postgresql.helpers": {
         "type": "Project",
         "dependencies": {
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )",
-          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+          "Common.AspNetCore.Helpers": "[1.0.0, )",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )"
         }
       },
-      "shared.rabbitmq.helpers": {
+      "common.rabbitmq.helpers": {
         "type": "Project",
         "dependencies": {
-          "RabbitMQ.Client": "[7.2.1, )",
-          "Shared.AspNetCore.Helpers": "[1.0.0, )",
-          "Shared.PostgreSql.Helpers": "[1.0.0, )"
+          "Common.AspNetCore.Helpers": "[1.0.0, )",
+          "Common.PostgreSql.Helpers": "[1.0.0, )",
+          "RabbitMQ.Client": "[7.2.1, )"
+        }
+      },
+      "common.redis.helpers": {
+        "type": "Project",
+        "dependencies": {
+          "Common.AspNetCore.Helpers": "[1.0.0, )",
+          "StackExchange.Redis": "[3.1.31, )"
         }
       },
       "shared.rabbitmq.notifications": {
         "type": "Project",
         "dependencies": {
           "RabbitMQ.Client": "[7.2.1, )"
-        }
-      },
-      "shared.redis.helpers": {
-        "type": "Project",
-        "dependencies": {
-          "Shared.AspNetCore.Helpers": "[1.0.0, )",
-          "StackExchange.Redis": "[3.1.31, )"
         }
       }
     }

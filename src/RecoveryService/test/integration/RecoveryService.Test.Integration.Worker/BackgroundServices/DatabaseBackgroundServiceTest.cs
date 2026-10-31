@@ -2,12 +2,12 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using RabbitMQ.Client;
 using RecoveryService.Test.Integration.Worker.Collections;
-using Shared.Aws.Helpers.Abstractions;
-using Shared.Crypto;
-using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
-using Shared.RabbitMq.Helpers.EntityFramework.Entities;
-using Shared.RabbitMq.Helpers.Structures;
-using Shared.Test.Generators;
+using Common.Aws.Helpers.Abstractions;
+using Common.Crypto;
+using Common.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Common.RabbitMq.Helpers.EntityFramework.Entities;
+using Common.RabbitMq.Helpers.Structures;
+using Common.Test.Generators;
 
 namespace RecoveryService.Test.Integration.Worker.BackgroundServices
 {

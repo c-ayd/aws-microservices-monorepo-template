@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
-using Shared.Constants;
-using Shared.Test.Helpers;
-using Shared.Test.Helpers.Fixtures;
+using Common.Constants;
+using Common.Test.Helpers;
+using Common.Test.Helpers.Fixtures;
 
 namespace NotificationService.Test.Integration.Worker.Collections
 {

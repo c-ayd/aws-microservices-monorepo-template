@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using AuthService.Application.Abstractions.Crypto;
-using Shared.Crypto.Structures;
+using Common.Crypto.Structures;
 
 namespace AuthService.Infrastructure.Crypto
 {
