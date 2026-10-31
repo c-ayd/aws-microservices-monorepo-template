@@ -11,4 +11,9 @@
     <PackageReference Include="Grpc.AspNetCore" Version="2.85.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Shared.Http\Shared.Http.csproj" />
+    <ProjectReference Include="..\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
+  </ItemGroup>
+
 </Project>
