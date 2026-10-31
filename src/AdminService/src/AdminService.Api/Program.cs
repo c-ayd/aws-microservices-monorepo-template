@@ -4,17 +4,17 @@ using AdminService.Application;
 using AdminService.Application.Options;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Shared.AspNetCore.Helpers.DependencyInjection;
-using Shared.AspNetCore.Helpers.Kestrel;
-using Shared.AspNetCore.Helpers.Kestrel.Structures;
-using Shared.Aws.Helpers.DependencyInjection;
-using Shared.Http.Authentication;
-using Shared.Http.Authentication.Constants;
-using Shared.Http.DependencyInjection;
-using Shared.Http.Request;
-using Shared.Http.Response.Middlewares;
-using Shared.Logging.DependencyInjection;
-using Shared.Logging.Middlewares;
+using Common.AspNetCore.Helpers.DependencyInjection;
+using Common.AspNetCore.Helpers.Kestrel;
+using Common.AspNetCore.Helpers.Kestrel.Structures;
+using Common.Aws.Helpers.DependencyInjection;
+using Common.Http.Authentication;
+using Common.Http.Authentication.Constants;
+using Common.Http.DependencyInjection;
+using Common.Http.Request;
+using Common.Http.Response.Middlewares;
+using Common.Logging.DependencyInjection;
+using Common.Logging.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

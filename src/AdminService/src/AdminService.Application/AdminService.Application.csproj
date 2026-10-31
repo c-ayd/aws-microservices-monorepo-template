@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Aws.Helpers\Shared.Aws.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Http\Shared.Http.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Logging\Shared.Logging.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Aws.Helpers\Common.Aws.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.AspNetCore.Helpers\Common.AspNetCore.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Http.Helpers\Common.Http.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Logging\Common.Logging.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
