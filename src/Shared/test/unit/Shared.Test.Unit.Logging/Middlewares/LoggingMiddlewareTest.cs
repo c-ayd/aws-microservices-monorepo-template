@@ -8,11 +8,11 @@ using Shared.Test.Helpers.Fixtures;
 
 namespace Shared.Test.Unit.Logging.Middlewares
 {
-    public class LoggingMiddlewareTest : IClassFixture<LoggerFixture<MetricsLoggingMiddleware>>
+    public class LoggingMiddlewareTest : IClassFixture<LoggerFixture<LoggingMiddleware>>
     {
-        private readonly LoggerFixture<MetricsLoggingMiddleware> _loggerFixture;
+        private readonly LoggerFixture<LoggingMiddleware> _loggerFixture;
 
-        public LoggingMiddlewareTest(LoggerFixture<MetricsLoggingMiddleware> loggerFixture)
+        public LoggingMiddlewareTest(LoggerFixture<LoggingMiddleware> loggerFixture)
         {
             _loggerFixture = loggerFixture;
         }
@@ -25,7 +25,7 @@ namespace Shared.Test.Unit.Logging.Middlewares
             // Arrange
             _loggerFixture.Logs.Clear();
 
-            var middleware = new MetricsLoggingMiddleware(
+            var middleware = new LoggingMiddleware(
                 async (context) => {},
                 _loggerFixture);
 
@@ -54,7 +54,7 @@ namespace Shared.Test.Unit.Logging.Middlewares
             
             LoggingConfiguration.HealthEndpoint = "/health";
 
-            var middleware = new MetricsLoggingMiddleware(
+            var middleware = new LoggingMiddleware(
                 async (context) => { },
                 _loggerFixture);
 
@@ -83,7 +83,7 @@ namespace Shared.Test.Unit.Logging.Middlewares
             // Arrange
             _loggerFixture.Logs.Clear();
 
-            var middleware = new MetricsLoggingMiddleware(
+            var middleware = new LoggingMiddleware(
                 async (context) => { },
                 _loggerFixture);
 
