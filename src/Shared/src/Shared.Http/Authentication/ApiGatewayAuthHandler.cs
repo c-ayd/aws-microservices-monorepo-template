@@ -32,9 +32,13 @@ namespace Shared.Http.Authentication
 
                 if (userClaim.IsMultiple)
                 {
-                    foreach (var item in headerValue.ToArray())
+                    var values = headerValue.ToString()
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(h => h.Trim());
+
+                    foreach (var value in values)
                     {
-                        claims.Add(new Claim(userClaim.ClaimType, item!));
+                        claims.Add(new Claim(userClaim.ClaimType, value));
                     }
                 }
                 else

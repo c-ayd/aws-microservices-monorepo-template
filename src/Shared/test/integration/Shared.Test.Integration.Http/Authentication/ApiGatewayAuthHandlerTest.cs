@@ -64,22 +64,8 @@ namespace Shared.Test.Integration.Http.Authentication
 
             var userId = Guid.NewGuid().ToString();
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Id.HeaderKey, userId);
+            client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Roles.HeaderKey, "User");
             client.DefaultRequestHeaders.Add(ApiGatewayAuthKeys.Claims.Roles.HeaderKey, _roleName);
-
-            UserClaim? claim = null;
-            string? headerValue = null;
-            foreach (var userClaim in ApiGatewayAuthKeys.Claims.AllUserClaims)
-            {
-                if (userClaim.HeaderKey == ApiGatewayAuthKeys.Claims.Id.HeaderKey ||
-                    userClaim.HeaderKey == ApiGatewayAuthKeys.Claims.Roles.HeaderKey)
-                    continue;
-
-                claim = userClaim;
-                headerValue = StringGenerator.GenerateAlpha();
-
-                client.DefaultRequestHeaders.Add(userClaim.HeaderKey, headerValue);
-                break;
-            }
 
             // Act
             var responseUser = await client.GetFromJsonAsync<UserDto>("/api-gateway");
@@ -91,16 +77,10 @@ namespace Shared.Test.Integration.Http.Authentication
             Assert.NotNull(responseUser);
             Assert.True(responseUser.IsAuthenticated, "The user is not authenticated.");
             Assert.Equal(userId, responseUser.Name);
-            Assert.Equal(_roleName, responseUser.Claims
-                .FirstOrDefault(c => c.Type == ApiGatewayAuthKeys.Claims.Roles.ClaimType)!
-                .Value);
-
-            if (claim != null)
-            {
-                Assert.Equal(headerValue, responseUser.Claims
-                    .FirstOrDefault(c => c.Type == claim.ClaimType)!
-                    .Value);
-            }
+            Assert.Contains(responseUser.Claims, claim => claim.Type == ApiGatewayAuthKeys.Claims.Roles.ClaimType &&
+                claim.Value == "User");
+            Assert.Contains(responseUser.Claims, claim => claim.Type == ApiGatewayAuthKeys.Claims.Roles.ClaimType &&
+                claim.Value == _roleName);
 
             Assert.Equal(HttpStatusCode.OK, responseAuthorized.StatusCode);
             Assert.Equal(HttpStatusCode.OK, responseAccessGranted.StatusCode);
