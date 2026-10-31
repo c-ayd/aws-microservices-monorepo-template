@@ -20,6 +20,12 @@
       "problemMatcher": []
     },
     {
+      "label": "Build Common Libraries",
+      "type": "shell",
+      "command": "dotnet build src/Common/CommonSolution.slnx",
+      "problemMatcher": []
+    },
+    {
       "label": "Build Shared Libraries",
       "type": "shell",
       "command": "dotnet build src/Shared/SharedSolution.slnx",
