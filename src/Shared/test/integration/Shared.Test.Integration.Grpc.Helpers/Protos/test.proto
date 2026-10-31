@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "Shared.Test.Integration.Grpc.Helpers";
+
+package shared.test.integration.grpc.helpers;
+
+service TestGrpcService {
+    rpc Anonymous(TestGrpcRequest) returns (TestGrpcResponse);
+    rpc Authenticated(TestGrpcRequest) returns (TestGrpcResponse);
+    rpc Admin(TestGrpcRequest) returns (TestGrpcResponse);
+    rpc Exception(TestGrpcRequest) returns (TestGrpcResponse);
+}
+
+message TestGrpcRequest { }
+message TestGrpcResponse {
+    optional string strValue = 1;
+    int32 intValue = 2;
+}
