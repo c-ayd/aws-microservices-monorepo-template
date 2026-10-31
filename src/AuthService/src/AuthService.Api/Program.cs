@@ -79,7 +79,7 @@ builder.Host.ConfigureHostOptions(options =>
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseMiddleware<MetricsLoggingMiddleware>();
+app.UseMiddleware<LoggingMiddleware>();
 
 app.UseMiddleware<AuthErrorResponseMiddleware>();
 app.UseAuthentication();
