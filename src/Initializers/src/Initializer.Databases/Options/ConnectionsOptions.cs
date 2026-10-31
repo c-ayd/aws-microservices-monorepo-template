@@ -1,5 +1,5 @@
-using Shared.Aws.Helpers.Options;
-using Shared.PostgreSql.Helpers.Options.Extensions;
+using Common.Aws.Helpers.Options;
+using Common.PostgreSql.Helpers.Options.Extensions;
 
 namespace Initializer.Databases.Options
 {

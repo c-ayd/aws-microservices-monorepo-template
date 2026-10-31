@@ -145,10 +145,10 @@
         "resolved": "10.0.5",
         "contentHash": "8IBJWcCT9+e4Bmevm4T7+fQEiAh133KGiz4oiVTgJckd3Q76OFdR1falgn9lpz7+C4HJvogCDJeAa2QmvbeVtg=="
       },
-      "shared.aspnetcore.helpers": {
+      "common.aspnetcore.helpers": {
         "type": "Project"
       },
-      "shared.aws.helpers": {
+      "common.aws.helpers": {
         "type": "Project",
         "dependencies": {
           "AWSSDK.Extensions.NETCore.Setup": "[4.0.102.4, )",
@@ -156,25 +156,25 @@
           "AWSSDK.S3": "[4.0.104.4, )",
           "AWSSDK.SecretsManager": "[4.0.100.19, )",
           "AWSSDK.SimpleEmailV2": "[4.0.106.4, )",
-          "Shared.AspNetCore.Helpers": "[1.0.0, )"
+          "Common.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
-      "shared.http": {
+      "common.http.helpers": {
         "type": "Project",
         "dependencies": {
           "System.IdentityModel.Tokens.Jwt": "[8.19.2, )"
         }
       },
-      "shared.logging": {
+      "common.logging": {
         "type": "Project",
         "dependencies": {
-          "Shared.Http": "[1.0.0, )"
+          "Common.Http.Helpers": "[1.0.0, )"
         }
       },
-      "shared.redis.helpers": {
+      "common.redis.helpers": {
         "type": "Project",
         "dependencies": {
-          "Shared.AspNetCore.Helpers": "[1.0.0, )",
+          "Common.AspNetCore.Helpers": "[1.0.0, )",
           "StackExchange.Redis": "[3.1.31, )"
         }
       }

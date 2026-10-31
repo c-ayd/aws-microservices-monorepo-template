@@ -8,15 +8,15 @@ using ApiGateway.Web.Transforms.Request;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
-using Shared.AspNetCore.Helpers.DependencyInjection;
-using Shared.AspNetCore.Helpers.Kestrel;
-using Shared.AspNetCore.Helpers.Kestrel.Structures;
-using Shared.AspNetCore.Helpers.Kestrel.Utilities;
-using Shared.Aws.Helpers.DependencyInjection;
-using Shared.Http.Authentication.Constants;
-using Shared.Http.Response.Middlewares;
-using Shared.Logging.DependencyInjection;
-using Shared.Logging.Middlewares;
+using Common.AspNetCore.Helpers.DependencyInjection;
+using Common.AspNetCore.Helpers.Kestrel;
+using Common.AspNetCore.Helpers.Kestrel.Structures;
+using Common.AspNetCore.Helpers.Kestrel.Utilities;
+using Common.Aws.Helpers.DependencyInjection;
+using Common.Http.Authentication.Constants;
+using Common.Http.Response.Middlewares;
+using Common.Logging.DependencyInjection;
+using Common.Logging.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

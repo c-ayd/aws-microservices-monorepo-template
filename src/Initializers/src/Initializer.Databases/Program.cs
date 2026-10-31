@@ -2,7 +2,7 @@
 using Amazon.SecretsManager.Model;
 using Initializer.Databases.Options;
 using Microsoft.EntityFrameworkCore;
-using Shared.Aws.Helpers.Test;
+using Common.Aws.Helpers.Test;
 using Initializer.Databases.Rollouts;
 
 namespace Initializer.Databases

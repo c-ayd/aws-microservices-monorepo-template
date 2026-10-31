@@ -1,9 +1,9 @@
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Shared.AspNetCore.Helpers.Options;
-using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
-using Shared.PostgreSql.Helpers.Options.Extensions;
+using Common.AspNetCore.Helpers.Options;
+using Common.PostgreSql.Helpers.EntityFramework.Extensions;
+using Common.PostgreSql.Helpers.Options.Extensions;
 
 namespace Initializer.Databases
 {

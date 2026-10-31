@@ -1,6 +1,6 @@
 using ApiGateway.Web.Options;
 using Microsoft.Extensions.Options;
-using Shared.Redis.Helpers;
+using Common.Redis.Helpers;
 using StackExchange.Redis;
 
 namespace ApiGateway.Web.DistributedCaches

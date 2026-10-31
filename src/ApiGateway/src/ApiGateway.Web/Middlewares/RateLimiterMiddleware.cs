@@ -1,8 +1,8 @@
 using System.Net;
 using ApiGateway.Web.DistributedCaches;
-using Shared.Http.Authentication.Constants;
-using Shared.Http.Response;
-using Shared.Http.Response.Structures;
+using Common.Http.Authentication.Constants;
+using Common.Http.Response;
+using Common.Http.Response.Structures;
 
 namespace ApiGateway.Web.Middlewares
 {

@@ -1,5 +1,5 @@
 using AuthService.Persistence.DbContexts;
-using Shared.Test.Helpers.Fixtures;
+using Common.Test.Helpers.Fixtures;
 
 namespace AuthService.Test.Integration.Persistence.Collections
 {

@@ -1,5 +1,5 @@
 using AuthService.Domain.SeedWork;
-using Shared.Test.Generators;
+using Common.Test.Generators;
 
 namespace AuthService.Test.Unit.Domain.SeedWork
 {

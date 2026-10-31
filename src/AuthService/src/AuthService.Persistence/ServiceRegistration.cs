@@ -5,8 +5,8 @@ using AuthService.Persistence.DistributedCaches;
 using AuthService.Application.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
-using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Common.PostgreSql.Helpers.EntityFramework.Extensions;
+using Common.RabbitMq.Helpers.EntityFramework.DbContexts;
 
 namespace AuthService.Persistence
 {

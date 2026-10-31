@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "AWSSDK.Extensions.NETCore.Setup": {
+        "type": "Direct",
+        "requested": "[4.0.102.4, )",
+        "resolved": "4.0.102.4",
+        "contentHash": "5At3wgEcNrFY0KlX06ewsuyJiiWfdze4xjWs+K814lCISjeNPNUXj8FyEAEYSKkfuR71gajmSt5TXmWCA+V3NQ==",
+        "dependencies": {
+          "AWSSDK.Core": "4.0.102.11"
+        }
+      },
+      "AWSSDK.KeyManagementService": {
+        "type": "Direct",
+        "requested": "[4.0.100.18, )",
+        "resolved": "4.0.100.18",
+        "contentHash": "oJg9hMTNQWnseqVhmwImlrKRMaSuGWnmdvy1GutnzfeCeZGDOnPwHb9JGz+y3S8mXf+fM0XEj7uul8IVzgKcJw==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.11, 5.0.0)"
+        }
+      },
+      "AWSSDK.S3": {
+        "type": "Direct",
+        "requested": "[4.0.104.4, )",
+        "resolved": "4.0.104.4",
+        "contentHash": "Qi+NicEv1md8Vxm6c40zf5pRsQ9DzPm4UwewjxSk4zbHpdzAMZK8bDZJGdp4Za9/vHP8GTbSdnDuseZQ5h9tmw==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.11, 5.0.0)"
+        }
+      },
+      "AWSSDK.SecretsManager": {
+        "type": "Direct",
+        "requested": "[4.0.100.19, )",
+        "resolved": "4.0.100.19",
+        "contentHash": "IKllTyT3znuyrXTA3lnyBxDbUEq0g9smhy6CanmrHGeh+UdGVKDFN6SviZLlxivkpiEMi43jBOyJkDBnmJZqVQ==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.11, 5.0.0)"
+        }
+      },
+      "AWSSDK.SimpleEmailV2": {
+        "type": "Direct",
+        "requested": "[4.0.106.4, )",
+        "resolved": "4.0.106.4",
+        "contentHash": "ML6vIxQUkCr3dmLLQ3+Jxr7A/6TsAAD1aactl1PIjs2REAHevVzw64BYi4ss28UgzM9dz4kY3WeMAXffeZPGJw==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.11, 5.0.0)"
+        }
+      },
+      "AWSSDK.Core": {
+        "type": "Transitive",
+        "resolved": "4.0.102.11",
+        "contentHash": "K9PP9/qHQ7pqSB0lYwStJrpXQ8P1xc7Fbn3CyPg8EX78p4+yz8dhIiwiRc3aVbVrUZxmPAPRvmZm+ey1euIXGg=="
+      },
+      "common.aspnetcore.helpers": {
+        "type": "Project"
+      }
+    }
+  }
+}

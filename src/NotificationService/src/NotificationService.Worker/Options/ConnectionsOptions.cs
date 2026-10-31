@@ -1,5 +1,5 @@
-using Shared.Aws.Helpers.Options;
-using Shared.RabbitMq.Helpers.Options.Extensions;
+using Common.Aws.Helpers.Options;
+using Common.RabbitMq.Helpers.Options.Extensions;
 
 namespace NotificationService.Worker.Options
 {

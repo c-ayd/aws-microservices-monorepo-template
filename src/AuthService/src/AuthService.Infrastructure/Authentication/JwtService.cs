@@ -5,7 +5,7 @@ using AuthService.Application.Dtos.Authentication;
 using AuthService.Application.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Shared.Crypto;
+using Common.Crypto;
 
 namespace AuthService.Infrastructure.Authentication
 {

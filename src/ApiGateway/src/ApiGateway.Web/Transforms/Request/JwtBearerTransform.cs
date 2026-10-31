@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using ApiGateway.Web.DistributedCaches;
 using Microsoft.Net.Http.Headers;
-using Shared.Http.Authentication.Constants;
+using Common.Http.Authentication.Constants;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Transforms.Builder;
 

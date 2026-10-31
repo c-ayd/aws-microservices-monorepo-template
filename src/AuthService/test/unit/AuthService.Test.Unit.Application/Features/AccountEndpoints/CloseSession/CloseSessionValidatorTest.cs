@@ -1,5 +1,5 @@
 using AuthService.Application.Features.AccountEndpoints.CloseSession;
-using Shared.Test.Generators;
+using Common.Test.Generators;
 
 namespace AuthService.Test.Unit.Application.Features.AccountEndpoints.CloseSession
 {

@@ -5,9 +5,9 @@ using AuthService.Application.Features.AccountEndpoints.CloseSession;
 using AuthService.Domain.Entities;
 using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Application.Collections;
-using Shared.Constants;
-using Shared.Http.Authentication.Constants;
-using Shared.Test.Generators;
+using Common.Constants;
+using Common.Http.Authentication.Constants;
+using Common.Test.Generators;
 
 namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.CloseSession
 {

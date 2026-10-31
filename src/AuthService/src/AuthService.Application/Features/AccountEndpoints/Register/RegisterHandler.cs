@@ -8,9 +8,9 @@ using AuthService.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Shared.Crypto;
-using Shared.Http.Response;
-using Shared.Http.Response.Structures;
+using Common.Crypto;
+using Common.Http.Response;
+using Common.Http.Response.Structures;
 using Shared.RabbitMq.Notifications.Messages;
 using Shared.RabbitMq.Notifications.Templates;
 

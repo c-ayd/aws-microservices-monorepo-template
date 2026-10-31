@@ -1,4 +1,4 @@
-using Shared.Aws.Helpers.Options;
+using Common.Aws.Helpers.Options;
 
 namespace ApiGateway.Web.Options
 {

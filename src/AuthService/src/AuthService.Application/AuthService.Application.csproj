@@ -2,15 +2,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AuthService.Domain\AuthService.Domain.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Crypto\Shared.Crypto.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Http\Shared.Http.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Crypto\Common.Crypto.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.AspNetCore.Helpers\Common.AspNetCore.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Http.Helpers\Common.Http.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.RabbitMq.Notifications\Shared.RabbitMq.Notifications.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Redis.Helpers\Shared.Redis.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.RabbitMq.Helpers\Shared.RabbitMq.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Constants\Shared.Constants.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.PostgreSql.Helpers\Shared.PostgreSql.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Aws.Helpers\Shared.Aws.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Redis.Helpers\Common.Redis.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.RabbitMq.Helpers\Common.RabbitMq.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Constants\Common.Constants.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.PostgreSql.Helpers\Common.PostgreSql.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Aws.Helpers\Common.Aws.Helpers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
