@@ -7,8 +7,8 @@ using AuthService.Domain.Enums;
 using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Application.Collections;
 using Microsoft.EntityFrameworkCore;
-using Shared.Constants;
-using Shared.Test.Generators;
+using Common.Constants;
+using Common.Test.Generators;
 
 namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Register
 {

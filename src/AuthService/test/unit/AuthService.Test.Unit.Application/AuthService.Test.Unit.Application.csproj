@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\AuthService.Application\AuthService.Application.csproj" />
-    <ProjectReference Include="..\..\..\..\Shared\src\Shared.Test.Generators\Shared.Test.Generators.csproj" />
+    <ProjectReference Include="..\..\..\..\Common\src\Common.Test.Generators\Common.Test.Generators.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,12 +1,12 @@
 using System.Reflection;
-using Shared.AspNetCore.Helpers.DependencyInjection;
-using Shared.Logging.DependencyInjection;
-using Shared.AspNetCore.Helpers.Kestrel;
-using Shared.AspNetCore.Helpers.Kestrel.Structures;
+using Common.AspNetCore.Helpers.DependencyInjection;
+using Common.Logging.DependencyInjection;
+using Common.AspNetCore.Helpers.Kestrel;
+using Common.AspNetCore.Helpers.Kestrel.Structures;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Shared.Aws.Helpers.DependencyInjection;
-using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
-using Shared.PostgreSql.Helpers.EntityFramework.Extensions;
+using Common.Aws.Helpers.DependencyInjection;
+using Common.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Common.PostgreSql.Helpers.EntityFramework.Extensions;
 using RecoveryService.Worker.Options;
 using RecoveryService.Worker.BackgroundServices;
 

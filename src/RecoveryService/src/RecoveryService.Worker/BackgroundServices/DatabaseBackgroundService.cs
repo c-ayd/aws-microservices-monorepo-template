@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using RecoveryService.Worker.BackgroundServices.SeedWork;
 using RecoveryService.Worker.Options;
-using Shared.Aws.Helpers.Abstractions;
-using Shared.Crypto;
-using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Common.Aws.Helpers.Abstractions;
+using Common.Crypto;
+using Common.RabbitMq.Helpers.EntityFramework.DbContexts;
 
 namespace RecoveryService.Worker.BackgroundServices
 {

@@ -2,7 +2,7 @@ using System.Net;
 using AuthService.Application.Abstractions.DbContexts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Shared.Http.Response;
+using Common.Http.Response;
 
 namespace AuthService.Application.Features.AccountEndpoints.GetSessions
 {

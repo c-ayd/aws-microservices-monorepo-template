@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using Shared.Constants;
-using Shared.Http.Authentication.Constants;
-using Shared.Test.Helpers;
-using Shared.Test.Helpers.Fixtures;
+using Common.Constants;
+using Common.Http.Authentication.Constants;
+using Common.Test.Helpers;
+using Common.Test.Helpers.Fixtures;
 
 namespace ApiGateway.Test.Integration.Web.Collections
 {

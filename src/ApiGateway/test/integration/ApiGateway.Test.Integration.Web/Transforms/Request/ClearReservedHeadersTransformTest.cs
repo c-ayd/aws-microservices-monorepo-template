@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using ApiGateway.Test.Integration.Web.Collections;
-using Shared.Http.Authentication.Constants;
-using Shared.Test.Generators;
+using Common.Http.Authentication.Constants;
+using Common.Test.Generators;
 
 namespace ApiGateway.Test.Integration.Web.Transforms.Request
 {

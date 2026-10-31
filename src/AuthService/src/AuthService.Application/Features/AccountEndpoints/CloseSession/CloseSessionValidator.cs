@@ -1,6 +1,6 @@
 using AuthService.Application.Validations.Shared;
-using Shared.Http.Response.Structures;
-using Shared.Http.Validation;
+using Common.Http.Response.Structures;
+using Common.Http.Validation;
 
 namespace AuthService.Application.Features.AccountEndpoints.CloseSession
 {

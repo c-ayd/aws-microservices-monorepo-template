@@ -4,10 +4,10 @@ using AuthService.Application.Abstractions.Crypto;
 using AuthService.Application.Abstractions.DbContexts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Shared.Crypto;
-using Shared.Crypto.Exceptions;
-using Shared.Http.Authentication.Constants;
-using Shared.Http.Response;
+using Common.Crypto;
+using Common.Crypto.Exceptions;
+using Common.Http.Authentication.Constants;
+using Common.Http.Response;
 
 namespace AuthService.Application.Features.AccountEndpoints.Logout
 {

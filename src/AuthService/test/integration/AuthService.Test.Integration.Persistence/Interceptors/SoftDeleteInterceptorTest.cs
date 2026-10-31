@@ -3,8 +3,8 @@ using AuthService.Domain.SeedWork;
 using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Persistence.Collections;
 using Microsoft.EntityFrameworkCore;
-using Shared.Constants;
-using Shared.Test.Generators;
+using Common.Constants;
+using Common.Test.Generators;
 
 namespace AuthService.Test.Integration.Persistence.Interceptors
 {

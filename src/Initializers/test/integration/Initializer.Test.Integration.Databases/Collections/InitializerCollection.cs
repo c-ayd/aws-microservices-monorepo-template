@@ -1,7 +1,7 @@
 using System.Text.Json;
 using AuthService.Persistence.DbContexts;
-using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
-using Shared.Test.Helpers.Fixtures;
+using Common.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Common.Test.Helpers.Fixtures;
 
 namespace Initializer.Test.Integration.Databases.Collections
 {

@@ -1,5 +1,5 @@
-using Shared.Aws.Helpers.Options;
-using Shared.Redis.Helpers.Options.Extensions;
+using Common.Aws.Helpers.Options;
+using Common.Redis.Helpers.Options.Extensions;
 
 namespace ApiGateway.Web.Options
 {

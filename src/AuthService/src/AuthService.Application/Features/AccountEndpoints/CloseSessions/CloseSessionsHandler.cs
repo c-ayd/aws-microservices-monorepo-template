@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Shared.Http.Response;
-using Shared.Http.Response.Structures;
+using Common.Http.Response;
+using Common.Http.Response.Structures;
 
 namespace AuthService.Application.Features.AccountEndpoints.CloseSessions
 {

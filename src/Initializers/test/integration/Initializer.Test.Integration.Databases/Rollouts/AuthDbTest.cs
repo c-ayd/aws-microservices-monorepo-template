@@ -3,9 +3,9 @@ using AuthService.Persistence.DbContexts;
 using Initializer.Databases.Options;
 using Initializer.Databases.Rollouts;
 using Microsoft.EntityFrameworkCore;
-using Shared.PostgreSql.Helpers.Options.Extensions;
-using Shared.Test.Generators;
-using Shared.Test.Helpers.Fixtures;
+using Common.PostgreSql.Helpers.Options.Extensions;
+using Common.Test.Generators;
+using Common.Test.Helpers.Fixtures;
 
 namespace Initializer.Test.Integration.Databases
 {

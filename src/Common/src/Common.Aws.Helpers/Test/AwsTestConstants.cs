@@ -1,0 +1,15 @@
+using Amazon.Runtime;
+
+namespace Common.Aws.Helpers.Test
+{
+    /// <summary>
+    /// Holds variables that are used in test cases.
+    /// </summary>
+    public static class AwsTestConstants
+    {
+        public static readonly BasicAWSCredentials Credentials = new BasicAWSCredentials("test", "test");
+        public const string Region = "us-east-1";
+
+        public const string SesFromEmail = "test@test.com";
+    }
+}

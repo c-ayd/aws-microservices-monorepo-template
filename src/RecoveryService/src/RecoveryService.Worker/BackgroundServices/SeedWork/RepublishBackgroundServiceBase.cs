@@ -1,6 +1,6 @@
 using RabbitMQ.Client;
-using Shared.RabbitMq.Helpers.Options.Extensions;
-using Shared.RabbitMq.Helpers.Utilities;
+using Common.RabbitMq.Helpers.Options.Extensions;
+using Common.RabbitMq.Helpers.Utilities;
 
 namespace RecoveryService.Worker.BackgroundServices.SeedWork
 {

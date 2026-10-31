@@ -3,8 +3,8 @@ using AuthService.Persistence.DbContexts;
 using Initializer.Databases.Exceptions;
 using Initializer.Databases.Options;
 using Microsoft.EntityFrameworkCore;
-using Shared.Constants;
-using Shared.PostgreSql.Helpers.Options.Extensions;
+using Common.Constants;
+using Common.PostgreSql.Helpers.Options.Extensions;
 
 namespace Initializer.Databases.Rollouts
 {

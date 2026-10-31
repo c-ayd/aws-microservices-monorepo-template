@@ -2,9 +2,9 @@ using System.Text.Json;
 using AuthService.Application.Options;
 using AuthService.Persistence.DbContexts;
 using Microsoft.Extensions.Configuration;
-using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
-using Shared.Test.Helpers;
-using Shared.Test.Helpers.Fixtures;
+using Common.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Common.Test.Helpers;
+using Common.Test.Helpers.Fixtures;
 
 namespace AuthService.Test.Integration.Api.Collections
 {

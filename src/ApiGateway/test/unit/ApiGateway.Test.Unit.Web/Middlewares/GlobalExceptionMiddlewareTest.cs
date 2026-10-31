@@ -2,7 +2,7 @@ using ApiGateway.Web.Middlewares;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Test.Helpers.Fixtures;
+using Common.Test.Helpers.Fixtures;
 
 namespace ApiGateway.Test.Unit.Web.Middlewares
 {

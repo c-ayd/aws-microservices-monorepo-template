@@ -5,13 +5,13 @@ using System.Text.Json;
 using AuthService.Application.Abstractions.MessageBrokers;
 using AuthService.Application.Options;
 using Microsoft.Extensions.Options;
-using Shared.Aws.Helpers.Abstractions;
-using Shared.Crypto;
-using Shared.RabbitMq.Helpers;
-using Shared.RabbitMq.Helpers.BackgroundServices;
-using Shared.RabbitMq.Helpers.EntityFramework.DbContexts;
-using Shared.RabbitMq.Helpers.EntityFramework.Entities;
-using Shared.RabbitMq.Helpers.Structures;
+using Common.Aws.Helpers.Abstractions;
+using Common.Crypto;
+using Common.RabbitMq.Helpers;
+using Common.RabbitMq.Helpers.BackgroundServices;
+using Common.RabbitMq.Helpers.EntityFramework.DbContexts;
+using Common.RabbitMq.Helpers.EntityFramework.Entities;
+using Common.RabbitMq.Helpers.Structures;
 
 namespace AuthService.Api.BackgroundServices
 {

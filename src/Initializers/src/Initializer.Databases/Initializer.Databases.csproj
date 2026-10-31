@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Aws.Helpers\Shared.Aws.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Aws.Helpers\Common.Aws.Helpers.csproj" />
     <ProjectReference Include="..\..\..\AuthService\src\AuthService.Persistence\AuthService.Persistence.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Constants\Shared.Constants.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Constants\Common.Constants.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

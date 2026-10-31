@@ -3,11 +3,11 @@ using AuthService.Application.Options;
 using AuthService.Persistence.DistributedCaches;
 using AuthService.Test.Integration.Persistence.Collections;
 using Microsoft.Extensions.Options;
-using Shared.AspNetCore.Helpers.Kestrel.Options.Extensions;
-using Shared.PostgreSql.Helpers.Options.Extensions;
-using Shared.RabbitMq.Helpers.Options.Extensions;
-using Shared.Redis.Helpers;
-using Shared.Test.Helpers.Fixtures;
+using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
+using Common.PostgreSql.Helpers.Options.Extensions;
+using Common.RabbitMq.Helpers.Options.Extensions;
+using Common.Redis.Helpers;
+using Common.Test.Helpers.Fixtures;
 
 namespace AuthService.Test.Integration.Persistence.DistributedCaches
 {

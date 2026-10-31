@@ -4,10 +4,10 @@ using AuthService.Domain.Entities;
 using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Application.Collections;
 using Microsoft.EntityFrameworkCore;
-using Shared.Constants;
-using Shared.Crypto;
-using Shared.Http.Authentication.Constants;
-using Shared.Test.Generators;
+using Common.Constants;
+using Common.Crypto;
+using Common.Http.Authentication.Constants;
+using Common.Test.Generators;
 
 namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Logout
 {

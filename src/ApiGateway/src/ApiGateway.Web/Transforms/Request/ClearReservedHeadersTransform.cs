@@ -1,4 +1,4 @@
-using Shared.Http.Authentication.Constants;
+using Common.Http.Authentication.Constants;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Transforms.Builder;
 

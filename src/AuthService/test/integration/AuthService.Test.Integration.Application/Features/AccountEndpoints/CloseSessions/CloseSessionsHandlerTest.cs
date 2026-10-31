@@ -6,10 +6,10 @@ using AuthService.Domain.Entities;
 using AuthService.Persistence.DbContexts;
 using AuthService.Test.Integration.Application.Collections;
 using Microsoft.EntityFrameworkCore;
-using Shared.Constants;
-using Shared.Http.Authentication.Constants;
-using Shared.Redis.Helpers.Extensions;
-using Shared.Test.Generators;
+using Common.Constants;
+using Common.Http.Authentication.Constants;
+using Common.Redis.Helpers.Extensions;
+using Common.Test.Generators;
 
 namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.CloseSessions
 {

@@ -3,9 +3,9 @@ using Microsoft.Extensions.Options;
 using NotificationService.Worker.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Shared.Aws.Helpers.Abstractions;
-using Shared.Constants;
-using Shared.RabbitMq.Helpers.BackgroundServices;
+using Common.Aws.Helpers.Abstractions;
+using Common.Constants;
+using Common.RabbitMq.Helpers.BackgroundServices;
 using Shared.RabbitMq.Notifications.Configurations;
 using Shared.RabbitMq.Notifications.Messages;
 

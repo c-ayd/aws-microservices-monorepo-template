@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using ApiGateway.Test.Integration.Web.Collections;
 using Microsoft.Net.Http.Headers;
-using Shared.Http.Authentication.Constants;
-using Shared.Redis.Helpers.Extensions;
+using Common.Http.Authentication.Constants;
+using Common.Redis.Helpers.Extensions;
 
 namespace ApiGateway.Test.Integration.Web.Transforms.Request
 {

@@ -1,7 +1,7 @@
 using System.Net.Mail;
 using AuthService.Application.Validations.Constraints;
-using Shared.Http.Response.Structures;
-using Shared.Http.Validation;
+using Common.Http.Response.Structures;
+using Common.Http.Validation;
 
 namespace AuthService.Application.Validations.Shared
 {

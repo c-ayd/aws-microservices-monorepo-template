@@ -1,11 +1,11 @@
 using System.Reflection;
 using NotificationService.Worker.BackgroundServices;
-using Shared.AspNetCore.Helpers.DependencyInjection;
-using Shared.Logging.DependencyInjection;
-using Shared.AspNetCore.Helpers.Kestrel;
-using Shared.AspNetCore.Helpers.Kestrel.Structures;
+using Common.AspNetCore.Helpers.DependencyInjection;
+using Common.Logging.DependencyInjection;
+using Common.AspNetCore.Helpers.Kestrel;
+using Common.AspNetCore.Helpers.Kestrel.Structures;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Shared.Aws.Helpers.DependencyInjection;
+using Common.Aws.Helpers.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 

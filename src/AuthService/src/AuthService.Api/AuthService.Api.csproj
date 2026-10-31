@@ -10,7 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AuthService.Persistence\AuthService.Persistence.csproj" />
     <ProjectReference Include="..\AuthService.Infrastructure\AuthService.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\..\Shared\src\Shared.Logging\Shared.Logging.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Logging\Common.Logging.csproj" />
   </ItemGroup>
 
 </Project>

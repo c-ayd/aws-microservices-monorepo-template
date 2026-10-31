@@ -5,7 +5,7 @@ using AuthService.Application.Features.AccountEndpoints.Login;
 using AuthService.Application.Features.AccountEndpoints.Logout;
 using AuthService.Application.Features.AccountEndpoints.Register;
 using Microsoft.AspNetCore.Builder;
-using Shared.Http.DependencyInjection;
+using Common.Http.DependencyInjection;
 
 namespace AuthService.Application.Features.AccountEndpoints
 {

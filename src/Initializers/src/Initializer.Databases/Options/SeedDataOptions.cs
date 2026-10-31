@@ -1,5 +1,5 @@
 using Initializer.Databases.Rollouts;
-using Shared.AspNetCore.Helpers.Options;
+using Common.AspNetCore.Helpers.Options;
 
 namespace Initializer.Databases.Options
 {

@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Shared\src\Shared.Test.Helpers\Shared.Test.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\..\Common\src\Common.Test.Helpers\Common.Test.Helpers.csproj" />
     <ProjectReference Include="..\..\..\src\ApiGateway.Web\ApiGateway.Web.csproj" />
   </ItemGroup>
 

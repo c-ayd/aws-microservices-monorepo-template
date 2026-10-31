@@ -1,0 +1,32 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Common.AspNetCore.Helpers/Common.AspNetCore.Helpers.csproj" />
+    <Project Path="src/Common.Aws.Helpers/Common.Aws.Helpers.csproj" />
+    <Project Path="src/Common.Constants/Common.Constants.csproj" />
+    <Project Path="src/Common.Crypto/Common.Crypto.csproj" />
+    <Project Path="src/Common.Grpc.Helpers/Common.Grpc.Helpers.csproj" />
+    <Project Path="src/Common.Http.Helpers/Common.Http.Helpers.csproj" />
+    <Project Path="src/Common.Logging/Common.Logging.csproj" />
+    <Project Path="src/Common.PostgreSql.Helpers/Common.PostgreSql.Helpers.csproj" />
+    <Project Path="src/Common.RabbitMq.Helpers/Common.RabbitMq.Helpers.csproj" />
+    <Project Path="src/Common.Redis.Helpers/Common.Redis.Helpers.csproj" />
+    <Project Path="src/Common.Test.Generators/Common.Test.Generators.csproj" />
+    <Project Path="src/Common.Test.Helpers/Common.Test.Helpers.csproj" />
+    <Project Path="src/Common.Test.WebApi/Common.Test.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+  <Folder Name="/test/integration/">
+    <Project Path="test/integration/Common.Test.Integration.AspNetCore.Helpers/Common.Test.Integration.AspNetCore.Helpers.csproj" />
+    <Project Path="test/integration/Common.Test.Integration.Aws.Helpers/Common.Test.Integration.Aws.Helpers.csproj" />
+    <Project Path="test/integration/Common.Test.Integration.Grpc.Helpers/Common.Test.Integration.Grpc.Helpers.csproj" />
+    <Project Path="test/integration/Common.Test.Integration.Http.Helpers/Common.Test.Integration.Http.Helpers.csproj" />
+    <Project Path="test/integration/Common.Test.Integration.PostgreSql.Helpers/Common.Test.Integration.PostgreSql.Helpers.csproj" />
+    <Project Path="test/integration/Common.Test.Integration.RabbitMq.Helpers/Common.Test.Integration.RabbitMq.Helpers.csproj" />
+    <Project Path="test/integration/Common.Test.Integration.Redis.Helpers/Common.Test.Integration.Redis.Helpers.csproj" />
+  </Folder>
+  <Folder Name="/test/unit/">
+    <Project Path="test/unit/Common.Test.Unit.Crypto/Common.Test.Unit.Crypto.csproj" />
+    <Project Path="test/unit/Common.Test.Unit.Logging/Common.Test.Unit.Logging.csproj" />
+    <Project Path="test/unit/Common.Test.Unit.Test.Generators/Common.Test.Unit.Test.Generators.csproj" />
+  </Folder>
+</Solution>
