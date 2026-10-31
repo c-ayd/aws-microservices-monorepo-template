@@ -1,5 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Aws.Helpers\Shared.Aws.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.AspNetCore.Helpers\Shared.AspNetCore.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Http\Shared.Http.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Logging\Shared.Logging.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
