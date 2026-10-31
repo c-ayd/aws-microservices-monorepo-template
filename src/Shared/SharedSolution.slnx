@@ -4,6 +4,7 @@
     <Project Path="src/Shared.Aws.Helpers/Shared.Aws.Helpers.csproj" />
     <Project Path="src/Shared.Constants/Shared.Constants.csproj" />
     <Project Path="src/Shared.Crypto/Shared.Crypto.csproj" />
+    <Project Path="src/Shared.Grpc.Helpers/Shared.Grpc.Helpers.csproj" />
     <Project Path="src/Shared.Http/Shared.Http.csproj" />
     <Project Path="src/Shared.PostgreSql.Helpers/Shared.PostgreSql.Helpers.csproj" />
     <Project Path="src/Shared.RabbitMq.Helpers/Shared.RabbitMq.Helpers.csproj" />
