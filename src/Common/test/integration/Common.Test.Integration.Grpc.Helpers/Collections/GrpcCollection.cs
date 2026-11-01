@@ -9,6 +9,7 @@ using Common.Http.Authentication;
 using Common.Http.Authentication.Constants;
 using Common.Http.Response.Middlewares;
 using Common.Test.Helpers.Fixtures;
+using Common.Http.Helpers.Authentication;
 
 namespace Common.Test.Integration.Grpc.Helpers.Collections
 {
@@ -53,8 +54,7 @@ namespace Common.Test.Integration.Grpc.Helpers.Collections
                         .AddScheme<AuthenticationSchemeOptions, ApiGatewayAuthHandler>(ApiGatewayAuthKeys.AuthenticationScheme, options => { });
                     services.AddAuthorization(optios =>
                     {
-                        optios.AddPolicy("Admin", policy =>
-                            policy.RequireRole("Admin"));
+                        optios.AddAdminPolicy();
                     });
                 },
                 configureApp: app =>
@@ -202,12 +202,12 @@ namespace Common.Test.Integration.Grpc.Helpers.Collections
                 });
             }
 
-            [Authorize(Policy = "Admin")]
+            [Authorize(Policy = Policies.AdminPolicy.RoleName)]
             public override Task<TestGrpcResponse> Admin(TestGrpcRequest request, ServerCallContext context)
             {
                 return Task.FromResult(new TestGrpcResponse()
                 {
-                    StrValue = "Admin",
+                    StrValue = Policies.AdminPolicy.RoleName,
                     IntValue = 15
                 });
             }

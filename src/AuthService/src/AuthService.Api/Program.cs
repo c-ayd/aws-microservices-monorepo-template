@@ -22,6 +22,7 @@ using Common.Aws.Helpers.DependencyInjection;
 using AuthService.Application.Options;
 using AuthService.Infrastructure.Grpc.Admin;
 using Common.Grpc.Helpers.DependencyInjection;
+using Common.Http.Helpers.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,7 +79,7 @@ builder.Services.AddAuthentication(ApiGatewayAuthKeys.AuthenticationScheme)
     .AddScheme<AuthenticationSchemeOptions, ApiGatewayAuthHandler>(ApiGatewayAuthKeys.AuthenticationScheme, options => { });
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    options.AddAdminPolicy();
 });
 
 builder.Logging.AddStructuredConsoleLogging(
@@ -108,7 +109,7 @@ app.MapWellKnownEndpoints();
 app.MapAccountEndpoints();
 
 app.MapGrpcService<AuthGrpcAdminService>()
-    .RequireAuthorization("Admin");
+    .RequireAuthorization(Policies.AdminPolicy.PolicyName);
 
 app.MapHealthChecks("/health");
 

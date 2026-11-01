@@ -4,6 +4,7 @@ using AuthService.Domain.Enums;
 using AuthService.Persistence.DbContexts;
 using Common.Constants;
 using Common.Http.Authentication.Constants;
+using Common.Http.Helpers.Authentication;
 using Common.Test.Generators;
 using Grpc.Core;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,7 @@ namespace AuthService.Test.Integration.Infrastructure.Grpc
             var claims = new List<Claim>()
             {
                 new Claim(ApiGatewayAuthKeys.Claims.Id.ClaimType, Guid.NewGuid().ToString()),
-                new Claim(ApiGatewayAuthKeys.Claims.Roles.ClaimType, "Admin")
+                new Claim(ApiGatewayAuthKeys.Claims.Roles.ClaimType, Policies.AdminPolicy.RoleName)
             };
             var httpContext = new DefaultHttpContext()
             {
@@ -51,7 +52,7 @@ namespace AuthService.Test.Integration.Infrastructure.Grpc
         public async Task GetAccount_WhenAccountIsFound_ShouldReturnAccountInfo()
         {
             // Arrange
-            var role = new Role("Admin");
+            var role = new Role(Policies.AdminPolicy.RoleName);
 
             var account = new Account(
                 EmailGenerator.Generate(),
@@ -77,7 +78,7 @@ namespace AuthService.Test.Integration.Infrastructure.Grpc
             var claims = new List<Claim>()
             {
                 new Claim(ApiGatewayAuthKeys.Claims.Id.ClaimType, Guid.NewGuid().ToString()),
-                new Claim(ApiGatewayAuthKeys.Claims.Roles.ClaimType, "Admin")
+                new Claim(ApiGatewayAuthKeys.Claims.Roles.ClaimType, Policies.AdminPolicy.RoleName)
             };
             var httpContext = new DefaultHttpContext()
             {

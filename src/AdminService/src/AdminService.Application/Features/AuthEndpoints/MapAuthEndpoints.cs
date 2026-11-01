@@ -1,4 +1,5 @@
 using AdminService.Application.Features.AuthEndpoints.GetAccount;
+using Common.Http.Helpers.Authentication;
 using Microsoft.AspNetCore.Builder;
 
 namespace AdminService.Application.Features.AuthEndpoints
@@ -8,7 +9,7 @@ namespace AdminService.Application.Features.AuthEndpoints
         public static void MapAuthEndpoints(this WebApplication app)
         {
             var group = app.MapGroup("/auth")
-                .RequireAuthorization("Admin");
+                .RequireAuthorization(Policies.AdminPolicy.PolicyName);
 
             group.MapGet("/account/{accountId}", GetAccountHandler.HandleAsync);
         }

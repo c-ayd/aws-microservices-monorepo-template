@@ -2,6 +2,7 @@ using System.Net;
 using ApiGateway.Web.DistributedCaches;
 using ApiGateway.Web.Errors;
 using Common.Http.Authentication.Constants;
+using Common.Http.Helpers.Authentication;
 using Common.Http.Response;
 
 namespace ApiGateway.Web.Middlewares
@@ -23,7 +24,8 @@ namespace ApiGateway.Web.Middlewares
         {
             bool isAuthenticated = context.User.Identity != null && context.User.Identity.IsAuthenticated;
             bool isAdmin = isAuthenticated &&
-                context.User.FindAll(c => c.Type == ApiGatewayAuthKeys.Claims.Roles.ClaimType).FirstOrDefault(c => c.Value == "Admin") != null;
+                context.User.FindAll(c => c.Type == ApiGatewayAuthKeys.Claims.Roles.ClaimType)
+                    .FirstOrDefault(c => c.Value == Policies.AdminPolicy.RoleName) != null;
 
             string key;
             int limit;

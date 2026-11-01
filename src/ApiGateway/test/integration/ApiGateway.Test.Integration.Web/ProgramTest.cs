@@ -1,5 +1,6 @@
 using System.Net;
 using ApiGateway.Test.Integration.Web.Collections;
+using Common.Http.Helpers.Authentication;
 using Microsoft.Net.Http.Headers;
 
 namespace ApiGateway.Test.Integration.Web
@@ -81,7 +82,7 @@ namespace ApiGateway.Test.Integration.Web
         {
             // Arrange
             var authServiceClient = _collectionCluster.AuthServiceFixture.CreateHttpClient();
-            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles=Admin");
+            var tokenResponse = await authServiceClient.GetAsync($"/test/generate-access-token?accountId={Guid.NewGuid()}&roles={Policies.AdminPolicy.RoleName}");
             var token = await tokenResponse.Content.ReadAsStringAsync();
 
             var apiGatewayClient = _collectionCluster.ApiGatewayWebApp.CreateHttpClient();

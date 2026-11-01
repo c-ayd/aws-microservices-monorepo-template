@@ -17,6 +17,7 @@ using Common.Http.Authentication.Constants;
 using Common.Http.Response.Middlewares;
 using Common.Logging.DependencyInjection;
 using Common.Logging.Middlewares;
+using Common.Http.Helpers.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -119,10 +120,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization(config =>
+builder.Services.AddAuthorization(options =>
 {
-    config.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
-    config.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    options.AddAuthenticatedPolicy();
+    options.AddAdminPolicy();
 });
 
 builder.Logging.AddStructuredConsoleLogging(
