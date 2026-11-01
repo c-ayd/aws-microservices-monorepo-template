@@ -15,6 +15,9 @@ using Common.Http.Request;
 using Common.Http.Response.Middlewares;
 using Common.Logging.DependencyInjection;
 using Common.Logging.Middlewares;
+using AdminService.Application.Features.AuthEndpoints;
+using Common.Grpc.Helpers.DependencyInjection;
+using Shared.Grpc.Auth.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +58,14 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 });
 
+var caBundleOptions = builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!;
+builder.Services.AddGrpcClients(
+    urlsAndClients: new Dictionary<string, Type>()
+    {
+        { builder.Configuration.GetValue<string>("Grpc:Auth")!, typeof(AuthGrpcAdmin.AuthGrpcAdminClient) }
+    },
+    caBundleOptions.Value);
+
 builder.Logging.AddStructuredConsoleLogging(
     builder.Environment.IsProduction(),
     healthEndpoint: "/health");
@@ -68,6 +79,8 @@ app.UseMiddleware<AuthErrorResponseMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<AuthScopeLoggingMiddleware>();
+
+app.MapAuthEndpoints();
 
 app.MapHealthChecks("/health");
 
