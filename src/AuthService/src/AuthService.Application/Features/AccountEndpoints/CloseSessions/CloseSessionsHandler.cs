@@ -9,7 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Common.Http.Response;
-using Common.Http.Response.Structures;
+using AuthService.Application.Errors;
+using Common.Constants.Errors;
 
 namespace AuthService.Application.Features.AccountEndpoints.CloseSessions
 {
@@ -37,8 +38,8 @@ namespace AuthService.Application.Features.AccountEndpoints.CloseSessions
                 case EPasswordVerificationResult.Fail:
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.Forbidden,
-                        [
-                            new ErrorItem("auth_password_wrong", "The password is wrong.")
+                        errors: [
+                            ServiceErrors.WrongPasswordError
                         ]
                     );
                 case EPasswordVerificationResult.VersionNotFound:
@@ -47,8 +48,8 @@ namespace AuthService.Application.Features.AccountEndpoints.CloseSessions
 
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.InternalServerError,
-                        [
-                            new ErrorItem("internal_server_error", "Something went wrong.")
+                        errors: [
+                            CommonErrors.UnknownError
                         ]
                     );
                 case EPasswordVerificationResult.LengthMismatch:
@@ -56,8 +57,8 @@ namespace AuthService.Application.Features.AccountEndpoints.CloseSessions
 
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.InternalServerError,
-                        [
-                            new ErrorItem("internal_server_error", "Something went wrong.")
+                        errors: [
+                            CommonErrors.UnknownError
                         ]
                     );
                 case EPasswordVerificationResult.Success:
@@ -77,8 +78,8 @@ namespace AuthService.Application.Features.AccountEndpoints.CloseSessions
 
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.InternalServerError,
-                        [
-                            new ErrorItem("internal_server_error", "Something went wrong.")
+                        errors: [
+                            CommonErrors.UnknownError
                         ]
                     );
             }

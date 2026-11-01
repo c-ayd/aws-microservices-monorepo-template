@@ -165,6 +165,7 @@
         "dependencies": {
           "Common.AspNetCore.Helpers": "[1.0.0, )",
           "Common.Aws.Helpers": "[1.0.0, )",
+          "Common.Constants": "[1.0.0, )",
           "Common.Grpc.Helpers": "[1.0.0, )",
           "Common.Http.Helpers": "[1.0.0, )",
           "Common.Logging": "[1.0.0, )",
@@ -183,6 +184,12 @@
           "AWSSDK.SecretsManager": "[4.0.100.19, )",
           "AWSSDK.SimpleEmailV2": "[4.0.106.4, )",
           "Common.AspNetCore.Helpers": "[1.0.0, )"
+        }
+      },
+      "common.constants": {
+        "type": "Project",
+        "dependencies": {
+          "Common.Http.Helpers": "[1.0.0, )"
         }
       },
       "common.grpc.helpers": {

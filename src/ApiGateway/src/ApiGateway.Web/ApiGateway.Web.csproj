@@ -18,6 +18,7 @@
     <ProjectReference Include="..\..\..\Common\src\Common.AspNetCore.Helpers\Common.AspNetCore.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Common\src\Common.Redis.Helpers\Common.Redis.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Common\src\Common.Aws.Helpers\Common.Aws.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Constants\Common.Constants.csproj" />
   </ItemGroup>
 
 </Project>

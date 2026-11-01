@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\..\Common\src\Common.Http.Helpers\Common.Http.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Common\src\Common.Logging\Common.Logging.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.Grpc.Auth\Shared.Grpc.Auth.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Constants\Common.Constants.csproj" />
   </ItemGroup>
 
 </Project>

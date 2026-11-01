@@ -1,6 +1,6 @@
 using System.Net;
+using Common.Constants.Errors;
 using Common.Http.Response;
-using Common.Http.Response.Structures;
 
 namespace AdminService.Api.Middlewares
 {
@@ -29,8 +29,8 @@ namespace AdminService.Api.Middlewares
                 {
                     await JsonResponseBuilder.Error(
                         HttpStatusCode.BadRequest,
-                        [
-                            new ErrorItem("route_or_query_params_wrong", "The given route or query parameters are wrong.")
+                        errors: [
+                            CommonErrors.BindingError
                         ]
                     ).ExecuteAsync(context);
                 }
@@ -44,8 +44,8 @@ namespace AdminService.Api.Middlewares
                 {
                     await JsonResponseBuilder.Error(
                         HttpStatusCode.InternalServerError,
-                        [
-                            new ErrorItem("internal_server_error", "Something went wrong.")
+                        errors: [
+                            CommonErrors.UnknownError
                         ]
                     ).ExecuteAsync(context);
                 }

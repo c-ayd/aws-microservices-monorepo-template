@@ -383,7 +383,10 @@
         }
       },
       "common.constants": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Common.Http.Helpers": "[1.0.0, )"
+        }
       },
       "common.crypto": {
         "type": "Project"
