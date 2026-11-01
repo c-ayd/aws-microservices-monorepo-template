@@ -2,6 +2,12 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Build Admin Service",
+      "type": "shell",
+      "command": "dotnet build src/AdminService/AdminServiceSolution.slnx",
+      "problemMatcher": []
+    },
+    {
       "label": "Build API Gateway",
       "type": "shell",
       "command": "dotnet build src/ApiGateway/ApiGatewaySolution.slnx",
