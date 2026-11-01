@@ -3,4 +3,8 @@
     <Project Path="src/AdminService.Api/AdminService.Api.csproj" />
     <Project Path="src/AdminService.Application/AdminService.Application.csproj" />
   </Folder>
+  <Folder Name="/test/" />
+  <Folder Name="/test/integration/">
+    <Project Path="test/integration/AdminService.Test.Integration.Application/AdminService.Test.Integration.Application.csproj" />
+  </Folder>
 </Solution>
