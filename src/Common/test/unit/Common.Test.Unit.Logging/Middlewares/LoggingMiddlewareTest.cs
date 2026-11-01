@@ -52,7 +52,7 @@ namespace Common.Test.Unit.Logging.Middlewares
             // Arrange
             _loggerFixture.Logs.Clear();
             
-            LoggingConfiguration.HealthEndpoint = "/health";
+            LoggingConfiguration.IgnoredEndpoints.Add("/health");
 
             var middleware = new LoggingMiddleware(
                 async (context) => { },
@@ -66,7 +66,7 @@ namespace Common.Test.Unit.Logging.Middlewares
                 RequestServices = services.BuildServiceProvider()
             };
 
-            httpContext.Request.Path = LoggingConfiguration.HealthEndpoint;
+            httpContext.Request.Path = "/health";
 
             // Act
             await middleware.Invoke(httpContext);
