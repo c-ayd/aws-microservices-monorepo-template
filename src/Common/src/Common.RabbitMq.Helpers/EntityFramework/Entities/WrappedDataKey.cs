@@ -10,7 +10,7 @@ namespace Common.RabbitMq.Helpers.EntityFramework.Entities
         public byte[] Value { get; set; }
 
         // Relationships
-        public ICollection<DroppedMessage> DroppedMessages { get; set; } = new List<DroppedMessage>();
+        public List<DroppedMessage> DroppedMessages { get; set; } = new List<DroppedMessage>();
 
         // Reserved for EF Core
         private WrappedDataKey()
