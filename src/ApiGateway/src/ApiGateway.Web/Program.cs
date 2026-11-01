@@ -123,7 +123,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization(config =>
 {
     config.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
-    config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    config.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 });
 
 builder.Logging.AddStructuredConsoleLogging(
