@@ -23,9 +23,9 @@ namespace AuthService.Domain.Entities
         public DateTimeOffset? DeletedDate { get; set; }
 
         // Relationships
-        public ICollection<Role> Roles { get; set; } = new List<Role>();
-        public ICollection<Session> Sessions { get; set; } = new List<Session>();
-        public ICollection<Token> Tokens { get; set; } = new List<Token>();
+        public List<Role> Roles { get; set; } = new List<Role>();
+        public List<Session> Sessions { get; set; } = new List<Session>();
+        public List<Token> Tokens { get; set; } = new List<Token>();
 
         // Reserved for EF Core
         private Account() : base()
