@@ -28,6 +28,7 @@ namespace AuthService.Test.Integration.Application.Collections
 
         public static int AwsPort { get; private set; }
         public static int AuthServiceHttpsPort { get; private set; }
+        public static int AuthServiceGrpcsPort { get; private set; }
 
         public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -71,7 +72,9 @@ namespace AuthService.Test.Integration.Application.Collections
             await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetPort();
-            AuthServiceHttpsPort = KestrelTestHelper.GetAvailablePortNumber();
+            var availablePorts = KestrelTestHelper.GetMultipleAvailablePortNumbers(numberOfPorts: 2);
+            AuthServiceHttpsPort = availablePorts[0];
+            AuthServiceGrpcsPort = availablePorts[1];
 
             AuthApiWebApp = new AuthApiWebAppFactory(
                 new JwtKeysOptions()
@@ -128,6 +131,8 @@ namespace AuthService.Test.Integration.Application.Collections
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpsPort",
                         AuthServiceHttpsPort.ToString()),
+                    new KeyValuePair<string, string?>("GrpcsPort",
+                        AuthServiceGrpcsPort.ToString()),
 
                     new KeyValuePair<string, string?>($"{JwtOptions.Key}:{nameof(JwtOptions.Issuer)}",
                         $"https://localhost:{AuthServiceHttpsPort}"),
