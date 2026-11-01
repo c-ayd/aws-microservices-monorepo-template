@@ -65,7 +65,7 @@ namespace Initializer.Test.Integration.Databases
             Assert.Equal(_roleName, rolesFromDb[0].Name);
 
             Assert.Equal(_email, accountsFromDb[0].Email);
-            Assert.Equal(_roleName, accountsFromDb[0].Roles.ElementAt(0).Name);
+            Assert.Equal(_roleName, accountsFromDb[0].Roles[0].Name);
         }
 
         [Fact]
