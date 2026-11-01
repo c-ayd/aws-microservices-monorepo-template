@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option csharp_namespace = "Shared.Grpc.Auth.Admin";
+
+import "Protos/Admin/auth_admin_get_account.proto";
+
+package shared.grpc.auth.admin;
+
+service AuthGrpcAdmin {
+    rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
+}

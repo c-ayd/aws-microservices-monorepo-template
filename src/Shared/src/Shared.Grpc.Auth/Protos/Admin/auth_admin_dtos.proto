@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option csharp_namespace = "Shared.Grpc.Auth.Admin";
+
+package shared.grpc.auth.admin;
+
+message AccountDto {
+    int64 createdDateInUnixTimeSeconds = 1;
+    string email = 2;
+    bool isEmailVerified = 3;
+    bool isBanned = 4;
+    bool isLocked = 5;
+    int32 failedLoginAttempts = 6;
+    optional int64 unlockDateInUnixTimeSeconds = 7;
+    optional int64 updatedDateInUnixTimeSeconds = 8;
+    bool isDeleted = 9;
+    optional int64 deletedDateInUnixTimeSeconds = 10;
+}
+
+message RoleDto {
+    int64 createdDateInUnixTimeSeconds = 1;
+    string name = 2;
+}
+
+message SessionDto {
+    int64 createdDateInUnixTimeSeconds = 1;
+    int64 expirationDateInUnixTimeSeconds = 2;
+    optional string ipAddress = 3;
+    optional string deviceInfo = 4;
+    optional int64 updatedDateInUnixTimeSeconds = 5;
+}
+
+message TokenDto {
+    int64 createdDateInUnixTimeSeconds = 1;
+    string purpose = 2;
+    int64 expirationDateInUnixTimeSeconds = 3;
+}

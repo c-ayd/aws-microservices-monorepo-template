@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "Shared.Grpc.Auth.Admin";
+
+import "Protos/Admin/auth_admin_dtos.proto";
+
+package shared.grpc.auth.admin;
+
+message GetAccountRequest {
+    string id = 1;
+}
+
+message GetAccountResponse {
+    AccountDto account = 1;
+    repeated RoleDto roles = 2;
+    repeated SessionDto sessions = 3;
+    repeated TokenDto tokens = 4;
+}
