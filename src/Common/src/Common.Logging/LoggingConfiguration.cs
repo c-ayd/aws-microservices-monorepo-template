@@ -2,6 +2,9 @@ namespace Common.Logging
 {
     public static class LoggingConfiguration
     {
-        public static string? HealthEndpoint = null;
+        public static List<string> IgnoredEndpoints = new List<string>()
+        {
+            "/.well-known"
+        };
     }
 }

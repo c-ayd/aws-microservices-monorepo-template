@@ -38,9 +38,11 @@ namespace Common.Logging.Middlewares
 
         private void LogMetrics(ILogger<LoggingMiddleware> logger, string endpoint, int statusCode, double elapsedTimeMs)
         {
-            if (endpoint.StartsWith("/.well-known") ||
-                (LoggingConfiguration.HealthEndpoint != null && endpoint == LoggingConfiguration.HealthEndpoint))
-                return;
+            foreach (var ignoredEndpoint in LoggingConfiguration.IgnoredEndpoints)
+            {
+                if (endpoint.StartsWith(ignoredEndpoint))
+                    return;
+            }
 
             logger.LogInformation("Status Code: {StatusCode} - Elapsed Time: {ElapsedTime} ms",
                 statusCode,

@@ -128,7 +128,9 @@ builder.Services.AddAuthorization(config =>
 
 builder.Logging.AddStructuredConsoleLogging(
     builder.Environment.IsProduction(),
-    healthEndpoint: "/health");
+    ignoredEndpoints: [
+        "/health"
+    ]);
 
 var app = builder.Build();
 

@@ -5,9 +5,14 @@ namespace Common.Logging.DependencyInjection
 {
     public static partial class DependencyInjection
     {
-        public static void AddStructuredConsoleLogging(this ILoggingBuilder logging, bool isProduction, string? healthEndpoint = null)
+        public static void AddStructuredConsoleLogging(this ILoggingBuilder logging,
+            bool isProduction,
+            IEnumerable<string>? ignoredEndpoints = null)
         {
-            LoggingConfiguration.HealthEndpoint = healthEndpoint;
+            if (ignoredEndpoints != null)
+            {
+                LoggingConfiguration.IgnoredEndpoints.AddRange(ignoredEndpoints);
+            }
 
             logging.ClearProviders();
             logging.AddJsonConsole(config =>
