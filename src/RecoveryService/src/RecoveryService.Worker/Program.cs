@@ -13,7 +13,6 @@ using RecoveryService.Worker.BackgroundServices;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAwsOptions(builder.Environment.IsProduction());
-builder.Services.AddAwsSecretsManager();
 builder.Services.AddAwsS3Bucket();
 builder.Services.AddAwsKms();
 await builder.Configuration.AddAwsSecretsAsync([
