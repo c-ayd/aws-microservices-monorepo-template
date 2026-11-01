@@ -753,6 +753,7 @@
         "dependencies": {
           "Common.AspNetCore.Helpers": "[1.0.0, )",
           "Common.Aws.Helpers": "[1.0.0, )",
+          "Common.Constants": "[1.0.0, )",
           "Common.Http.Helpers": "[1.0.0, )",
           "Common.Logging": "[1.0.0, )",
           "Common.Redis.Helpers": "[1.0.0, )",
@@ -775,7 +776,10 @@
         }
       },
       "common.constants": {
-        "type": "Project"
+        "type": "Project",
+        "dependencies": {
+          "Common.Http.Helpers": "[1.0.0, )"
+        }
       },
       "common.http.helpers": {
         "type": "Project",

@@ -13,7 +13,8 @@ using Microsoft.Extensions.Options;
 using Common.Crypto;
 using Common.Http.Authentication.Constants;
 using Common.Http.Response;
-using Common.Http.Response.Structures;
+using AuthService.Application.Errors;
+using Common.Constants.Errors;
 
 namespace AuthService.Application.Features.AccountEndpoints.Login
 {
@@ -38,8 +39,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
             if (account == null)
                 return JsonResponseBuilder.Error(
                     HttpStatusCode.BadRequest,
-                    [
-                        new ErrorItem("auth_wrong_credentials", "The credentials are wrong.")
+                    errors: [
+                        ServiceErrors.WrongCredentialsError
                     ]
                 );
 
@@ -47,8 +48,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
             if (account.IsBanned)
                 return JsonResponseBuilder.Error(
                     HttpStatusCode.Forbidden,
-                    [
-                        new ErrorItem("auth_account_banned", "The account is banned.")
+                    errors: [
+                        ServiceErrors.AccountBannedError
                     ]
                 );
 
@@ -58,8 +59,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
                 if (DateTimeOffset.UtcNow < account.UnlockDate)
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.Locked,
-                        [
-                            new ErrorItem("auth_account_locked", "The account is locked.")
+                        errors: [
+                            ServiceErrors.AccountLockedError
                         ],
                         metadata: new
                         {
@@ -89,8 +90,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
 
                         return JsonResponseBuilder.Error(
                             HttpStatusCode.Locked,
-                            [
-                                new ErrorItem("auth_account_locked_login", "The account is locked due to failed login attemps.")
+                            errors: [
+                                ServiceErrors.LoginLockedError
                             ],
                             metadata: new
                             {
@@ -103,8 +104,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
 
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.BadRequest,
-                        [
-                            new ErrorItem("auth_wrong_credentials", "The credentials are wrong.")
+                        errors: [
+                            ServiceErrors.WrongCredentialsError
                         ],
                         metadata: new
                         {
@@ -117,8 +118,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
 
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.InternalServerError,
-                        [
-                            new ErrorItem("internal_server_error", "Something went wrong.")
+                        errors: [
+                            CommonErrors.UnknownError
                         ]
                     );
                 case EPasswordVerificationResult.LengthMismatch:
@@ -126,8 +127,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
 
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.InternalServerError,
-                        [
-                            new ErrorItem("internal_server_error", "Something went wrong.")
+                        errors: [
+                            CommonErrors.UnknownError
                         ]
                     );
                 case EPasswordVerificationResult.Success:
@@ -158,8 +159,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
 
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.InternalServerError,
-                        [
-                            new ErrorItem("internal_server_error", "Something went wrong.")
+                        errors: [
+                            CommonErrors.UnknownError
                         ]
                     );
             }

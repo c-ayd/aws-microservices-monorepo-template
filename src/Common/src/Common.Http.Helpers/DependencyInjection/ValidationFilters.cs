@@ -1,6 +1,6 @@
 using System.Net;
+using Common.Http.Helpers.Response;
 using Common.Http.Response;
-using Common.Http.Response.Structures;
 using Common.Http.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -10,8 +10,6 @@ namespace Common.Http.DependencyInjection
 {
     public static partial class DependencyInjection
     {
-        private static readonly ErrorItem _requestBodyMissingError = new ErrorItem("request_body_missing", "The request body is missing");
-
         public static IEndpointConventionBuilder AddValidation<T>(this IEndpointConventionBuilder builder)
         {
             return builder.AddEndpointFilter(async (context, next) =>
@@ -20,8 +18,8 @@ namespace Common.Http.DependencyInjection
                 if (request == null)
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.BadRequest,
-                        [
-                            _requestBodyMissingError
+                        errors: [
+                            CommonErrors.RequestBodyMissingError
                         ]
                     );
 
@@ -47,8 +45,8 @@ namespace Common.Http.DependencyInjection
                 if (request == null)
                     return JsonResponseBuilder.Error(
                         HttpStatusCode.BadRequest,
-                        [
-                            _requestBodyMissingError
+                        errors: [
+                            CommonErrors.RequestBodyMissingError
                         ]
                     );
 

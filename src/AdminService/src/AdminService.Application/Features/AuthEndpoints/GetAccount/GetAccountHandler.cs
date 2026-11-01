@@ -1,6 +1,6 @@
 using System.Net;
+using AdminService.Application.Errors;
 using Common.Http.Response;
-using Common.Http.Response.Structures;
 using Grpc.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,8 +29,8 @@ namespace AdminService.Application.Features.AuthEndpoints.GetAccount
                     case StatusCode.NotFound:
                         return JsonResponseBuilder.Error(
                             HttpStatusCode.NotFound,
-                            [
-                                new ErrorItem("admin_account_not_found", "The account could not be found.")
+                            errors: [
+                                ServiceErrors.AccountNotFound
                             ]
                         );
                     default:
