@@ -6,7 +6,7 @@ using Common.Http.Authentication.Constants;
 
 namespace Common.Grpc.Helpers.Interceptors
 {
-    public class GrpcClientAuthInterceptor : Interceptor
+    internal class GrpcClientAuthInterceptor : Interceptor
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
