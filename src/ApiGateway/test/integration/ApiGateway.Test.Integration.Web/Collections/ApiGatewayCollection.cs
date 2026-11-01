@@ -179,7 +179,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
             await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/certificates", JsonSerializer.Serialize(
                 new
                 {
-                    Certificate = new
+                    Certificates = new
                     {
                         ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePath)),
                         ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePrivateKeyPath))

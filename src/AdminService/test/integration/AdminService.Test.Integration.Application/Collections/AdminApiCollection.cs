@@ -108,7 +108,7 @@ namespace AdminService.Test.Integration.Application.Collections
             await AwsFixture.SecretsManager_AddStringAsync("template/admin-svc/certificates", JsonSerializer.Serialize(
                 new
                 {
-                    Certificate = new
+                    Certificates = new
                     {
                         ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _adminServiceServerCertificatePath)),
                         ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _adminServiceServerCertificatePrivateKeyPath))
