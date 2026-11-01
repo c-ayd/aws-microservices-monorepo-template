@@ -1,8 +1,8 @@
 using System.Net;
 using ApiGateway.Web.DistributedCaches;
+using ApiGateway.Web.Errors;
 using Common.Http.Authentication.Constants;
 using Common.Http.Response;
-using Common.Http.Response.Structures;
 
 namespace ApiGateway.Web.Middlewares
 {
@@ -56,10 +56,10 @@ namespace ApiGateway.Web.Middlewares
             {
                 await JsonResponseBuilder.Error(
                     HttpStatusCode.TooManyRequests,
-                    [
-                        new ErrorItem("api_gateway_rate_limiter", "The rate limit has been reached.")
+                    errors: [
+                        ServiceErrors.RateLimitExceededError
                     ],
-                    new
+                    metadata: new
                     {
                         cooldownTimeInSeconds
                     }

@@ -1,3 +1,4 @@
+using AuthService.Application.Errors;
 using AuthService.Application.Validations.Shared;
 using Common.Http.Response.Structures;
 using Common.Http.Validation;
@@ -12,7 +13,7 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
 
             if (value.Email == null)
             {
-                errors.Add(new ErrorItem("auth_email_required", "The email address is required."));
+                errors.Add(ServiceErrors.EmailRequiredError);
             }
             else
             {
@@ -21,7 +22,7 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
             
             if (value.Password == null)
             {
-                errors.Add(new ErrorItem("auth_password_required", "The password is required."));
+                errors.Add(ServiceErrors.PasswordRequiredError);
             }
 
             return errors;

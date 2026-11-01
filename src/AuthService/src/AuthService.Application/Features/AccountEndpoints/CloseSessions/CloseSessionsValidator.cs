@@ -1,3 +1,4 @@
+using AuthService.Application.Errors;
 using AuthService.Application.Validations.Shared;
 using Common.Http.Response.Structures;
 using Common.Http.Validation;
@@ -12,7 +13,7 @@ namespace AuthService.Application.Features.AccountEndpoints.CloseSessions
 
             if (value.Password == null)
             {
-                errors.Add(new ErrorItem("auth_password_required", "The password is required."));
+                errors.Add(ServiceErrors.PasswordRequiredError);
             }
             else
             {

@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Common.Crypto;
 using Common.Http.Response;
-using Common.Http.Response.Structures;
 using Shared.RabbitMq.Notifications.Messages;
 using Shared.RabbitMq.Notifications.Templates;
+using AuthService.Application.Errors;
 
 namespace AuthService.Application.Features.AccountEndpoints.Register
 {
@@ -36,8 +36,8 @@ namespace AuthService.Application.Features.AccountEndpoints.Register
             if (account != null)
                 return JsonResponseBuilder.Error(
                     HttpStatusCode.Conflict,
-                    [
-                        new ErrorItem("auth_email_in_use", "The email address is already in use.")
+                    errors: [
+                        ServiceErrors.EmailInUseError
                     ]
                 );
 
