@@ -1,17 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Common\src\Common.Aws.Helpers\Common.Aws.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Common\src\Common.AspNetCore.Helpers\Common.AspNetCore.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Common\src\Common.Http.Helpers\Common.Http.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\Common\src\Common.Logging\Common.Logging.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.Tools" Version="2.85.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\src\Common.Aws.Helpers\Common.Aws.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.AspNetCore.Helpers\Common.AspNetCore.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Grpc.Helpers\Common.Grpc.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Http.Helpers\Common.Http.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Logging\Common.Logging.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Grpc.Auth\Shared.Grpc.Auth.csproj" />
+  </ItemGroup>
 
 </Project>
