@@ -9,7 +9,7 @@ namespace AuthService.Domain.Entities
         public string Name { get; set; }
 
         // Relationships
-        public ICollection<Account> Accounts { get; set; } = new List<Account>();
+        public List<Account> Accounts { get; set; } = new List<Account>();
 
         // Reserved for EF Core
         private Role() : base()

@@ -154,7 +154,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
                 cookies: new Dictionary<string, string>()
                 {
                     { CookieKeys.SessionId, matchSessionId ?
-                        account.Sessions.ElementAt(0).Id.ToString() : Guid.NewGuid().ToString() },
+                        account.Sessions[0].Id.ToString() : Guid.NewGuid().ToString() },
                     { CookieKeys.RefreshToken, matchRefreshToken ?
                         refreshToken : StringGenerator.GenerateAlphanumeric() }
                 });
@@ -202,7 +202,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
                 },
                 cookies: new Dictionary<string, string>()
                 {
-                    { CookieKeys.SessionId, account.Sessions.ElementAt(0).Id.ToString() },
+                    { CookieKeys.SessionId, account.Sessions[0].Id.ToString() },
                     { CookieKeys.RefreshToken, refreshToken }
                 });
 
