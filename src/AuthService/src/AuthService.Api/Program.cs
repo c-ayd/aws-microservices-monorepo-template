@@ -26,7 +26,6 @@ using Common.Grpc.Helpers.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAwsOptions(builder.Environment.IsProduction());
-builder.Services.AddAwsSecretsManager();
 builder.Services.AddAwsKms();
 builder.Services.AddAwsS3Bucket();
 await builder.Configuration.AddAwsSecretsAsync([

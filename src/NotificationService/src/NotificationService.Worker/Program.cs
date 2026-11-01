@@ -10,7 +10,6 @@ using Common.Aws.Helpers.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAwsOptions(builder.Environment.IsProduction());
-builder.Services.AddAwsSecretsManager();
 builder.Services.AddAwsSes();
 await builder.Configuration.AddAwsSecretsAsync([
     "template/notification-svc/connections",
