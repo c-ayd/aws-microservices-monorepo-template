@@ -27,7 +27,7 @@ namespace AuthService.Test.Integration.Application.Collections
         public const string DroppedMessagesDbName = "dropped-messages-db";
 
         public static int AwsPort { get; private set; }
-        public static int AuthServicePort { get; private set; }
+        public static int AuthServiceHttpsPort { get; private set; }
 
         public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -71,7 +71,7 @@ namespace AuthService.Test.Integration.Application.Collections
             await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetPort();
-            AuthServicePort = KestrelTestHelper.GetAvailablePortNumber();
+            AuthServiceHttpsPort = KestrelTestHelper.GetAvailablePortNumber();
 
             AuthApiWebApp = new AuthApiWebAppFactory(
                 new JwtKeysOptions()
@@ -127,10 +127,10 @@ namespace AuthService.Test.Integration.Application.Collections
             {
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpsPort",
-                        AuthServicePort.ToString()),
+                        AuthServiceHttpsPort.ToString()),
 
                     new KeyValuePair<string, string?>($"{JwtOptions.Key}:{nameof(JwtOptions.Issuer)}",
-                        $"https://localhost:{AuthServicePort}"),
+                        $"https://localhost:{AuthServiceHttpsPort}"),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
                         $"http://localhost:{AwsPort}"),

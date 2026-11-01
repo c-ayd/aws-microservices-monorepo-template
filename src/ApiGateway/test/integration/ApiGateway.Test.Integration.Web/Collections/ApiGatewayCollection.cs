@@ -31,10 +31,10 @@ namespace ApiGateway.Test.Integration.Web.Collections
         private const string _webApiServerPrivateKeyPath = "Certs/WebApi/test-webapi-server.key";
 
         public static int AwsPort { get; private set; }
-        public static int ApiGatewayPort { get; private set; }
-        public static int AuthServicePort { get; private set; }
-        public static int ProtectedServicePort { get; private set; }
-        public static int AdminServicePort { get; private set; }
+        public static int ApiGatewayHttpsPort { get; private set; }
+        public static int AuthServiceHttpsPort { get; private set; }
+        public static int ProtectedServiceHttpsPort { get; private set; }
+        public static int AdminServiceHttpsPort { get; private set; }
 
         public AwsFixture AwsFixture { get; private set; }
         public RedisFixture TokenBlacklistRedisFixture { get; private set; }
@@ -109,10 +109,10 @@ namespace ApiGateway.Test.Integration.Web.Collections
             await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetPort();
-            ApiGatewayPort = KestrelTestHelper.GetAvailablePortNumber();
-            AuthServicePort = AuthServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
-            ProtectedServicePort = ProtectedServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
-            AdminServicePort = AdminServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
+            ApiGatewayHttpsPort = KestrelTestHelper.GetAvailablePortNumber();
+            AuthServiceHttpsPort = AuthServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
+            ProtectedServiceHttpsPort = ProtectedServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
+            AdminServiceHttpsPort = AdminServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
 
             ApiGatewayWebApp = new ApiGatewayWebAppFactory();
             ApiGatewayWebApp.StartServer();
@@ -145,22 +145,22 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpsPort",
-                        ApiGatewayPort.ToString()),
+                        ApiGatewayHttpsPort.ToString()),
 
                     new KeyValuePair<string, string?>($"{JwtOptions.Key}:{nameof(JwtOptions.Authority)}",
-                        $"https://localhost:{AuthServicePort}"),
+                        $"https://localhost:{AuthServiceHttpsPort}"),
                     new KeyValuePair<string, string?>($"{JwtOptions.Key}:{nameof(JwtOptions.Audience)}",
-                        $"https://localhost:{ApiGatewayPort}"),
+                        $"https://localhost:{ApiGatewayHttpsPort}"),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
                         $"http://localhost:{AwsPort}"),
 
                     new KeyValuePair<string, string?>("ReverseProxy:Clusters:auth-cluster:Destinations:auth-service:Address",
-                        $"https://localhost:{AuthServicePort}"),
+                        $"https://localhost:{AuthServiceHttpsPort}"),
                     new KeyValuePair<string, string?>("ReverseProxy:Clusters:protected-cluster:Destinations:protected-service:Address",
-                        $"https://localhost:{ProtectedServicePort}"),
+                        $"https://localhost:{ProtectedServiceHttpsPort}"),
                     new KeyValuePair<string, string?>("ReverseProxy:Clusters:admin-cluster:Destinations:admin-service:Address",
-                        $"https://localhost:{AdminServicePort}")
+                        $"https://localhost:{AdminServiceHttpsPort}")
                 ]);
             }
         }
@@ -202,8 +202,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
             {
                 await Results.Ok(new
                 {
-                    issuer = $"https://localhost:{AuthServicePort}",
-                    jwks_uri = $"https://localhost:{AuthServicePort}/.well-known/jwks.json"
+                    issuer = $"https://localhost:{AuthServiceHttpsPort}",
+                    jwks_uri = $"https://localhost:{AuthServiceHttpsPort}/.well-known/jwks.json"
                 }).ExecuteAsync(context);
             });
             endpoints.MapGet("/.well-known/jwks.json", async (context) =>
@@ -288,8 +288,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
                 };
 
                 var token = new JwtSecurityToken(
-                    issuer: $"https://localhost:{AuthServicePort}",
-                    audience: $"https://localhost:{ApiGatewayPort}",
+                    issuer: $"https://localhost:{AuthServiceHttpsPort}",
+                    audience: $"https://localhost:{ApiGatewayHttpsPort}",
                     claims: claims,
                     expires: expired.HasValue && expired.Value ? 
                         DateTimeOffset.UtcNow.AddDays(-1).UtcDateTime : 
