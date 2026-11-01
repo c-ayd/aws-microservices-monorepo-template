@@ -35,6 +35,7 @@ namespace Common.Test.Helpers
             for (int i = 0; i < numberOfPorts; ++i)
             {
                 var listener = new TcpListener(IPAddress.Loopback, 0);
+                listeners.Add(listener);
                 listener.Start();
 
                 ports.Add(((IPEndPoint)listener.LocalEndpoint).Port);
