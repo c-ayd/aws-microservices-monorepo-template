@@ -28,7 +28,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
         public const string TestQueueName = "test.recovery.queue";
 
         public static int AwsPort { get; private set; }
-        public static int RecoveryServicePort { get; private set; }
+        public static int RecoveryServiceHttpPort { get; private set; }
 
         public AwsFixture AwsFixture { get; private set; }
         public PostgreSqlFixture PostgreSqlFixture { get; private set; }
@@ -66,7 +66,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
             await SetupRabbitMqAsync();
 
             AwsPort = AwsFixture.GetPort();
-            RecoveryServicePort = KestrelTestHelper.GetAvailablePortNumber();
+            RecoveryServiceHttpPort = KestrelTestHelper.GetAvailablePortNumber();
 
             RecoveryWebApp = new RecoveryWebAppFactory();
             RecoveryWebApp.StartServer();
@@ -96,7 +96,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
 
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpPort",
-                        RecoveryServicePort.ToString()),
+                        RecoveryServiceHttpPort.ToString()),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
                         $"http://localhost:{AwsPort}")

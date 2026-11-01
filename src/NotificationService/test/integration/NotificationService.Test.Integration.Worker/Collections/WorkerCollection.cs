@@ -21,7 +21,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
         public const string AwsSesTemplateBodyParameter = "BodyParam";
 
         public static int AwsPort { get; private set; }
-        public static int NotificationServicePort { get; private set; }        
+        public static int NotificationServiceHttpPort { get; private set; }        
 
         public AwsFixture AwsFixture { get; private set; }
         public RabbitMqFixture RabbitMqFixture { get; private set; }
@@ -47,7 +47,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
             await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetPort();
-            NotificationServicePort = KestrelTestHelper.GetAvailablePortNumber();
+            NotificationServiceHttpPort = KestrelTestHelper.GetAvailablePortNumber();
 
             NotificationWebApp = new NotificationWebAppFactory();
             NotificationWebApp.StartServer();
@@ -74,7 +74,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
             {
                 configuration.AddInMemoryCollection([
                     new KeyValuePair<string, string?>("HttpPort",
-                        NotificationServicePort.ToString()),
+                        NotificationServiceHttpPort.ToString()),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
                         $"http://localhost:{AwsPort}")
