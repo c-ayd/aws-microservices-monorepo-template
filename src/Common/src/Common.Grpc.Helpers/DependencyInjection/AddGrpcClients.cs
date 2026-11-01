@@ -16,7 +16,7 @@ namespace Common.Grpc.Helpers.DependencyInjection
             string? caBundleValue)
         {
             services.AddHttpContextAccessor();
-            services.AddSingleton<GrpcClientAuthInterceptor>();
+            services.AddScoped<GrpcClientAuthInterceptor>();
 
             var addGrpcClientMethodInfo = typeof(GrpcClientServiceExtensions)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)!
