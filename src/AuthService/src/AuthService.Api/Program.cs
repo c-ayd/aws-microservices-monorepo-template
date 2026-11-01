@@ -20,6 +20,8 @@ using Common.AspNetCore.Helpers.Kestrel.Structures;
 using Common.Http.Request;
 using Common.Aws.Helpers.DependencyInjection;
 using AuthService.Application.Options;
+using AuthService.Infrastructure.Grpc.Admin;
+using Common.Grpc.Helpers.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,11 +46,21 @@ builder.WebHost.ConfigureKestrel(options =>
         builder.Configuration.GetValue<int>("HttpsPort"),
         HttpProtocols.Http1,
         portConfigs);
+
+    options.ConfigureHttps(
+        name: "GrpcsOnly",
+        certificatesOptions.ServerCertificate,
+        certificatesOptions.ServerPrivateKey,
+        builder.Configuration.GetValue<int>("GrpcsPort"),
+        HttpProtocols.Http2,
+        portConfigs);
 });
 builder.Services.AddSingleton(portConfigs);
 
 builder.Services.ConfigureForwardedHeaders(
     builder.Configuration.GetSection("KnownCidrBlocks").Get<string[]>()!);
+
+builder.Services.AddGrpcServer(builder.Environment.IsProduction());
 
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();
@@ -65,7 +77,10 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(AuthServi
 
 builder.Services.AddAuthentication(ApiGatewayAuthKeys.AuthenticationScheme)
     .AddScheme<AuthenticationSchemeOptions, ApiGatewayAuthHandler>(ApiGatewayAuthKeys.AuthenticationScheme, options => { });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+});
 
 builder.Logging.AddStructuredConsoleLogging(
     builder.Environment.IsProduction(),
@@ -90,6 +105,9 @@ app.UseMiddleware<AccountPreferenceMiddleware>();
 
 app.MapWellKnownEndpoints();
 app.MapAccountEndpoints();
+
+app.MapGrpcService<AuthGrpcAdminService>()
+    .RequireAuthorization("Admin");
 
 app.MapHealthChecks("/health");
 

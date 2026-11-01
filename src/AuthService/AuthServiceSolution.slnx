@@ -10,6 +10,7 @@
   <Folder Name="/test/integration/">
     <Project Path="test/integration/AuthService.Test.Integration.Api/AuthService.Test.Integration.Api.csproj" />
     <Project Path="test/integration/AuthService.Test.Integration.Application/AuthService.Test.Integration.Application.csproj" />
+    <Project Path="test/integration/AuthService.Test.Integration.Infrastructure/AuthService.Test.Integration.Infrastructure.csproj" />
     <Project Path="test/integration/AuthService.Test.Integration.Persistence/AuthService.Test.Integration.Persistence.csproj" />
   </Folder>
   <Folder Name="/test/unit/">
