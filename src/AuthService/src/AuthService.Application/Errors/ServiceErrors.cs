@@ -18,5 +18,7 @@ namespace AuthService.Application.Errors
         public static readonly ErrorItem AccountBannedError = new ErrorItem("auth_account_banned", "The account is banned.");
         public static readonly ErrorItem AccountLockedError = new ErrorItem("auth_account_locked", "The account is locked.");
         public static readonly ErrorItem LoginLockedError = new ErrorItem("auth_account_login_locked", "The account is locked due to failed login attemps.");
+
+        public static readonly ErrorItem TokenNotFound = new ErrorItem("auth_token_not_found", "The tokn could not be found.");
     }
 }

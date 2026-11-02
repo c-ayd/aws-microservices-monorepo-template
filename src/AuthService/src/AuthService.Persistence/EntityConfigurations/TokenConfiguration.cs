@@ -10,6 +10,8 @@ namespace AuthService.Persistence.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<Token> builder)
         {
+            builder.HasIndex(t => t.ValueHashed);
+
             builder.Property(t => t.Purpose)
                 .HasConversion<EnumConverter<ETokenPurpose>>();
         }
