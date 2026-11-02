@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Common.Crypto.Exceptions;
 using Common.Crypto.Structures;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Common.Crypto
 {
@@ -19,6 +20,19 @@ namespace Common.Crypto
         /// <returns>Returns the hashed value.</returns>
         public static string Hash(string value, byte version, Func<byte, HashOptions> options)
         {
+            return Hash(value, version, options, out _);
+        }
+
+        /// <summary>
+        /// Hashes a given value.
+        /// </summary>
+        /// <param name="value">Value to hash</param>
+        /// <param name="version">Version of the hash options</param>
+        /// <param name="options">Delegate that returns hashing options based on the given version</param>
+        /// <param name="salt">Salt that was used during hashing</param>
+        /// <returns>Returns the hashed value.</returns>
+        public static string Hash(string value, byte version, Func<byte, HashOptions> options, out string salt)
+        {
             if (string.IsNullOrEmpty(value))
                 throw new ArgumentException("The value cannot be null or empty.", nameof(value));
 
@@ -30,24 +44,64 @@ namespace Common.Crypto
             // Hashed value bytes are: {Version}{Salt}{Hash}
             // Version bytes are 8 bits (1 byte)
             var bytesSize = 1 + hashOptions.SaltSize + hashSize;
-            Span<byte> bytes = new byte[bytesSize];
-            
-            var saltBytes = bytes.Slice(1, hashOptions.SaltSize);
-            var hashBytes = bytes.Slice(1 + hashOptions.SaltSize, hashSize);
+            Span<byte> hashedValue = new byte[bytesSize];
 
-            var valueBytesSize = Encoding.UTF8.GetByteCount(value);
-            var combinedSize = hashOptions.SaltSize + valueBytesSize;
-            Span<byte> combined = new byte[combinedSize];
+            var saltBytes = hashedValue.Slice(1, hashOptions.SaltSize);
+            var hashBytes = hashedValue.Slice(1 + hashOptions.SaltSize, hashSize);
+            Span<byte> bytes = new byte[hashOptions.SaltSize + Encoding.UTF8.GetByteCount(value)];
 
             // Fill the bytes
-            bytes[0] = version;
+            hashedValue[0] = version;
+
             RandomNumberGenerator.Fill(saltBytes);
+            saltBytes.CopyTo(bytes);
+            
+            Encoding.UTF8.GetBytes(value, bytes.Slice(hashOptions.SaltSize));
 
-            saltBytes.CopyTo(combined);
-            Encoding.UTF8.GetBytes(value, combined.Slice(hashOptions.SaltSize));
-            hashAlgorithm.TryComputeHash(combined, hashBytes, out _);
+            hashAlgorithm.TryComputeHash(bytes, hashBytes, out _);
 
-            return Convert.ToBase64String(bytes);
+            salt = Convert.ToBase64String(saltBytes);
+            return Convert.ToBase64String(hashedValue);
+        }
+
+        /// <summary>
+        /// Hashes a given value.
+        /// </summary>
+        /// <param name="value">Value to hash</param>
+        /// <param name="salt">Salt to use for hashing</param>
+        /// <param name="version">Version of the hash options</param>
+        /// <param name="options">Delegate that returns hashing options based on the given version</param>
+        /// <returns>Returns the hashed value.</returns>
+        public static string Hash(string value, string salt, byte version, Func<byte, HashOptions> options)
+        {
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentException("The value cannot be null or empty.", nameof(value));
+
+            var hashOptions = options(version);
+            using var hashAlgorithm = hashOptions.Algorithm();
+
+            var hashSize = hashAlgorithm.HashSize / 8;
+
+            // Hashed value bytes are: {Version}{Salt}{Hash}
+            // Version bytes are 8 bits (1 byte)
+            var bytesSize = 1 + hashOptions.SaltSize + hashSize;
+            Span<byte> hashedValue = new byte[bytesSize];
+
+            var saltBytes = hashedValue.Slice(1, hashOptions.SaltSize);
+            var hashBytes = hashedValue.Slice(1 + hashOptions.SaltSize, hashSize);
+            Span<byte> bytes = new byte[hashOptions.SaltSize + Encoding.UTF8.GetByteCount(value)];
+
+            // Fill the bytes
+            hashedValue[0] = version;
+
+            Convert.FromBase64String(salt).CopyTo(saltBytes);
+            saltBytes.CopyTo(bytes);
+
+            Encoding.UTF8.GetBytes(value, bytes.Slice(hashOptions.SaltSize));
+
+            hashAlgorithm.TryComputeHash(bytes, hashBytes, out _);
+
+            return Convert.ToBase64String(hashedValue);
         }
 
         /// <summary>
