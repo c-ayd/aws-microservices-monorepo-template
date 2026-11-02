@@ -178,6 +178,8 @@ namespace AuthService.Persistence.Migrations.AuthDb
 
                     b.HasIndex("AccountId");
 
+                    b.HasIndex("ValueHashed");
+
                     b.ToTable("Tokens");
                 });
 

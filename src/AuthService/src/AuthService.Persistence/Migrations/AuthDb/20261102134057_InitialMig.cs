@@ -143,6 +143,11 @@ namespace AuthService.Persistence.Migrations.AuthDb
                 name: "IX_Tokens_AccountId",
                 table: "Tokens",
                 column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tokens_ValueHashed",
+                table: "Tokens",
+                column: "ValueHashed");
         }
 
         /// <inheritdoc />
