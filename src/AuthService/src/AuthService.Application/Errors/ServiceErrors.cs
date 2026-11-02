@@ -15,6 +15,7 @@ namespace AuthService.Application.Errors
         public static readonly ErrorItem PasswordLengthError = new ErrorItem("auth_error_password_length", $"The password must be between {AccountConstraints.PasswordMinLength} and {AccountConstraints.PasswordMaxLength} characters.");
         public static readonly ErrorItem PasswordFormatError = new ErrorItem("auth_error_password_format", "The password must constain at least one lowercase, one uppercase, one digit and one special character.");
 
+        public static readonly ErrorItem AccountNotFound = new ErrorItem("auth_account_not_found", "The account could not be found.");
         public static readonly ErrorItem AccountBannedError = new ErrorItem("auth_account_banned", "The account is banned.");
         public static readonly ErrorItem AccountLockedError = new ErrorItem("auth_account_locked", "The account is locked.");
         public static readonly ErrorItem LoginLockedError = new ErrorItem("auth_account_login_locked", "The account is locked due to failed login attemps.");

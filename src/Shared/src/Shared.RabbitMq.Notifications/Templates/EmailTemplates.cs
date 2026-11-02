@@ -9,5 +9,13 @@ namespace Shared.RabbitMq.Notifications.Templates
         /// </para>
         /// </summary>
         public const string EmailVerification = "email-verification";
+
+        /// <summary>
+        /// This template requires the following parameter:
+        /// <para>
+        /// Token
+        /// </para>
+        /// </summary>
+        public const string ForgotPassword = "forgot-password";
     }
 }
