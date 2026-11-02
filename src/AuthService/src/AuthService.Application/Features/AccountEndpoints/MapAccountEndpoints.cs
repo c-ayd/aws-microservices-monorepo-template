@@ -7,6 +7,7 @@ using AuthService.Application.Features.AccountEndpoints.Register;
 using Microsoft.AspNetCore.Builder;
 using Common.Http.DependencyInjection;
 using AuthService.Application.Features.AccountEndpoints.VerifyEmail;
+using AuthService.Application.Features.AccountEndpoints.ForgotPassword;
 
 namespace AuthService.Application.Features.AccountEndpoints
 {
@@ -35,6 +36,9 @@ namespace AuthService.Application.Features.AccountEndpoints
                 .AddValidation<CloseSessionsRequest>();
 
             group.MapPost("/verify-email", VerifyEmailHandler.HandleAsync);
+
+            group.MapPost("/forgot-password", ForgotPasswordHandler.HandleAsync)
+                .AddValidation<ForgotPasswordRequest>();
         }
     }
 }
