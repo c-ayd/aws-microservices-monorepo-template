@@ -8,7 +8,7 @@ using Shared.Grpc.Auth.Admin;
 
 namespace AdminService.Application.Features.AuthEndpoints.GetAccount
 {
-    public static class GetAccountHandler
+    public class GetAccountHandler
     {
         public static async Task<IResult> HandleAsync(
             [FromRoute] Guid accountId,
