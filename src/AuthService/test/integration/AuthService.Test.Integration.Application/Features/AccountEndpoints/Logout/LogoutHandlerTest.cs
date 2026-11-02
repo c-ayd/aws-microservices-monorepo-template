@@ -8,6 +8,7 @@ using Common.Constants;
 using Common.Crypto;
 using Common.Http.Authentication.Constants;
 using Common.Test.Generators;
+using System.Text;
 
 namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Logout
 {
@@ -187,7 +188,10 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
                 SupportedLanguages.DefaultLanguage);
             account.Sessions.Add(new Session(
                 account.Id,
-                refreshTokenHashed: ValueHasher.Hash(refreshToken, hashVersions.CurrentVersion, hashVersions.GetHashOptions),
+                refreshTokenHashed: Convert.ToBase64String(ValueHasher.Hash(
+                    value: Encoding.UTF8.GetBytes(refreshToken).AsSpan(),
+                    hashVersions.CurrentVersion,
+                    hashVersions.GetHashOptions)),
                 expirationDate: DateTimeOffset.UtcNow));
 
             await authDbContext.Accounts.AddAsync(account);
