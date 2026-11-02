@@ -43,6 +43,21 @@ namespace Common.Test.Unit.Crypto
             Assert.NotEqual(value, hashedValue);
         }
 
+        [Fact]
+        public void Hash_WhenParametersAreValidAndSaltIsGiven_ShouldProduceSameHash()
+        {
+            // Arrange
+            var value = StringGenerator.GeneratePrintableAscii();
+            var hashOptions = new HashOptions(Algorithm: SHA256.Create, SaltSize: 16);
+
+            // Act
+            var hashedValue = ValueHasher.Hash(value, version: 1, (version) => hashOptions, out var salt);
+            var otherHashedValue = ValueHasher.Hash(value, salt, version: 1, (version) => hashOptions);
+
+            // Assert
+            Assert.Equal(hashedValue, otherHashedValue);
+        }
+
         [Theory]
         [InlineData("")]
         [InlineData(null)]
