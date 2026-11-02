@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Common.Http.DependencyInjection;
 using AuthService.Application.Features.AccountEndpoints.VerifyEmail;
 using AuthService.Application.Features.AccountEndpoints.ForgotPassword;
+using AuthService.Application.Features.AccountEndpoints.ResetPassword;
 
 namespace AuthService.Application.Features.AccountEndpoints
 {
@@ -39,6 +40,8 @@ namespace AuthService.Application.Features.AccountEndpoints
 
             group.MapPost("/forgot-password", ForgotPasswordHandler.HandleAsync)
                 .AddValidation<ForgotPasswordRequest>();
+            group.MapPost("/reset-password", ResetPasswordHandler.HandleAsync)
+                .AddValidation<ResetPasswordRequest>();
         }
     }
 }
