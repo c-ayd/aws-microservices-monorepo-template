@@ -37,7 +37,7 @@ namespace AdminService.Test.Integration.Application.Features.AuthEndpoints.GetAc
         }
 
         [Fact]
-        public async Task HandleAsync_WhenAccountFound_ShouldReturnOk()
+        public async Task HandleAsync_WhenAccountIsFound_ShouldReturnOk()
         {
             // Arrange
             var client = _collectionCluster.AdminApiWebApp.CreateHttpClient(
