@@ -34,7 +34,6 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
             // Check if the account exists
             var account = await authDbContext.Accounts
                 .Where(a => a.Email == request.Email)
-                .Include(a => a.Roles)
                 .FirstOrDefaultAsync();
 
             if (account == null)
@@ -175,7 +174,11 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
                 new Claim(ApiGatewayAuthKeys.Claims.IssuedAt.ClaimType, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
             };
 
-            var roles = account.Roles.Select(r => r.Name).ToList();
+            var roles = await authDbContext.Accounts
+                .Where(a => a.Email == request.Email)
+                .SelectMany(a => a.Roles)
+                    .Select(r => r.Name)
+                .ToListAsync();
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ApiGatewayAuthKeys.Claims.Roles.ClaimType, role));
