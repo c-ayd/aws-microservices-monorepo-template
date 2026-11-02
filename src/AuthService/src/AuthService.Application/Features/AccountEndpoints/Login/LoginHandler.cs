@@ -15,6 +15,7 @@ using Common.Http.Authentication.Constants;
 using Common.Http.Response;
 using AuthService.Application.Errors;
 using Common.Constants.Errors;
+using System.Text;
 
 namespace AuthService.Application.Features.AccountEndpoints.Login
 {
@@ -185,7 +186,10 @@ namespace AuthService.Application.Features.AccountEndpoints.Login
             // Add a new session to the DB
             var newSession = new Session(
                 account.Id,
-                ValueHasher.Hash(jwt.RefreshToken, hashVersions.CurrentVersion, hashVersions.GetHashOptions),
+                refreshTokenHashed: Convert.ToBase64String(ValueHasher.Hash(
+                    value: Encoding.UTF8.GetBytes(jwt.RefreshToken).AsSpan(),
+                    hashVersions.CurrentVersion,
+                    hashVersions.GetHashOptions)),
                 jwt.RefreshTokenExpirationDate,
                 context.Connection.RemoteIpAddress,
                 context.Request.Headers.UserAgent);

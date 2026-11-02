@@ -8,6 +8,7 @@ using Common.Crypto;
 using Common.Crypto.Exceptions;
 using Common.Http.Authentication.Constants;
 using Common.Http.Response;
+using System.Text;
 
 namespace AuthService.Application.Features.AccountEndpoints.Logout
 {
@@ -41,10 +42,15 @@ namespace AuthService.Application.Features.AccountEndpoints.Logout
             {
                 if (session == null ||
                     session.AccountId != Guid.Parse(context.User.Identity!.Name!) ||
-                    !ValueHasher.Verify(session.RefreshTokenHashed, refreshToken, hashVersions.GetHashOptions, out var _))
+                    !ValueHasher.Verify(
+                        Convert.FromBase64String(session.RefreshTokenHashed).AsSpan(),
+                        Encoding.UTF8.GetBytes(refreshToken).AsSpan(),
+                        hashVersions.GetHashOptions,
+                        out var _))
                     return JsonResponseBuilder.Success(HttpStatusCode.NoContent);
             }
             catch (Exception exception) when (
+                exception is HashVersionNotFoundException ||
                 exception is CryptographicException ||
                 exception is FormatException ||
                 exception is HashLengthMismatchException)
