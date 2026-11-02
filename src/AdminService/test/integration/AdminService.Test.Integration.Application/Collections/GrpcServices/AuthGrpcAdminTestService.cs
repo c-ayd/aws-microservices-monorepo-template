@@ -12,5 +12,15 @@ namespace AdminService.Test.Integration.Application.Collections.GrpcServices
 
             return Task.FromResult(new GetAccountResponse());
         }
+
+        public override Task<GetAccountsResponse> GetAccounts(GetAccountsRequest request, ServerCallContext context)
+        {
+            var response = new GetAccountsResponse();
+            response.Accounts.Add(new AccountDto());
+            response.Accounts.Add(new AccountDto());
+            response.Accounts.Add(new AccountDto());
+            
+            return Task.FromResult(response);
+        }
     }
 }
