@@ -10,12 +10,13 @@ namespace AdminService.Application.Features.AuthEndpoints.GetAccounts
     {
         public static async Task<IResult> HandleAsync(
             [FromQuery] int page,
-            AuthGrpcAdmin.AuthGrpcAdminClient client)
+            AuthGrpcAdmin.AuthGrpcAdminClient client,
+            CancellationToken cancellationToken)
         {
             var response = await client.GetAccountsAsync(new GetAccountsRequest()
             {
                 Page = page
-            });
+            }, cancellationToken: cancellationToken);
 
             return JsonResponseBuilder.SuccessWithData(HttpStatusCode.OK, response);
         }
