@@ -14,6 +14,7 @@ using Shared.RabbitMq.Notifications.Messages;
 using Shared.RabbitMq.Notifications.Templates;
 using AuthService.Application.Errors;
 using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace AuthService.Application.Features.AccountEndpoints.Register
 {
@@ -55,21 +56,25 @@ namespace AuthService.Application.Features.AccountEndpoints.Register
                 valueHashed: Convert.ToBase64String(ValueHasher.Hash(
                     value: Encoding.UTF8.GetBytes(emailVerificationTokenValue).AsSpan(),
                     hashVersions.CurrentVersion,
-                    hashVersions.GetHashOptions)),
+                    hashVersions.GetHashOptions,
+                    out var salt)),
                 DateTimeOffset.UtcNow.AddHours(tokenLifespansOptions.Value.EmailVerificationLifespanInHours));
 
             newAccount.Tokens.Add(emailVerificationToken);
             await authDbContext.Accounts.AddAsync(newAccount);
             await authDbContext.SaveChangesAsync();
 
-            // Send an email verification message to the message broker
+            // Send an email verification message to the message broker.
+            // Both plaintext token value and the salt value that was used to
+            // hash this token value are combined in emails with the delimeter dot,
+            // so that the email verification endpoint can find and compare token values.
             await emailService.SendAsync(new EmailMessage(
                 To: [request.Email!],
                 TemplateId: EmailTemplates.EmailVerification,
                 Language: newAccount.PreferredLanguage,
                 Parameters: new Dictionary<string, string>()
                 {
-                    { "Token", emailVerificationTokenValue }
+                    { "Token", $"{emailVerificationTokenValue}.{WebEncoders.Base64UrlEncode(salt)}" }
                 })
             );
 
