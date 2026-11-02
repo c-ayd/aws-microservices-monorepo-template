@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using AdminService.Test.Integration.Application.Collections;
 using Common.Constants;
 using Common.Http.Authentication.Constants;
+using Common.Http.Helpers.Authentication;
 using Shared.Grpc.Auth.Admin;
 
 namespace AdminService.Test.Integration.Application.Features.AuthEndpoints.GetAccounts
@@ -25,7 +26,7 @@ namespace AdminService.Test.Integration.Application.Features.AuthEndpoints.GetAc
                 headers: new Dictionary<string, string>()
                 {
                     { ApiGatewayAuthKeys.Claims.Id.HeaderKey, Guid.NewGuid().ToString() },
-                    { ApiGatewayAuthKeys.Claims.Roles.HeaderKey, "Admin" },
+                    { ApiGatewayAuthKeys.Claims.Roles.HeaderKey, Policies.AdminPolicy.RoleName },
                     { ApiGatewayAuthKeys.Claims.PreferredLanguage.HeaderKey, SupportedLanguages.DefaultLanguage },
                     { ApiGatewayAuthKeys.Claims.IssuedAt.HeaderKey, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString() }
                 });
