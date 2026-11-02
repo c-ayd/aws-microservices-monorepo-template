@@ -13,6 +13,7 @@ using Common.Http.Response;
 using Shared.RabbitMq.Notifications.Messages;
 using Shared.RabbitMq.Notifications.Templates;
 using AuthService.Application.Errors;
+using System.Text;
 
 namespace AuthService.Application.Features.AccountEndpoints.Register
 {
@@ -51,7 +52,10 @@ namespace AuthService.Application.Features.AccountEndpoints.Register
             var emailVerificationToken = new Token(
                 newAccount.Id,
                 ETokenPurpose.EmailVerification,
-                ValueHasher.Hash(emailVerificationTokenValue, hashVersions.CurrentVersion, hashVersions.GetHashOptions),
+                valueHashed: Convert.ToBase64String(ValueHasher.Hash(
+                    value: Encoding.UTF8.GetBytes(emailVerificationTokenValue).AsSpan(),
+                    hashVersions.CurrentVersion,
+                    hashVersions.GetHashOptions)),
                 DateTimeOffset.UtcNow.AddHours(tokenLifespansOptions.Value.EmailVerificationLifespanInHours));
 
             newAccount.Tokens.Add(emailVerificationToken);

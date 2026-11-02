@@ -8,9 +8,12 @@ namespace AuthService.Infrastructure.Crypto
     {
         public byte CurrentVersion { get; private set; } = 1;
 
-        public HashOptions GetHashOptions(byte version)
+        public HashOptions? GetHashOptions(byte version)
         {
-            return _versions[version];
+            if (_versions.TryGetValue(version, out var hashOptions))
+                return hashOptions;
+
+            return null;
         }
 
         private static Dictionary<byte, HashOptions> _versions = new Dictionary<byte, HashOptions>()
