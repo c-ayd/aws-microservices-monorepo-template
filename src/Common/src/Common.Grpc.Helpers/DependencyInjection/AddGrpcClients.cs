@@ -11,6 +11,11 @@ namespace Common.Grpc.Helpers.DependencyInjection
 {
     public static partial class DependencyInjection
     {
+        /// <summary>
+        /// Registers all gRPC clients and sets the TLS for gRPCS along with the retry mechanism.
+        /// </summary>
+        /// <param name="urlsAndClients">URLs and gRPC client types of all gRPC servers</param>
+        /// <param name="caBundleValue">Value of the CA Bundle for TLS</param>
         public static void AddGrpcClients(this IServiceCollection services,
             Dictionary<string, Type> urlsAndClients,
             string? caBundleValue)
