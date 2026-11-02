@@ -12,7 +12,8 @@ namespace AdminService.Application.Features.AuthEndpoints.GetAccount
     {
         public static async Task<IResult> HandleAsync(
             [FromRoute] Guid accountId,
-            AuthGrpcAdmin.AuthGrpcAdminClient client)
+            AuthGrpcAdmin.AuthGrpcAdminClient client,
+            CancellationToken cancellationToken)
         {
             GetAccountResponse response;
             try
@@ -20,7 +21,7 @@ namespace AdminService.Application.Features.AuthEndpoints.GetAccount
                 response = await client.GetAccountAsync(new GetAccountRequest()
                 {
                     Id = accountId.ToString()
-                });
+                }, cancellationToken: cancellationToken);
             }
             catch (RpcException exception)
             {

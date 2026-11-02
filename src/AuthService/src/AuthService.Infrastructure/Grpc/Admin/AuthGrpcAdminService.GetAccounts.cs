@@ -25,7 +25,7 @@ namespace AuthService.Infrastructure.Grpc.Admin
                 })
                 .Skip((request.Page - 1) * _pageSize)
                 .Take(_pageSize)
-                .ToListAsync();
+                .ToListAsync(context.CancellationToken);
 
             var response = new GetAccountsResponse();
             if (accounts.Count == 0)

@@ -43,7 +43,7 @@ namespace AuthService.Infrastructure.Grpc.Admin
                         ExpirationDate = t.ExpirationDate
                     }).ToList()
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(context.CancellationToken);
 
             if (account == null)
                 throw new RpcException(new Status(StatusCode.NotFound, $"The account with the {request.Id} ID is not found."));
