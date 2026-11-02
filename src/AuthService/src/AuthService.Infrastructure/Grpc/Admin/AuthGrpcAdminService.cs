@@ -7,6 +7,8 @@ namespace AuthService.Infrastructure.Grpc.Admin
 {
     public partial class AuthGrpcAdminService : AuthGrpcAdmin.AuthGrpcAdminBase
     {
+        private const int _pageSize = 20;
+
         private readonly IAuthDbContext _authDbContext;
 
         public AuthGrpcAdminService(IAuthDbContext authDbContext)
