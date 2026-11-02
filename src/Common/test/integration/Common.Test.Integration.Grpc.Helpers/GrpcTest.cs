@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Common.Http.Authentication.Constants;
-using Common.Http.Authentication.Structures;
+using Common.Http.Helpers.Authentication;
 using Common.Test.Integration.Grpc.Helpers.Collections;
 
 namespace Common.Test.Integration.Grpc.Helpers
@@ -118,7 +118,7 @@ namespace Common.Test.Integration.Grpc.Helpers
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             var body = await response.Content.ReadFromJsonAsync<TestGrpcResponse>();
-            Assert.Equal("Admin", body!.StrValue);
+            Assert.Equal(Policies.AdminPolicy.RoleName, body!.StrValue);
             Assert.Equal(15, body.IntValue);
         }
 

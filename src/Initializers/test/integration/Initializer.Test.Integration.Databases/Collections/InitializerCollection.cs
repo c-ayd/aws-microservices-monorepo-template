@@ -1,5 +1,6 @@
 using System.Text.Json;
 using AuthService.Persistence.DbContexts;
+using Common.Http.Helpers.Authentication;
 using Common.RabbitMq.Helpers.EntityFramework.DbContexts;
 using Common.Test.Helpers.Fixtures;
 
@@ -74,11 +75,11 @@ namespace Initializer.Test.Integration.Databases.Collections
                         {
                             Roles = new[]
                             {
-                                "Admin"
+                                Policies.AdminPolicy.RoleName
                             },
                             Accounts = new[]
                             {
-                                new { Email = "test@test.com", Role = "Admin" }
+                                new { Email = "test@test.com", Role = Policies.AdminPolicy.RoleName }
                             }
                         }
                     }

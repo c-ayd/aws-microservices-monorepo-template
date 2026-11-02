@@ -18,6 +18,7 @@ using Common.Logging.Middlewares;
 using AdminService.Application.Features.AuthEndpoints;
 using Common.Grpc.Helpers.DependencyInjection;
 using Shared.Grpc.Auth.Admin;
+using Common.Http.Helpers.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,7 +56,7 @@ builder.Services.AddAuthentication(ApiGatewayAuthKeys.AuthenticationScheme)
     .AddScheme<AuthenticationSchemeOptions, ApiGatewayAuthHandler>(ApiGatewayAuthKeys.AuthenticationScheme, options => { });
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    options.AddAdminPolicy();
 });
 
 var caBundleOptions = builder.Configuration.GetSection(CABundleOptions.Key).Get<CABundleOptions>()!;
