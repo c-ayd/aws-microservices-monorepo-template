@@ -6,6 +6,7 @@ using AuthService.Application.Features.AccountEndpoints.Logout;
 using AuthService.Application.Features.AccountEndpoints.Register;
 using Microsoft.AspNetCore.Builder;
 using Common.Http.DependencyInjection;
+using AuthService.Application.Features.AccountEndpoints.VerifyEmail;
 
 namespace AuthService.Application.Features.AccountEndpoints
 {
@@ -32,6 +33,8 @@ namespace AuthService.Application.Features.AccountEndpoints
             group.MapPost("/sessions/close", CloseSessionsHandler.HandleAsync)
                 .RequireAuthorization()
                 .AddValidation<CloseSessionsRequest>();
+
+            group.MapPost("/verify-email", VerifyEmailHandler.HandleAsync);
         }
     }
 }
