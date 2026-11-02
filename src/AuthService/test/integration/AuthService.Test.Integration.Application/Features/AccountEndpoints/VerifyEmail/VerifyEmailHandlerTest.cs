@@ -43,7 +43,7 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Ver
         }
 
         [Fact]
-        public async Task HandleAsync_WhenTokenPurposeIsEmailVerification_ShouldReturnNotFound()
+        public async Task HandleAsync_WhenTokenPurposeIsNotEmailVerification_ShouldReturnNotFound()
         {
             // Arrange
             await using var authDbContext = _collectionCluster.PostgreSqlFixture.CreateDbContext<AuthDbContext>();
