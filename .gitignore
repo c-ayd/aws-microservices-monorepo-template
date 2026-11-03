@@ -5,6 +5,8 @@ dist/
 tmp/
 app/**/*.js
 app/**/*.js.map
+out-tsc
+bazel-out
 
 # dependencies
 node_modules/
@@ -12,6 +14,12 @@ bower_components/
 
 # IDEs and editors
 .idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
 # misc
 .sass-cache/
@@ -22,6 +30,8 @@ npm-debug.log
 testem.log
 typings/
 .angular/
+yarn-error.log
+__screenshots__/
 
 # e2e
 e2e/*.js
@@ -29,6 +39,7 @@ e2e/*.map
 
 # System Files
 .DS_Store/
+Thumbs.db
 
 ### ASPNETCore ###
 ## Ignore Visual Studio temporary files, build results, and
