@@ -799,7 +799,7 @@
       "common.test.webapi": {
         "type": "Project"
       },
-      "recoveryservice": {
+      "recoveryservice.worker": {
         "type": "Project",
         "dependencies": {
           "Common.AspNetCore.Helpers": "[1.0.0, )",
