@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/RecoveryService.Worker/">
-    <Project Path="src/RecoveryService.Worker/RecoveryService.csproj" />
+    <Project Path="src/RecoveryService.Worker/RecoveryService.Worker.csproj" />
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/integration/">
