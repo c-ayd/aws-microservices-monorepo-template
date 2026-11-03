@@ -101,7 +101,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtOptions.Authority,
             ValidAudience = jwtOptions.Audience,
             ValidAlgorithms = [SecurityAlgorithms.RsaSha256],
-            ClockSkew = TimeSpan.FromMinutes(5), // Same as the access token lifespan
+            ClockSkew = TimeSpan.FromMinutes(1),
 
             NameClaimType = ApiGatewayAuthKeys.Claims.Id.ClaimType,
             RoleClaimType = ApiGatewayAuthKeys.Claims.Roles.ClaimType
