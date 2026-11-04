@@ -31,6 +31,7 @@ builder.Services.AddAwsKms();
 builder.Services.AddAwsS3Bucket();
 await builder.Configuration.AddAwsSecretsAsync([
     "template/auth-svc/connections",
+    "template/jwt",
     "template/auth-svc/certificates",
     "template/cert/ca-bundle"
 ]);
