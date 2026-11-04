@@ -2,7 +2,7 @@ using Common.AspNetCore.Helpers.Options;
 
 namespace Common.Aws.Helpers.Options
 {
-    public abstract class CertificatesOptionsBase : IOptions
+    public class CertificatesOptionsBase : IOptions
     {
         public static string Key => "Certificates";
 
