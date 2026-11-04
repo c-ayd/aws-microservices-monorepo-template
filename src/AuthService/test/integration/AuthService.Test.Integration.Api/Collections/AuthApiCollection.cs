@@ -76,31 +76,7 @@ namespace AuthService.Test.Integration.Api.Collections
             AuthServiceHttpsPort = availablePorts[0];
             AuthServiceGrpcsPort = availablePorts[1];
 
-            AuthApiWebApp = new AuthApiWebAppFactory(
-                new JwtKeysOptions()
-                {
-                    CurrentKeyId = "v2",
-                    Keys = new List<JwtKeysOptions.KeyInfo>()
-                    {
-                        new JwtKeysOptions.KeyInfo()
-                        {
-                            KeyId = "v1",
-                            ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
-                            NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
-                            PrivateKey = File.ReadAllText("./test-jwt-v1-private.pem"),
-                            PublicKey = File.ReadAllText("./test-jwt-v1-public.pem")
-                        },
-                        new JwtKeysOptions.KeyInfo()
-                        {
-                            KeyId = "v2",
-                            ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
-                            NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
-                            PrivateKey = File.ReadAllText("./test-jwt-v2-private.pem"),
-                            PublicKey = File.ReadAllText("./test-jwt-v2-public.pem")
-                        }
-                    }
-                });
-
+            AuthApiWebApp = new AuthApiWebAppFactory();
             AuthApiWebApp.StartServer();
         }
 
@@ -118,12 +94,9 @@ namespace AuthService.Test.Integration.Api.Collections
 
         public class AuthApiWebAppFactory : WebAppFactoryFixture<Program>
         {
-            private readonly JwtKeysOptions _jwtKeysOptions;
-
-            public AuthApiWebAppFactory(JwtKeysOptions jwtKeysOptions)
+            public AuthApiWebAppFactory()
                 : base(defaultPortConfigName: "HttpsOnly", CABundlePath)
             {
-                _jwtKeysOptions = jwtKeysOptions;
             }
 
             protected override void OverrideConfiguration(IConfigurationBuilder configuration)
@@ -138,20 +111,7 @@ namespace AuthService.Test.Integration.Api.Collections
                         $"https://localhost:{AuthServiceHttpsPort}"),
 
                     new KeyValuePair<string, string?>($"AWS:ServiceURL",
-                        $"http://localhost:{AwsPort}"),
-
-                    new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.CurrentKeyId)}",
-                        _jwtKeysOptions.CurrentKeyId),
-                    .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.KeyId)}",
-                        k.KeyId)),
-                    .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.ExpirationTime)}",
-                        k.ExpirationTime.ToString())),
-                    .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.NotBeforeTime)}",
-                        k.NotBeforeTime.ToString())),
-                    .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.PrivateKey)}",
-                        k.PrivateKey)),
-                    .._jwtKeysOptions.Keys.Select((k, i) => new KeyValuePair<string, string?>($"{JwtKeysOptions.Key}:{nameof(JwtKeysOptions.Keys)}:{i}:{nameof(JwtKeysOptions.KeyInfo.PublicKey)}",
-                        k.PublicKey))
+                        $"http://localhost:{AwsPort}")
                 ]);
             }
         }
@@ -172,6 +132,34 @@ namespace AuthService.Test.Integration.Api.Collections
                         TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
                     }
                 }));
+            await AwsFixture.SecretsManager_AddStringAsync("template/jwt", JsonSerializer.Serialize(
+                new
+                {
+                    JwtKeys = new
+                    {
+                        CurrentKeyId = "v2",
+                        Keys = new[]
+                        {
+                            new
+                            {
+                                KeyId = "v1",
+                                ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
+                                NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
+                                PrivateKey = File.ReadAllText("./test-jwt-v1-private.pem"),
+                                PublicKey = File.ReadAllText("./test-jwt-v1-public.pem")
+                            },
+                            new
+                            {
+                                KeyId = "v2",
+                                ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
+                                NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
+                                PrivateKey = File.ReadAllText("./test-jwt-v2-private.pem"),
+                                PublicKey = File.ReadAllText("./test-jwt-v2-public.pem")
+                            }
+                        }
+                    }
+                }
+            ));
             await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
                 new
                 {
