@@ -22,6 +22,7 @@ namespace Common.Redis.Helpers
             _configOptions = new ConfigurationOptions()
             {
                 EndPoints = { $"{connectionOptions.Host}:{connectionOptions.Port}" },
+                User = connectionOptions.Username,
                 Password = connectionOptions.Password,
                 AbortOnConnectFail = connectionOptions.AbortOnConnectionFail
             };
