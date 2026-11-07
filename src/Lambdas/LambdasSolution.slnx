@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Lambda.SecretsRotations/Lambda.SecretsRotations.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+  <Folder Name="/test/integration/">
+    <Project Path="test/integration/Lambdas.Test.Integration.SecretsRotations/Lambdas.Test.Integration.SecretsRotations.csproj" />
+  </Folder>
+</Solution>
