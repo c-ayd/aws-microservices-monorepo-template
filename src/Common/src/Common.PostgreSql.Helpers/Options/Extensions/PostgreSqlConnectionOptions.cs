@@ -1,7 +1,9 @@
+using System.Text.Json.Serialization;
 using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
 
 namespace Common.PostgreSql.Helpers.Options.Extensions
 {
+    [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
     public class PostgreSqlConnectionOptions
     {
         public required string Host { get; set; }
