@@ -44,7 +44,8 @@ namespace Common.Test.Helpers.Fixtures
                         "redis-server",
                         "--tls-port", "6380",
                         "--port", "0",
-                        "--requirepass", "redis-password",
+                        "--user", "default", "on", ">123456", "~*", "+@all",
+                        "--user", "redis-user", "on", ">redis-password", "~*", "+@all", "-@dangerous",
                         "--tls-key-file", "/etc/redis/test-redis-server.key",
                         "--tls-cert-file", "/etc/redis/test-redis-server.crt",
                         "--tls-auth-clients", "no")
@@ -59,7 +60,8 @@ namespace Common.Test.Helpers.Fixtures
                     .WithCommand(
                         "redis-server",
                         "--port", "6379",
-                        "--requirepass", "redis-password")
+                        "--user", "default", "on", ">123456", "~*", "+@all",
+                        "--user", "redis-user", "on", ">redis-password", "~*", "+@all", "-@dangerous")
                     .Build();
             }
 
@@ -69,7 +71,8 @@ namespace Common.Test.Helpers.Fixtures
             var configOptions = new ConfigurationOptions()
             {
                 EndPoints = { $"{redisConnSettings.Host}:{redisConnSettings.Port}" },
-                Password = redisConnSettings.Password,
+                User = "default",
+                Password = "123456",
                 AbortOnConnectFail = redisConnSettings.AbortOnConnectionFail
             };
 
@@ -99,6 +102,7 @@ namespace Common.Test.Helpers.Fixtures
             {
                 Host = _container.Hostname,
                 Port = _container.GetMappedPublicPort(_sslEnabled ? 6380 : 6379),
+                Username = "redis-user",
                 Password = "redis-password",
                 AbortOnConnectionFail = true, // For tests, it throws an exception immediately when the connection is initially not established
                 Ssl = new SslOptions()
