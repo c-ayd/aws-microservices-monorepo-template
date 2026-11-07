@@ -8,6 +8,7 @@ using Common.AspNetCore.Helpers.Kestrel.Utilities;
 using Common.RabbitMq.Helpers.Options.Extensions;
 using Common.Test.Helpers.Fixtures.SeedWork;
 using Testcontainers.RabbitMq;
+using Common.Test.Helpers.Exceptions;
 
 namespace Common.Test.Helpers.Fixtures
 {
@@ -32,7 +33,6 @@ namespace Common.Test.Helpers.Fixtures
             string? rabbitMqCertificateFolder = null)
         {
             var builder = new RabbitMqBuilder("rabbitmq:4.3.4-management")
-                .WithPortBinding(15672, true)
                 .WithEnvironment("RABBITMQ_DEFAULT_USER", "guest")
                 .WithEnvironment("RABBITMQ_DEFAULT_PASS", "guest")
                 .WithWaitStrategy(Wait.ForUnixContainer().UntilMessageIsLogged(".*Server startup complete.*"));
@@ -43,6 +43,7 @@ namespace Common.Test.Helpers.Fixtures
                 _caBundleValue = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, caBundlePath!));
                 _container = builder
                     .WithPortBinding(5671, true)
+                    .WithPortBinding(15671, true)
                     .WithResourceMapping(
                         Path.Combine(AppContext.BaseDirectory, rabbitMqCertificateFolder!),
                         "/etc/rabbitmq/")
@@ -54,6 +55,7 @@ namespace Common.Test.Helpers.Fixtures
                 _caBundleValue = null;
                 _container = builder
                     .WithPortBinding(5672, true)
+                    .WithPortBinding(15672, true)
                     .Build();
             }
 
@@ -88,6 +90,14 @@ namespace Common.Test.Helpers.Fixtures
             Channel = await Connection.CreateChannelAsync(new CreateChannelOptions(
                 publisherConfirmationsEnabled: true,
                 publisherConfirmationTrackingEnabled: true));
+        }
+
+        public override int GetMappedPort(int? port = null)
+        {
+            if (port == null)
+                throw new PortArgumentException("RabbitMQ has multiple mapped ports.");
+
+            return _container.GetMappedPublicPort(port.Value);
         }
 
         public RabbitMqConnectionOptions GetConnectionOptions()

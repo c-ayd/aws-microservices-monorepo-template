@@ -108,7 +108,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
             await SetupAwsAsync();
 
-            AwsPort = AwsFixture.GetPort();
+            AwsPort = AwsFixture.GetMappedPort();
             ApiGatewayHttpsPort = KestrelTestHelper.GetAvailablePortNumber();
             AuthServiceHttpsPort = AuthServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);
             ProtectedServiceHttpsPort = ProtectedServiceFixture.GetPort(WebApiFixture.HttpsPortConfigName);

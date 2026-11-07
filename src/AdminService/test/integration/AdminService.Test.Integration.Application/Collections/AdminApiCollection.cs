@@ -63,7 +63,7 @@ namespace AdminService.Test.Integration.Application.Collections
 
             await SetupAws();
 
-            AwsPort = AwsFixture.GetPort();
+            AwsPort = AwsFixture.GetMappedPort();
             GrpcWebAppPort = GrpcWebApp.GetPort(WebApiFixture.HttpsPortConfigName);
             AdminApiHttpsPort = KestrelTestHelper.GetAvailablePortNumber();
 
