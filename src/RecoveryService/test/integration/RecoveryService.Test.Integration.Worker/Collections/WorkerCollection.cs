@@ -65,7 +65,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
             await SetupAwsAsync();
             await SetupRabbitMqAsync();
 
-            AwsPort = AwsFixture.GetPort();
+            AwsPort = AwsFixture.GetMappedPort();
             RecoveryServiceHttpPort = KestrelTestHelper.GetAvailablePortNumber();
 
             RecoveryWebApp = new RecoveryWebAppFactory();

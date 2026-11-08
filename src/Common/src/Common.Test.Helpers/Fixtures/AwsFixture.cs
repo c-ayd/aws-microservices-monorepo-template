@@ -12,6 +12,9 @@ using DotNet.Testcontainers.Containers;
 using Common.Aws.Helpers.Test;
 using Common.Test.Helpers.Fixtures.SeedWork;
 using Common.Test.Helpers.Structures;
+using Amazon.ECS;
+using Amazon.ElastiCache;
+using Amazon.ElastiCache.Model;
 
 namespace Common.Test.Helpers.Fixtures
 {
@@ -28,6 +31,8 @@ namespace Common.Test.Helpers.Fixtures
         private AmazonKeyManagementServiceClient _awsKmsClient = null!;
         private AmazonSimpleEmailServiceV2Client _awsSesClient = null!;
         private AmazonS3Client _awsS3BucketClient = null!;
+        private AmazonElastiCacheClient _awsElastiCache = null!;
+        private AmazonECSClient _awsEcsClient = null!;
 
         public async Task InitializeAsync()
         {
@@ -39,7 +44,7 @@ namespace Common.Test.Helpers.Fixtures
             await _container.StartAsync();
 
             // Configurations
-            _endpoint = $"http://localhost:{GetPort()}";
+            _endpoint = $"http://localhost:{GetMappedPort()}";
 
             _awsSecretsManagerClient = new AmazonSecretsManagerClient(AwsTestConstants.Credentials,
                 new AmazonSecretsManagerConfig()
@@ -70,10 +75,24 @@ namespace Common.Test.Helpers.Fixtures
                     ForcePathStyle = true
                 });
 
+            _awsElastiCache = new AmazonElastiCacheClient(AwsTestConstants.Credentials,
+                new AmazonElastiCacheConfig()
+                {
+                    ServiceURL = _endpoint,
+                    AuthenticationRegion = AwsTestConstants.Region,
+                });
+
+            _awsEcsClient = new AmazonECSClient(AwsTestConstants.Credentials,
+                new AmazonECSConfig()
+                {
+                    ServiceURL = _endpoint,
+                    AuthenticationRegion = AwsTestConstants.Region,
+                });
+
             await SES_VerifyEmailAsync(AwsTestConstants.SesFromEmail);
         }
 
-        public int GetPort()
+        public override int GetMappedPort(int? port = null)
         {
             return _container.GetMappedPublicPort(4566);
         }
@@ -96,6 +115,26 @@ namespace Common.Test.Helpers.Fixtures
                 Name = id,
                 SecretBinary = memoryStream
             });
+        }
+
+        public async Task<string> SecretsManager_GetStringAsync(string id)
+        {
+            var response = await _awsSecretsManagerClient.GetSecretValueAsync(new GetSecretValueRequest()
+            {
+                SecretId = id
+            });
+
+            return response.SecretString;
+        }
+
+        public async Task<byte[]> SecretsManager_GetBinaryAsync(string id)
+        {
+            var response = await _awsSecretsManagerClient.GetSecretValueAsync(new GetSecretValueRequest()
+            {
+                SecretId = id
+            });
+
+            return response.SecretBinary.ToArray();
         }
 
         public async Task SecretsManager_DeleteAsync(string id)
@@ -239,6 +278,112 @@ namespace Common.Test.Helpers.Fixtures
             await _awsS3BucketClient.DeleteBucketAsync(new DeleteBucketRequest()
             {
                 BucketName = bucketName
+            });
+        }
+        //~ End
+
+        //~ Begin - ElastiCache
+        public async Task ElastiCache_CreateUser(
+            string username,
+            string password,
+            string accessString = "~* +@all -@dangerous",
+            string engine = "redis")
+        {
+            await _awsElastiCache.CreateUserAsync(new CreateUserRequest()
+            {
+                UserId = username,
+                UserName = username,
+                Engine = engine,
+                AccessString = accessString,
+                Passwords = new List<string>() { password }
+            });
+        }
+        
+        public async Task ElastiCache_CreateUserGroup(string groupName, string engine = "redis")
+        {
+            await _awsElastiCache.CreateUserGroupAsync(new CreateUserGroupRequest
+            {
+                UserGroupId = groupName,
+                Engine = engine,
+                UserIds = new List<string> { "default" }
+            });
+        }
+
+        public async Task ElastiCache_ModifyUserGroup(string groupName, List<string>? usersToAdd, List<string>? usersToRemove)
+        {
+            await _awsElastiCache.ModifyUserGroupAsync(new ModifyUserGroupRequest
+            {
+                UserGroupId = groupName,
+                UserIdsToAdd = usersToAdd ?? new List<string>(),
+                UserIdsToRemove = usersToRemove ?? new List<string>()
+            });
+        }
+
+        public async Task<User?> ElastiCache_GetUser(string username)
+        {
+            var usersResponse = await _awsElastiCache.DescribeUsersAsync(new DescribeUsersRequest()
+            {
+                UserId = username
+            });
+
+            return usersResponse.Users
+                .Where(u => u.UserName == username)
+                .FirstOrDefault();
+        }
+
+        public async Task ElastiCache_DeleteUser(string username)
+        {
+            await _awsElastiCache.DeleteUserAsync(new DeleteUserRequest()
+            {
+                UserId = username
+            });
+        }
+        //~ End
+
+        //~ Begin - ECS
+        public async Task Ecs_CreateClusterAsync(string clusterName)
+        {
+            await _awsEcsClient.CreateClusterAsync(new Amazon.ECS.Model.CreateClusterRequest
+            {
+                ClusterName = clusterName
+            });
+        }
+
+        public async Task Ecs_RegisterTaskDefiniton(string taskName)
+        {
+            await _awsEcsClient.RegisterTaskDefinitionAsync(new Amazon.ECS.Model.RegisterTaskDefinitionRequest
+            {
+                Family = taskName,
+                NetworkMode = NetworkMode.Awsvpc,
+                RequiresCompatibilities = [Compatibility.FARGATE],
+                Cpu = "256",
+                Memory = "512",
+                ContainerDefinitions = [
+                    new Amazon.ECS.Model.ContainerDefinition
+                    {
+                        Name = "app",
+                        Image = "image"
+                    }
+                ]
+            });
+        }
+
+        public async Task Ecs_CreateServiceAsync(string clusterName, string taskName, string serviceName)
+        {
+            await _awsEcsClient.CreateServiceAsync(new Amazon.ECS.Model.CreateServiceRequest
+            {
+                Cluster = clusterName,
+                TaskDefinition = taskName,
+                ServiceName = serviceName,
+                LaunchType = LaunchType.FARGATE,
+                DesiredCount = 0,
+                NetworkConfiguration = new Amazon.ECS.Model.NetworkConfiguration
+                {
+                    AwsvpcConfiguration = new Amazon.ECS.Model.AwsVpcConfiguration
+                    {
+                        Subnets = ["subnet-123"]
+                    }
+                }
             });
         }
         //~ End

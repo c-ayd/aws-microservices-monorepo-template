@@ -4,8 +4,24 @@
     "net10.0": {
       "AWSSDK.Core": {
         "type": "Transitive",
-        "resolved": "4.0.102.11",
-        "contentHash": "K9PP9/qHQ7pqSB0lYwStJrpXQ8P1xc7Fbn3CyPg8EX78p4+yz8dhIiwiRc3aVbVrUZxmPAPRvmZm+ey1euIXGg=="
+        "resolved": "4.0.102.18",
+        "contentHash": "NjdKTry9Jqm0jGM7Af8TxzDi01MmWmjbGDnc4178S2w6A8b1pSCU0enBEcRoHpyXLafHJUewqeetu+fep1l/pw=="
+      },
+      "AWSSDK.ECS": {
+        "type": "Transitive",
+        "resolved": "4.0.110",
+        "contentHash": "fGEhZyuuGt0ajKmnWi88KjPqxr4vzKTVhxB1LgM53YUYGlguQHhuxABhjWrRD8kHvE3htI//jAPgIN5nBZppdA==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.17, 5.0.0)"
+        }
+      },
+      "AWSSDK.ElastiCache": {
+        "type": "Transitive",
+        "resolved": "4.0.103.4",
+        "contentHash": "8I2c5dmd4/tRmi0bffq1XldIJ93uqBlYKs55zI7qrhdDxozdNRF1cDf67YsQIDC/DI1iZ4JlPg8RiKdgrBM80A==",
+        "dependencies": {
+          "AWSSDK.Core": "[4.0.102.18, 5.0.0)"
+        }
       },
       "AWSSDK.Extensions.NETCore.Setup": {
         "type": "Transitive",
@@ -285,6 +301,8 @@
       "common.aws.helpers": {
         "type": "Project",
         "dependencies": {
+          "AWSSDK.ECS": "[4.0.110, )",
+          "AWSSDK.ElastiCache": "[4.0.103.4, )",
           "AWSSDK.Extensions.NETCore.Setup": "[4.0.102.4, )",
           "AWSSDK.KeyManagementService": "[4.0.100.18, )",
           "AWSSDK.S3": "[4.0.104.4, )",

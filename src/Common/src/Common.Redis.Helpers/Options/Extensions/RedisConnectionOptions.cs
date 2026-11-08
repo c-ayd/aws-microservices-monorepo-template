@@ -1,7 +1,9 @@
+using System.Text.Json.Serialization;
 using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
 
 namespace Common.Redis.Helpers.Options.Extensions
 {
+    [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
     public class RedisConnectionOptions
     {
         public required string Host { get; set; }

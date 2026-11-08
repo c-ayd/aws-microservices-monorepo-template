@@ -35,7 +35,7 @@ namespace Common.Test.Integration.Aws.Helpers.Collections
                 {
                     builder.AddInMemoryCollection([
                         new KeyValuePair<string, string?>($"AWS:ServiceURL",
-                            $"http://localhost:{AwsFixture.GetPort()}"),
+                            $"http://localhost:{AwsFixture.GetMappedPort()}"),
                         
                         new KeyValuePair<string, string?>($"AwsSes:FromEmailAddress",
                             AwsTestConstants.SesFromEmail)

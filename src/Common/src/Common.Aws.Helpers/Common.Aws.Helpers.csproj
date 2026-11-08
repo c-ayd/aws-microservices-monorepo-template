@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.ECS" Version="4.0.110" />
+    <PackageReference Include="AWSSDK.ElastiCache" Version="4.0.103.4" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.102.4" />
     <PackageReference Include="AWSSDK.KeyManagementService" Version="4.0.100.18" />
     <PackageReference Include="AWSSDK.S3" Version="4.0.104.4" />

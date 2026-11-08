@@ -70,6 +70,11 @@ namespace Common.Test.Helpers.Fixtures
             }
         }
 
+        public override int GetMappedPort(int? port = null)
+        {
+            return _container.GetMappedPublicPort(5432);
+        }
+
         public PostgreSqlConnectionOptions GetConnectionOptions(string dbName)
         {
             return new PostgreSqlConnectionOptions()

@@ -30,7 +30,7 @@ namespace Common.Test.Integration.Aws.Helpers.DependencyInjection
             var configuration = new ConfigurationManager();
             configuration.AddInMemoryCollection([
                 new KeyValuePair<string, string?>("AWS:ServiceURL",
-                    $"http://localhost:{_collectionCluster.AwsFixture.GetPort()}"),
+                    $"http://localhost:{_collectionCluster.AwsFixture.GetMappedPort()}"),
                 new KeyValuePair<string, string?>("AWS:Region",
                     AwsTestConstants.Region)
             ]);

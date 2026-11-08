@@ -96,6 +96,11 @@ namespace Common.Test.Helpers.Fixtures
             _connection = await ConnectionMultiplexer.ConnectAsync(configOptions);
         }
 
+        public override int GetMappedPort(int? port = null)
+        {
+            return _container.GetMappedPublicPort(_sslEnabled ? 6380 : 6379);
+        }
+
         public RedisConnectionOptions GetConnectionOptions()
         {
             return new RedisConnectionOptions()

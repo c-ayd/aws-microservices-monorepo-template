@@ -74,7 +74,7 @@ namespace AuthService.Test.Integration.Infrastructure.Collections
 
             await SetupAwsAsync();
 
-            AwsPort = AwsFixture.GetPort();
+            AwsPort = AwsFixture.GetMappedPort();
             var availablePorts = KestrelTestHelper.GetMultipleAvailablePortNumbers(numberOfPorts: 2);
             AuthServiceHttpsPort = availablePorts[0];
             AuthServiceGrpcsPort = availablePorts[1];

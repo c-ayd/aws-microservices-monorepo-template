@@ -46,7 +46,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
             await SetupAwsAsync();
 
-            AwsPort = AwsFixture.GetPort();
+            AwsPort = AwsFixture.GetMappedPort();
             NotificationServiceHttpPort = KestrelTestHelper.GetAvailablePortNumber();
 
             NotificationWebApp = new NotificationWebAppFactory();

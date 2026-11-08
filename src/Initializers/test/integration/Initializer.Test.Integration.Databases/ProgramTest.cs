@@ -19,7 +19,7 @@ namespace Initializer.Test.Integration.Databases
             // Act
             await Program.Main([
                 "--test",
-                "--aws-url", $"http://localhost:{_collectionCluster.AwsFixture.GetPort()}"
+                "--aws-url", $"http://localhost:{_collectionCluster.AwsFixture.GetMappedPort()}"
             ]);
 
             // Assert
