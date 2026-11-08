@@ -43,7 +43,7 @@ namespace Common.RabbitMq.Helpers.Utilities
                     TopologyRecoveryEnabled = false
                 };
 
-                if (connectionOptions.Ssl.Enabled)
+                if (connectionOptions.SslEnabled)
                 {
                     var caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
                     _connectionFactory.Ssl = new SslOption()
@@ -56,11 +56,6 @@ namespace Common.RabbitMq.Helpers.Utilities
                             return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
                         }
                     };
-
-                    if (connectionOptions.Ssl.ServerName != null)
-                    {
-                        _connectionFactory.Ssl.ServerName = connectionOptions.Ssl.ServerName;
-                    }
                 }
             }
             finally

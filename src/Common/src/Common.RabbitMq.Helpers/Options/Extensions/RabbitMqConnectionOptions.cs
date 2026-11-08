@@ -1,5 +1,3 @@
-using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
-
 namespace Common.RabbitMq.Helpers.Options.Extensions
 {
     public class RabbitMqConnectionOptions
@@ -8,6 +6,6 @@ namespace Common.RabbitMq.Helpers.Options.Extensions
         public required int Port { get; set; }
         public required string Username { get; set; }
         public required string Password { get; set; }
-        public required SslOptions Ssl { get; set; }
+        public required bool SslEnabled { get; set; }
     }
 }

@@ -3,7 +3,6 @@ using AuthService.Application.Options;
 using AuthService.Persistence.DistributedCaches;
 using AuthService.Test.Integration.Persistence.Collections;
 using Microsoft.Extensions.Options;
-using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Common.PostgreSql.Helpers.Options.Extensions;
 using Common.RabbitMq.Helpers.Options.Extensions;
 using Common.Redis.Helpers;
@@ -139,10 +138,7 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
             Database = "",
             Username = "",
             Password = "",
-            Ssl = new SslOptions()
-            {
-                Enabled = false
-            }
+            SslEnabled = false
         };
 
         private static readonly RabbitMqConnectionOptions _placeholderRabbitMqConnectionOptions = new RabbitMqConnectionOptions()
@@ -151,10 +147,7 @@ namespace AuthService.Test.Integration.Persistence.DistributedCaches
             Port = 0,
             Username = "",
             Password = "",
-            Ssl = new SslOptions()
-            {
-                Enabled = false
-            }
+            SslEnabled = false
         };
     }
 }

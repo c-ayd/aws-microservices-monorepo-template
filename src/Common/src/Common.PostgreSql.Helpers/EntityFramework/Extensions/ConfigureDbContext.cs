@@ -28,7 +28,7 @@ namespace Common.PostgreSql.Helpers.EntityFramework.Extensions
             };
 
             X509Certificate2Collection? caBundle = null;
-            if (connectionOptions.Ssl.Enabled)
+            if (connectionOptions.SslEnabled)
             {
                 connStringBuilder.SslMode = SslMode.Require;
                 caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
@@ -36,13 +36,12 @@ namespace Common.PostgreSql.Helpers.EntityFramework.Extensions
 
             builder.UseNpgsql(connStringBuilder.ConnectionString, npgsqlOptions =>
             {
-                if (connectionOptions.Ssl.Enabled)
+                if (connectionOptions.SslEnabled)
                 {
                     npgsqlOptions.ConfigureDataSource(dataSourceBuilder =>
                     {
                         dataSourceBuilder.UseSslClientAuthenticationOptionsCallback(authOptions =>
                         {
-                            authOptions.TargetHost = connectionOptions.Ssl.ServerName;
                             authOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                             {
                                 return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle!, sslPolicyErrors);

@@ -27,7 +27,7 @@ namespace Common.Redis.Helpers
                 AbortOnConnectFail = connectionOptions.AbortOnConnectionFail
             };
 
-            if (connectionOptions.Ssl.Enabled)
+            if (connectionOptions.SslEnabled)
             {
                 var caBundle = TlsUtility.LoadCertificateChain(caBundleValue!);
                 
@@ -36,7 +36,6 @@ namespace Common.Redis.Helpers
                 {
                     ClientCertificates = null,
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                    TargetHost = connectionOptions.Ssl.ServerName,
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
                         return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);

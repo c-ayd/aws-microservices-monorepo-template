@@ -1,5 +1,3 @@
-using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
-
 namespace Common.PostgreSql.Helpers.Options.Extensions
 {
     public class PostgreSqlConnectionOptions
@@ -9,7 +7,7 @@ namespace Common.PostgreSql.Helpers.Options.Extensions
         public required string Database { get; set; }
         public required string Username { get; set; }
         public required string Password { get; set; }
-        public required SslOptions Ssl { get; set; }
+        public required bool SslEnabled { get; set; }
         public RetryMechanismOptions? RetryMechanism { get; set; }
 
         public class RetryMechanismOptions
