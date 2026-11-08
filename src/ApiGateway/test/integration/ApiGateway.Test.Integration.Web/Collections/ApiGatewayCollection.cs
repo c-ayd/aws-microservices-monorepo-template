@@ -208,15 +208,15 @@ namespace ApiGateway.Test.Integration.Web.Collections
             });
             endpoints.MapGet("/.well-known/jwks.json", async (context) =>
             {
-                var publicPem = await File.ReadAllTextAsync("./test-jwt-v1-public.pem");
-                var rsa = RSA.Create();
-                rsa.ImportFromPem(publicPem);
-                var k1Parameters = rsa.ExportParameters(false);
+                var v1PublicPem = await File.ReadAllTextAsync("./test-jwt-v1-public.pem");
+                var v1Rsa = RSA.Create();
+                v1Rsa.ImportFromPem(v1PublicPem);
+                var v1Parameters = v1Rsa.ExportParameters(false);
 
-                publicPem = await File.ReadAllTextAsync("./test-jwt-v2-public.pem");
-                rsa = RSA.Create();
-                rsa.ImportFromPem(publicPem);
-                var k2Parameters = rsa.ExportParameters(false);
+                var v2PublicPem = await File.ReadAllTextAsync("./test-jwt-v2-public.pem");
+                var v2Rsa = RSA.Create();
+                v2Rsa.ImportFromPem(v2PublicPem);
+                var v2Parameters = v2Rsa.ExportParameters(false);
 
                 await Results.Ok(new
                 {
@@ -230,8 +230,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
                             alg = "RS256",
                             exp = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
                             nbf = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
-                            n = Base64UrlEncoder.Encode(k1Parameters.Modulus),
-                            e = Base64UrlEncoder.Encode(k1Parameters.Exponent)
+                            n = Base64UrlEncoder.Encode(v1Parameters.Modulus),
+                            e = Base64UrlEncoder.Encode(v1Parameters.Exponent)
                         },
                         new
                         {
@@ -241,8 +241,8 @@ namespace ApiGateway.Test.Integration.Web.Collections
                             alg = "RS256",
                             exp = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
                             nbf = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
-                            n = Base64UrlEncoder.Encode(k2Parameters.Modulus),
-                            e = Base64UrlEncoder.Encode(k2Parameters.Exponent)
+                            n = Base64UrlEncoder.Encode(v2Parameters.Modulus),
+                            e = Base64UrlEncoder.Encode(v2Parameters.Exponent)
                         }
                     }
                 }).ExecuteAsync(context);
