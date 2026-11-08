@@ -64,9 +64,9 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
             var caBundle = TlsUtility.LoadCertificateChain(
                 await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath)));
 
-            await SetupPostgreSql(caBundle);
-            await SetupRabbitMq(caBundle);
-            await SetupAws();
+            await SetupPostgreSqlAsync(caBundle);
+            await SetupRabbitMqAsync(caBundle);
+            await SetupAwsAsync();
         }
 
         public async Task DisposeAsync()
@@ -74,7 +74,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
             await AwsFixture.DisposeAsync();
         }
 
-        private async Task SetupPostgreSql(X509Certificate2Collection caBundle)
+        private async Task SetupPostgreSqlAsync(X509Certificate2Collection caBundle)
         {
             var defaultUsernames = new List<string>();
             for (int i = 0; i < OldUsernames.Length; ++i)
@@ -190,7 +190,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
             }
         }
 
-        private async Task SetupRabbitMq(X509Certificate2Collection caBundle)
+        private async Task SetupRabbitMqAsync(X509Certificate2Collection caBundle)
         {
             var connectionOptions = RabbitMqFixture.GetConnectionOptions();
             connectionOptions.Port = RabbitMqFixture.GetMappedPort(15671);
@@ -234,7 +234,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
             }
         }
 
-        private async Task SetupAws()
+        private async Task SetupAwsAsync()
         {
             var postgreSqlConnectionsOptions = PostgreSqlFixture.GetConnectionOptions("postgres");
             var rabbitMqConnectionsOptions = RabbitMqFixture.GetConnectionOptions();

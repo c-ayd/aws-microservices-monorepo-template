@@ -61,7 +61,7 @@ namespace AdminService.Test.Integration.Application.Collections
 
             GrpcWebApp.StartServer();
 
-            await SetupAws();
+            await SetupAwsAsync();
 
             AwsPort = AwsFixture.GetMappedPort();
             GrpcWebAppPort = GrpcWebApp.GetPort(WebApiFixture.HttpsPortConfigName);
@@ -103,7 +103,7 @@ namespace AdminService.Test.Integration.Application.Collections
             }
         }
 
-        private async Task SetupAws()
+        private async Task SetupAwsAsync()
         {
             await AwsFixture.SecretsManager_AddStringAsync("template/admin-svc/certificates", JsonSerializer.Serialize(
                 new
