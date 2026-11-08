@@ -30,6 +30,11 @@ namespace ApiGateway.Test.Integration.Web.Collections
         private const string _webApiServerCertificatePath = "Certs/WebApi/test-webapi-server.crt";
         private const string _webApiServerPrivateKeyPath = "Certs/WebApi/test-webapi-server.key";
 
+        private const string _jwtPublicKeyV1Path = "test-jwt-v1-public.pem";
+        private const string _jwtPrivateKeyV1Path = "test-jwt-v1-private.pem";
+        private const string _jwtPublicKeyV2Path = "test-jwt-v2-public.pem";
+        private const string _jwtPrivateKeyV2Path = "test-jwt-v2-private.pem";
+
         public static int AwsPort { get; private set; }
         public static int ApiGatewayHttpsPort { get; private set; }
         public static int AuthServiceHttpsPort { get; private set; }
@@ -208,12 +213,12 @@ namespace ApiGateway.Test.Integration.Web.Collections
             });
             endpoints.MapGet("/.well-known/jwks.json", async (context) =>
             {
-                var v1PublicPem = await File.ReadAllTextAsync("./test-jwt-v1-public.pem");
+                var v1PublicPem = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _jwtPublicKeyV1Path));
                 var v1Rsa = RSA.Create();
                 v1Rsa.ImportFromPem(v1PublicPem);
                 var v1Parameters = v1Rsa.ExportParameters(false);
 
-                var v2PublicPem = await File.ReadAllTextAsync("./test-jwt-v2-public.pem");
+                var v2PublicPem = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _jwtPublicKeyV2Path));
                 var v2Rsa = RSA.Create();
                 v2Rsa.ImportFromPem(v2PublicPem);
                 var v2Parameters = v2Rsa.ExportParameters(false);
@@ -279,7 +284,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                     }
                 }
 
-                var privatePem = await File.ReadAllTextAsync("./test-jwt-v2-private.pem");
+                var privatePem = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _jwtPrivateKeyV2Path));
                 var rsa = RSA.Create();
                 rsa.ImportFromPem(privatePem);
                 var key = new RsaSecurityKey(rsa)

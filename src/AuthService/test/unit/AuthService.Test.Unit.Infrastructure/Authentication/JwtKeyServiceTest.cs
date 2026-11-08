@@ -14,18 +14,18 @@ namespace AuthService.Test.Unit.Infrastructure.Authentication
                 new JwtKeysOptions.KeyInfo()
                 {
                     KeyId = "v1",
-                    ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
+                    PublicKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "test-jwt-v1-public.pem")),
+                    PrivateKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "test-jwt-v1-private.pem")),
                     NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
-                    PrivateKey = File.ReadAllText("./test-jwt-v1-private.pem"),
-                    PublicKey = File.ReadAllText("./test-jwt-v1-public.pem")
+                    ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds()
                 },
                 new JwtKeysOptions.KeyInfo()
                 {
                     KeyId = "v2",
-                    ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
+                    PublicKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "test-jwt-v2-public.pem")),
+                    PrivateKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "test-jwt-v2-private.pem")),
                     NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
-                    PrivateKey = File.ReadAllText("./test-jwt-v2-private.pem"),
-                    PublicKey = File.ReadAllText("./test-jwt-v2-public.pem")
+                    ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
                 }
             }
         };

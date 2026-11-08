@@ -20,6 +20,11 @@ namespace AuthService.Test.Integration.Application.Collections
         private const string _authServiceServerKeyFilePath = "Certs/test-auth-service-server.key";
         private const string _authServiceServerCertificateFilePath = "Certs/test-auth-service-server.crt";
 
+        private const string _jwtPublicKeyV1Path = "test-jwt-v1-public.pem";
+        private const string _jwtPrivateKeyV1Path = "test-jwt-v1-private.pem";
+        private const string _jwtPublicKeyV2Path = "test-jwt-v2-public.pem";
+        private const string _jwtPrivateKeyV2Path = "test-jwt-v2-private.pem";
+
         public const string AwsKmsAliasForDroppedMessages = "alias/dropped-messages";
         public const string AwsS3BucketNameForDroppedMessages = "template-dropped-messages";
 
@@ -143,18 +148,18 @@ namespace AuthService.Test.Integration.Application.Collections
                             new
                             {
                                 KeyId = "v1",
-                                ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
+                                PublicKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, _jwtPublicKeyV1Path)),
+                                PrivateKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, _jwtPrivateKeyV1Path)),
                                 NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
-                                PrivateKey = File.ReadAllText("./test-jwt-v1-private.pem"),
-                                PublicKey = File.ReadAllText("./test-jwt-v1-public.pem")
+                                ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds()
                             },
                             new
                             {
                                 KeyId = "v2",
-                                ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
+                                PublicKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, _jwtPublicKeyV2Path)),
+                                PrivateKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, _jwtPrivateKeyV2Path)),
                                 NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
-                                PrivateKey = File.ReadAllText("./test-jwt-v2-private.pem"),
-                                PublicKey = File.ReadAllText("./test-jwt-v2-public.pem")
+                                ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
                             }
                         }
                     }
