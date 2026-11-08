@@ -252,7 +252,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                 }
             };
 
-            await AwsFixture.SecretsManager_AddStringAsync("template/jwt", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/jwt", JsonSerializer.Serialize(
                 new
                 {
                     JwtKeys = new
@@ -280,7 +280,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                     }
                 }
             ));
-            await AwsFixture.SecretsManager_AddStringAsync("template/svc1/connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc1/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -313,7 +313,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/svc2/connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc2/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -346,7 +346,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/svc1/certificates", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc1/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificates = new
@@ -355,7 +355,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _webApiCertificatePrivateKeyPath))
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/svc2/certificates", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc2/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificates = new
@@ -364,7 +364,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _webApiCertificatePrivateKeyPath))
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/svc3/certificates", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc3/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificates = new
@@ -373,14 +373,14 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _webApiCertificatePrivateKeyPath))
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/intermediate", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/cert/intermediate", JsonSerializer.Serialize(
                 new
                 {
                     Certificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _intermediateCertificatePath)),
                     PrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _intermediateCertificatePrivateKeyPath)),
                     Password = "int"
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new
@@ -388,7 +388,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath))
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/admin-connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/admin-connections", JsonSerializer.Serialize(
                 new
                 {
                     PostgreSql = postgreSqlConnectionsOptions,
@@ -405,29 +405,29 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/old-connection-credentials", JsonSerializer.Serialize("{}"));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-connection-credentials", JsonSerializer.Serialize("{}"));
 
-            await AwsFixture.ElastiCache_CreateUserGroup(groupName: "test-group");
+            await AwsFixture.AwsElastiCache.CreateUserGroup(groupId: "test-group");
             foreach (var oldUsername in OldUsernames)
             {
-                await AwsFixture.ElastiCache_CreateUser(oldUsername, DefaultPassword);
-                await AwsFixture.ElastiCache_ModifyUserGroup(
-                    groupName: "test-group",
+                await AwsFixture.AwsElastiCache.CreateUser(oldUsername, DefaultPassword);
+                await AwsFixture.AwsElastiCache.ModifyUserGroup(
+                    groupId: "test-group",
                     usersToAdd: new List<string>() { oldUsername },
                     usersToRemove: null);
             }
 
-            await AwsFixture.Ecs_CreateClusterAsync(clusterName: "template-ecs-cluster");
-            await AwsFixture.Ecs_RegisterTaskDefiniton(taskName: "test-task-definition");
-            await AwsFixture.Ecs_CreateServiceAsync(
+            await AwsFixture.AwsEcs.CreateClusterAsync(clusterName: "template-ecs-cluster");
+            await AwsFixture.AwsEcs.RegisterTaskDefiniton(taskName: "test-task-definition");
+            await AwsFixture.AwsEcs.CreateServiceAsync(
                 clusterName: "template-ecs-cluster",
                 taskName: "test-task-definition",
                 serviceName: "Service1");
-            await AwsFixture.Ecs_CreateServiceAsync(
+            await AwsFixture.AwsEcs.CreateServiceAsync(
                 clusterName: "template-ecs-cluster",
                 taskName: "test-task-definition",
                 serviceName: "Service2");
-            await AwsFixture.Ecs_CreateServiceAsync(
+            await AwsFixture.AwsEcs.CreateServiceAsync(
                 clusterName: "template-ecs-cluster",
                 taskName: "test-task-definition",
                 serviceName: "Service3");

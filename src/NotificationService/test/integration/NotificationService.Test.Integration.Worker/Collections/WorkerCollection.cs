@@ -84,12 +84,12 @@ namespace NotificationService.Test.Integration.Worker.Collections
 
         public async Task SetupAwsAsync()
         {
-            await AwsFixture.SES_CreateTemplateAsync(
+            await AwsFixture.AwsSes.CreateTemplateAsync(
                 templateName: $"{AwsSesTemplatePrefix}-{SupportedLanguages.DefaultLanguage}",
                 AwsSesTemplateSubjectLine,
                 AwsSesTemplateBody);
 
-            await AwsFixture.SecretsManager_AddStringAsync("template/notification-svc/connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/notification-svc/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -97,7 +97,7 @@ namespace NotificationService.Test.Integration.Worker.Collections
                         RabbitMq = RabbitMqFixture.GetConnectionOptions()
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new

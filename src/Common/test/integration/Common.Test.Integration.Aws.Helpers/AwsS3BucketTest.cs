@@ -19,7 +19,7 @@ namespace Common.Test.Integration.Aws.Helpers
 
         public async Task InitializeAsync()
         {
-            await _collectionCluster.AwsFixture.S3Bucket_CreateBucketAsync(_bucketName);
+            await _collectionCluster.AwsFixture.AwsS3Bucket.CreateBucketAsync(_bucketName);
         }
 
         public Task DisposeAsync()
@@ -42,7 +42,7 @@ namespace Common.Test.Integration.Aws.Helpers
             await awsS3Bucket.UploadFileAsync(_bucketName, folder, fileName, memoryStream);
 
             // Assert
-            var savedData = await _collectionCluster.AwsFixture.S3Bucket_GetObjectAsync(
+            var savedData = await _collectionCluster.AwsFixture.AwsS3Bucket.GetObjectAsync(
                 _bucketName,
                 key: $"{folder}/{fileName}");
             Assert.Equal(data, savedData);
@@ -64,7 +64,7 @@ namespace Common.Test.Integration.Aws.Helpers
             // Act
             await awsS3Bucket.UploadFileAsync(_bucketName, folder, fileName, data);
 
-            var savedData = await _collectionCluster.AwsFixture.S3Bucket_GetObjectAsync(
+            var savedData = await _collectionCluster.AwsFixture.AwsS3Bucket.GetObjectAsync(
                 _bucketName,
                 key: $"{folder}/{fileName}");
             Assert.Equal(data, savedData);
@@ -77,7 +77,7 @@ namespace Common.Test.Integration.Aws.Helpers
             var folder = "upload";
             var fileName = "test.txt";
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
-            await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(
+            await _collectionCluster.AwsFixture.AwsS3Bucket.PutObjectAsync(
                 _bucketName,
                 key: $"{folder}/{fileName}",
                 data);
@@ -99,7 +99,7 @@ namespace Common.Test.Integration.Aws.Helpers
             var folder = "download";
             var fileName = "stream.txt";
             var data = Encoding.UTF8.GetBytes(value);
-            await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(
+            await _collectionCluster.AwsFixture.AwsS3Bucket.PutObjectAsync(
                 _bucketName,
                 key: $"{folder}/{fileName}",
                 data);
@@ -120,7 +120,7 @@ namespace Common.Test.Integration.Aws.Helpers
             var folder = "delete";
             var fileName = "test.txt";
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
-            await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(
+            await _collectionCluster.AwsFixture.AwsS3Bucket.PutObjectAsync(
                 _bucketName,
                 key: $"{folder}/{fileName}",
                 data);
@@ -131,7 +131,7 @@ namespace Common.Test.Integration.Aws.Helpers
             await awsS3Bucket.DeleteFileAsync(_bucketName, folder, fileName);
 
             // Assert
-            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExistsAsync(
+            Assert.False(await _collectionCluster.AwsFixture.AwsS3Bucket.FileExistsAsync(
                 _bucketName,
                 key: $"{folder}/{fileName}"));
         }
@@ -143,7 +143,7 @@ namespace Common.Test.Integration.Aws.Helpers
             var folder = "delete";
             var fileName = "test2.txt";
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
-            await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(
+            await _collectionCluster.AwsFixture.AwsS3Bucket.PutObjectAsync(
                 _bucketName,
                 key: $"{folder}/{fileName}",
                 data);
@@ -160,7 +160,7 @@ namespace Common.Test.Integration.Aws.Helpers
                 ]);
 
             // Assert
-            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExistsAsync(
+            Assert.False(await _collectionCluster.AwsFixture.AwsS3Bucket.FileExistsAsync(
                 _bucketName,
                 key: $"{folder}/{fileName}"));
         }
@@ -172,8 +172,8 @@ namespace Common.Test.Integration.Aws.Helpers
             var key1 = "delete/test3.txt";
             var key2 = "delete2/test.txt";
             var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
-            await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, key1, data);
-            await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(_bucketName, key2, data);
+            await _collectionCluster.AwsFixture.AwsS3Bucket.PutObjectAsync(_bucketName, key1, data);
+            await _collectionCluster.AwsFixture.AwsS3Bucket.PutObjectAsync(_bucketName, key2, data);
 
             var awsS3Bucket = _collectionCluster.WebApiFixture.GetService<IAwsS3Bucket>();
 
@@ -187,8 +187,8 @@ namespace Common.Test.Integration.Aws.Helpers
                 ]);
 
             // Assert
-            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExistsAsync(_bucketName, key1));
-            Assert.False(await _collectionCluster.AwsFixture.S3Bucket_FileExistsAsync(_bucketName, key2));
+            Assert.False(await _collectionCluster.AwsFixture.AwsS3Bucket.FileExistsAsync(_bucketName, key1));
+            Assert.False(await _collectionCluster.AwsFixture.AwsS3Bucket.FileExistsAsync(_bucketName, key2));
         }
 
         [Theory]
@@ -201,7 +201,7 @@ namespace Common.Test.Integration.Aws.Helpers
             for (int i = 0; i < numberOfFiles; ++i)
             {
                 var data = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
-                await _collectionCluster.AwsFixture.S3Bucket_PutObjectAsync(
+                await _collectionCluster.AwsFixture.AwsS3Bucket.PutObjectAsync(
                     _bucketName,
                     key: $"{folder}/test-{i}.txt",
                     data);

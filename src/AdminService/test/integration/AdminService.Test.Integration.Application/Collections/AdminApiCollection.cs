@@ -105,7 +105,7 @@ namespace AdminService.Test.Integration.Application.Collections
 
         private async Task SetupAws()
         {
-            await AwsFixture.SecretsManager_AddStringAsync("template/admin-svc/certificates", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/admin-svc/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificates = new
@@ -114,7 +114,7 @@ namespace AdminService.Test.Integration.Application.Collections
                         ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _adminServiceServerCertificatePrivateKeyPath))
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new

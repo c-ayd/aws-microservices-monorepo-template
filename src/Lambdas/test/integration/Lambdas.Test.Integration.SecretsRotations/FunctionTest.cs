@@ -38,24 +38,24 @@ namespace Lambdas.Test.Integration.SecretsRotations
             var oldCertificates = new Dictionary<string, CertificatesOptionsBase>()
             {
                 { "template/svc1/certificates", Utility.GetOptionsFromJson<CertificatesOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync("template/svc1/certificates"),
+                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc1/certificates"),
                     elementName: CertificatesOptionsBase.Key)! },
                 { "template/svc2/certificates", Utility.GetOptionsFromJson<CertificatesOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync("template/svc2/certificates"),
+                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc2/certificates"),
                     elementName: CertificatesOptionsBase.Key)! },
                 { "template/svc3/certificates", Utility.GetOptionsFromJson<CertificatesOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync("template/svc3/certificates"),
+                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc3/certificates"),
                     elementName: CertificatesOptionsBase.Key)! }
             };
 
             var oldConnections = new Dictionary<string, string>()
             {
-                { "template/svc1/connections", await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync("template/svc1/connections") },
-                { "template/svc2/connections", await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync("template/svc2/connections") }
+                { "template/svc1/connections", await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc1/connections") },
+                { "template/svc2/connections", await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc2/connections") }
             };
 
             var cABundleOptions = Utility.GetOptionsFromJson<CABundleOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync("template/cert/ca-bundle"),
+                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/cert/ca-bundle"),
                     elementName: CABundleOptionsBase.Key)!;
             var caBundle = TlsUtility.LoadCertificateChain(cABundleOptions.Value);
 
@@ -123,7 +123,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
             await _lambdaFunction.FunctionHandler(input, new LambdaContextTest());
 
             // Assert
-            var jwtKeysSecret = await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync("template/jwt");
+            var jwtKeysSecret = await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/jwt");
             var jwtKeys = Utility.GetOptionsFromJson<JwtKeysOptionsBase>(
                 json: jwtKeysSecret,
                 elementName: JwtKeysOptionsBase.Key)!;
@@ -138,7 +138,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
             }
 
             var oldConnectionCredentials = JsonSerializer.Deserialize<OldConnectionCredentials>(
-                await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync("template/old-connection-credentials"))!;
+                await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/old-connection-credentials"))!;
 
             foreach (var oldUsername in LambdaCollectionCluster.OldUsernames)
             {
@@ -155,7 +155,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
                 var oldPostgreSqlConnectionOptions = JsonSerializer.Deserialize<PostgreSqlConnectionOptions>(
                     jsonDocForOldConnections.RootElement.GetProperty("Connections").GetProperty("PostgreSql").GetRawText())!;
 
-                using var jsonDocForNewPostgreSql = JsonDocument.Parse(await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync(oldConnection.Key));
+                using var jsonDocForNewPostgreSql = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
                 var newPostgreSqlConnectionOptions = JsonSerializer.Deserialize<PostgreSqlConnectionOptions>(
                     jsonDocForNewPostgreSql.RootElement.GetProperty("Connections").GetProperty("PostgreSql").GetRawText())!;
                 
@@ -190,7 +190,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
                 var oldRabbitMqConnectionOptions = JsonSerializer.Deserialize<RabbitMqConnectionOptions>(
                     jsonDocForOldConnections.RootElement.GetProperty("Connections").GetProperty("RabbitMq").GetRawText())!;
 
-                using var jsonDocForNewRabbitMq = JsonDocument.Parse(await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync(oldConnection.Key));
+                using var jsonDocForNewRabbitMq = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
                 var newRabbitMqConnectionOptions = JsonSerializer.Deserialize<RabbitMqConnectionOptions>(
                     jsonDocForNewRabbitMq.RootElement.GetProperty("Connections").GetProperty("RabbitMq").GetRawText())!;
 
@@ -224,14 +224,14 @@ namespace Lambdas.Test.Integration.SecretsRotations
                 var oldRedisConnectionOptions = JsonSerializer.Deserialize<RedisConnectionOptions>(
                     jsonDocForOldConnections.RootElement.GetProperty("Connections").GetProperty("Redis").GetRawText())!;
 
-                using var jsonDocForNewRedis = JsonDocument.Parse(await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync(oldConnection.Key));
+                using var jsonDocForNewRedis = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
                 var newRedisConnectionOptions = JsonSerializer.Deserialize<RedisConnectionOptions>(
                     jsonDocForNewRedis.RootElement.GetProperty("Connections").GetProperty("Redis").GetRawText())!;
 
                 Assert.NotEqual(oldRedisConnectionOptions.Username, newRedisConnectionOptions.Username);
                 Assert.DoesNotContain(oldConnectionCredentials.RedisUsers, u => u.Username == newRedisConnectionOptions.Username);
 
-                var newRedisUser = await _collectionCluster.AwsFixture.ElastiCache_GetUser(newRedisConnectionOptions.Username);
+                var newRedisUser = await _collectionCluster.AwsFixture.AwsElastiCache.GetUser(newRedisConnectionOptions.Username);
                 Assert.NotNull(newRedisUser);
                 Assert.Equal(newRedisConnectionOptions.Username, newRedisUser.UserName);
             }
@@ -239,7 +239,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
             foreach (var oldCertificate in oldCertificates)
             {
                 var newCertificates = Utility.GetOptionsFromJson<CertificatesOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.SecretsManager_GetStringAsync(oldCertificate.Key),
+                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldCertificate.Key),
                     elementName: CertificatesOptionsBase.Key)!;
 
                 Assert.NotEqual(oldCertificate.Value.ServerCertificate, newCertificates.ServerCertificate);

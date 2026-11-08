@@ -57,7 +57,7 @@ namespace Initializer.Test.Integration.Databases.Collections
 
         private async Task SetupAwsAsync()
         {
-            await AwsFixture.SecretsManager_AddStringAsync("template/authdb-job/connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/authdb-job/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -66,7 +66,7 @@ namespace Initializer.Test.Integration.Databases.Collections
                         DroppedMessagesDb = PostgreSqlFixture.GetConnectionOptions(DroppedMessagesDbName)
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/authdb-job/seed-data", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/authdb-job/seed-data", JsonSerializer.Serialize(
                 new
                 {
                     SeedData = new
@@ -84,7 +84,7 @@ namespace Initializer.Test.Integration.Databases.Collections
                         }
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new

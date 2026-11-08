@@ -116,7 +116,7 @@ namespace NotificationService.Test.Integration.Worker.BackgroundServices
             SesMessage? sentEmail = null;
             while (true)
             {
-                var sentEmails = await _collectionCluster.AwsFixture.SES_GetSentEmailsAsync();
+                var sentEmails = await _collectionCluster.AwsFixture.AwsSes.GetSentEmailsAsync();
                 sentEmail = sentEmails.FirstOrDefault(e => e.To[0] == to);
                 if (sentEmail != null)
                     break;

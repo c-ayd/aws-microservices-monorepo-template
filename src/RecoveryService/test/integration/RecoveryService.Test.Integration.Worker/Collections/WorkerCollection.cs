@@ -106,10 +106,10 @@ namespace RecoveryService.Test.Integration.Worker.Collections
 
         private async Task SetupAwsAsync()
         {
-            await AwsFixture.KMS_CreateKekAsync(AwsKmsAliasForDroppedMessages);
-            await AwsFixture.S3Bucket_CreateBucketAsync(AwsS3BucketNameForDroppedMessages);
+            await AwsFixture.AwsKms.CreateKekAsync(AwsKmsAliasForDroppedMessages);
+            await AwsFixture.AwsS3Bucket.CreateBucketAsync(AwsS3BucketNameForDroppedMessages);
 
-            await AwsFixture.SecretsManager_AddStringAsync("template/recovery-svc/connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/recovery-svc/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -118,7 +118,7 @@ namespace RecoveryService.Test.Integration.Worker.Collections
                         RabbitMq = RabbitMqFixture.GetConnectionOptions()
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new
