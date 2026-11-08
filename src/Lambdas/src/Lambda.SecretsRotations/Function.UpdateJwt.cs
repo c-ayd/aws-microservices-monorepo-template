@@ -43,7 +43,7 @@ namespace Lambda.SecretsRotations
             var oldJwtKeys = Utility.GetOptionsFromJson<JwtKeysOptionsBase>(
                 json: secrets.SecretValues
                 .Where(s => s.Name == jwtKeysSecretId)
-                .FirstOrDefault()!
+                .Single()
                 .SecretString,
                 elementName: JwtKeysOptionsBase.Key)!;
             var currentKey = oldJwtKeys.Keys.MaxBy(k => k.NotBeforeTime);
