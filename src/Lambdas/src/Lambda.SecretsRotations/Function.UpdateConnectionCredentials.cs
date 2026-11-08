@@ -35,12 +35,12 @@ namespace Lambda.SecretsRotations
             // Deserialize secrets required for connecting infrastructure services and TLS handshake
             var adminConnections = JsonSerializer.Deserialize<AdminConnections>(secrets.SecretValues
                 .Where(s => s.Name == connectionsInfo.AdminConnectionsSecretId)
-                .FirstOrDefault()!
+                .Single()
                 .SecretString)!;
             var caBundleOptions = Utility.GetOptionsFromJson<CABundleOptionsBase>(
                 json: secrets.SecretValues
                 .Where(s => s.Name == connectionsInfo.CABundleSecretId)
-                .FirstOrDefault()!
+                .Single()
                 .SecretString,
                 elementName: CABundleOptionsBase.Key)!;
             var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Value);
@@ -72,7 +72,7 @@ namespace Lambda.SecretsRotations
             {
                 using var jsonDoc = JsonDocument.Parse(secrets.SecretValues
                     .Where(s => s.Name == service.ConncetionsSecretId)
-                    .FirstOrDefault()!
+                    .Single()
                     .SecretString);
 
                 var newConnectionsOptions = new Dictionary<string, object>();

@@ -39,7 +39,8 @@ namespace Common.AspNetCore.Helpers.DependencyInjection
             foreach (var type in options)
             {
                 var configureMethod = typeof(OptionsConfigurationServiceCollectionExtensions).GetMethods()
-                    .FirstOrDefault(m => m.Name == nameof(OptionsConfigurationServiceCollectionExtensions.Configure))!
+                    .Where(m => m.Name == nameof(OptionsConfigurationServiceCollectionExtensions.Configure))
+                    .First()
                     .MakeGenericMethod(type);
 
                 var key = (string?)type.GetProperty(nameof(IOptions.Key), BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)!.GetValue(null);

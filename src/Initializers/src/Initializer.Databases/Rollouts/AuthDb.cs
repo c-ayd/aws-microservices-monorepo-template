@@ -86,7 +86,9 @@ namespace Initializer.Databases.Rollouts
                 {
                     foreach (var role in accountDetails.Roles)
                     {
-                        var roleFromDb = await authDbContext.Roles.FirstOrDefaultAsync(r => r.Name == role);
+                        var roleFromDb = await authDbContext.Roles
+                            .Where(r => r.Name == role)
+                            .FirstOrDefaultAsync();
                         if (roleFromDb == null)
                             throw new RoleNotFoundException(role);
 

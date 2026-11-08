@@ -64,7 +64,9 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 .DecryptAsync(messagesFromDb[0].WrappedDataKey.Value);
             foreach (var droppedMessage in droppedMessages)
             {
-                var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
+                var message = messagesFromDb
+                    .Where(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId)
+                    .FirstOrDefault();
                 if (message == null)
                     Assert.Fail("One of the messages is not saved to the DB.");
 
@@ -121,7 +123,9 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
             int counter = 0;
             foreach (var droppedMessage in droppedMessages)
             {
-                var message = messagesFromDb.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
+                var message = messagesFromDb
+                    .Where(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId)
+                    .FirstOrDefault();
                 if (message != null)
                 {
                     ++counter;
@@ -186,7 +190,9 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 .DecryptAsync(messageFileContent.WrappedDataKey);
             foreach (var droppedMessage in droppedMessages)
             {
-                var message = messageFileContent.Messages.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
+                var message = messageFileContent.Messages
+                    .Where(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId)
+                    .FirstOrDefault();
                 if (message == null)
                     Assert.Fail("One of the messages is not saved to the file.");
 
@@ -250,7 +256,9 @@ namespace AuthService.Test.Integration.Api.BackgroundServices
                 .DecryptAsync(messageFileContent.WrappedDataKey);
             foreach (var droppedMessage in droppedMessages)
             {
-                var message = messageFileContent.Messages.FirstOrDefault(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId);
+                var message = messageFileContent.Messages
+                    .Where(m => m.GetBasicProperties().CorrelationId == droppedMessage.Properties.CorrelationId)
+                    .FirstOrDefault();
                 if (message == null)
                     Assert.Fail("One of the messages is not saved to the file.");
 

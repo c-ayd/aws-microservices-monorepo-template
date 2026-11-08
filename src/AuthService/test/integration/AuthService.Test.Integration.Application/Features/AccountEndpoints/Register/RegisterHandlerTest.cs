@@ -75,7 +75,9 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Reg
             Assert.NotNull(account);
             Assert.Single(account.Tokens);
 
-            var token = account.Tokens.FirstOrDefault(t => t.Purpose == ETokenPurpose.EmailVerification);
+            var token = account.Tokens
+                .Where(t => t.Purpose == ETokenPurpose.EmailVerification)
+                .FirstOrDefault();
             Assert.NotNull(token);
 
             var tokenLifespanInMinutes = (token.ExpirationDate - DateTimeOffset.UtcNow).TotalMinutes;

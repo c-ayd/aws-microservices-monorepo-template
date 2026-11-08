@@ -87,8 +87,8 @@ namespace Initializer.Test.Integration.Databases
             var rolesFromDb = await authDbContext.Roles.ToListAsync();
             var accountsFromDb = await authDbContext.Accounts.Include(a => a.Roles).ToListAsync();
 
-            Assert.NotNull(rolesFromDb.FirstOrDefault(r => r.Name == _roleName));
-            Assert.NotNull(accountsFromDb.FirstOrDefault(a => a.Email == _email));
+            Assert.NotNull(rolesFromDb.Where(r => r.Name == _roleName).FirstOrDefault());
+            Assert.NotNull(accountsFromDb.Where(a => a.Email == _email).FirstOrDefault());
         }
     }
 }

@@ -249,9 +249,9 @@ namespace AuthService.Test.Integration.Application.Features.AccountEndpoints.Log
             var accountFromDb = await authDbContext.Accounts
                 .Where(a => a.Id == account.Id)
                 .Include(a => a.Sessions)
-                .FirstOrDefaultAsync();
+                .FirstAsync();
 
-            Assert.Single(accountFromDb!.Sessions);
+            Assert.Single(accountFromDb.Sessions);
         }
 
         [Fact]
