@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Common.AspNetCore.Helpers.Kestrel.Structures;
 using Common.AspNetCore.Helpers.Kestrel.Utilities;
+using System.Security.Authentication;
 
 namespace Common.Test.Helpers.Fixtures
 {
@@ -87,8 +88,14 @@ namespace Common.Test.Helpers.Fixtures
                 {
                     SslOptions = new SslClientAuthenticationOptions()
                     {
+                        EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
                         RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                         {
+                            if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
+                            {
+                                sslPolicyErrors &= ~SslPolicyErrors.RemoteCertificateNameMismatch;
+                            }
+
                             return TlsUtility.ValidateServerCertificate(certificate, chain, _caBundle, sslPolicyErrors);
                         }
                     },

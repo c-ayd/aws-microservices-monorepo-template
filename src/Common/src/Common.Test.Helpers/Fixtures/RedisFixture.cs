@@ -2,7 +2,6 @@ using System.Net.Security;
 using System.Security.Authentication;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
-using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Common.AspNetCore.Helpers.Kestrel.Utilities;
 using Common.Redis.Helpers.Options.Extensions;
 using Common.Test.Helpers.Fixtures.SeedWork;
@@ -85,9 +84,13 @@ namespace Common.Test.Helpers.Fixtures
                 {
                     ClientCertificates = null,
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                    TargetHost = redisConnSettings.Ssl!.ServerName,
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
+                        if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
+                        {
+                            sslPolicyErrors &= ~SslPolicyErrors.RemoteCertificateNameMismatch;
+                        }
+                        
                         return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
                     }
                 };
@@ -105,11 +108,7 @@ namespace Common.Test.Helpers.Fixtures
                 Username = "redis-user",
                 Password = "redis-password",
                 AbortOnConnectionFail = true, // For tests, it throws an exception immediately when the connection is initially not established
-                Ssl = new SslOptions()
-                {
-                    Enabled = _sslEnabled,
-                    ServerName = "localhost"
-                }
+                SslEnabled = _sslEnabled,
             };
         }
 

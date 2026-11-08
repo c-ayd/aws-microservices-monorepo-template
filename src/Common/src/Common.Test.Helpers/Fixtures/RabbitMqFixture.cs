@@ -3,7 +3,6 @@ using System.Security.Authentication;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using RabbitMQ.Client;
-using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Common.AspNetCore.Helpers.Kestrel.Utilities;
 using Common.RabbitMq.Helpers.Options.Extensions;
 using Common.Test.Helpers.Fixtures.SeedWork;
@@ -74,11 +73,15 @@ namespace Common.Test.Helpers.Fixtures
                 _connectionFactory.Ssl = new SslOption()
                 {
                     Enabled = true,
-                    ServerName = connectionOptions.Ssl!.ServerName!,
                     Version = SslProtocols.Tls12 | SslProtocols.Tls13,
                     AcceptablePolicyErrors = SslPolicyErrors.None,
                     CertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
+                        if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
+                        {
+                            sslPolicyErrors &= ~SslPolicyErrors.RemoteCertificateNameMismatch;
+                        }
+                        
                         return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle!, sslPolicyErrors);
                     }
                 };
@@ -98,11 +101,7 @@ namespace Common.Test.Helpers.Fixtures
                 Port = _container.GetMappedPublicPort(_sslEnabled ? 5671 : 5672),
                 Username = "guest",
                 Password = "guest",
-                Ssl = new SslOptions()
-                {
-                    Enabled = _sslEnabled,
-                    ServerName = "localhost"
-                }
+                SslEnabled = _sslEnabled,
             };
         }
 

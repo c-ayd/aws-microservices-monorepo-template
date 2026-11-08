@@ -2,11 +2,15 @@ using System.Reflection;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Microsoft.EntityFrameworkCore;
-using Common.AspNetCore.Helpers.Kestrel.Options.Extensions;
 using Common.PostgreSql.Helpers.EntityFramework.Extensions;
 using Common.PostgreSql.Helpers.Options.Extensions;
 using Common.Test.Helpers.Fixtures.SeedWork;
 using Testcontainers.PostgreSql;
+using Npgsql;
+using System.Security.Cryptography.X509Certificates;
+using Common.AspNetCore.Helpers.Kestrel.Utilities;
+using System.Net.Security;
+using System.Security.Authentication;
 
 namespace Common.Test.Helpers.Fixtures
 {
@@ -79,11 +83,7 @@ namespace Common.Test.Helpers.Fixtures
                 Database = dbName,
                 Username = "postgres",
                 Password = "postgres",
-                Ssl = new SslOptions()
-                {
-                    Enabled = _sslEnabled,
-                    ServerName = "localhost"
-                },
+                SslEnabled = _sslEnabled,
                 RetryMechanism = null
             };
         }
@@ -112,7 +112,52 @@ namespace Common.Test.Helpers.Fixtures
 
             var optionsBuilder = (DbContextOptionsBuilder)Activator.CreateInstance(typeof(DbContextOptionsBuilder<>)
                 .MakeGenericType(dbContextType))!;
-            optionsBuilder.ConfigureDbContext(connectionOptions, _caBundleValue);
+
+            var connStringBuilder = new NpgsqlConnectionStringBuilder()
+            {
+                Host = connectionOptions.Host,
+                Port = connectionOptions.Port,
+                Database = connectionOptions.Database,
+                Username = connectionOptions.Username,
+                Password = connectionOptions.Password
+            };
+            X509Certificate2Collection? caBundle = null;
+            if (connectionOptions.SslEnabled)
+            {
+                connStringBuilder.SslMode = SslMode.Require;
+                caBundle = TlsUtility.LoadCertificateChain(_caBundleValue!);
+            }
+
+            optionsBuilder.UseNpgsql(connStringBuilder.ConnectionString, npgsqlOptions =>
+            {
+                if (connectionOptions.SslEnabled)
+                {
+                    npgsqlOptions.ConfigureDataSource(dataSourceBuilder =>
+                    {
+                        dataSourceBuilder.UseSslClientAuthenticationOptionsCallback(authOptions =>
+                        {
+                            authOptions.EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+                            authOptions.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
+                                {
+                                    sslPolicyErrors &= ~SslPolicyErrors.RemoteCertificateNameMismatch;
+                                }
+                                
+                                return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle!, sslPolicyErrors);
+                            };
+                        });
+                    });
+                }
+
+                if (connectionOptions.RetryMechanism != null)
+                {
+                    npgsqlOptions.EnableRetryOnFailure(
+                        connectionOptions.RetryMechanism.MaxRetry,
+                        TimeSpan.FromSeconds(connectionOptions.RetryMechanism.MaxDelayInSeconds),
+                        errorCodesToAdd: null);
+                }
+            });
 
             return (T)ctor.Invoke([optionsBuilder.Options]);
         }
