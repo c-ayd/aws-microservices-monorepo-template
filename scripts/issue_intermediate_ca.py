@@ -8,11 +8,11 @@ from pathlib import Path
 import os
 
 def main(args, root_folder):
-    if args.root_ca_key is None:
-        print('Root CA key path is not provided.')
-        return
     if args.root_ca_cert is None:
         print('Root CA certificate path is not provided.')
+        return
+    if args.root_ca_key is None:
+        print('Root CA key path is not provided.')
         return
     if args.password_root is None:
         print('Password for root CA is not provided.')
@@ -23,18 +23,15 @@ def main(args, root_folder):
     if args.name is None:
         print('Name is not provided.')
         return
-    if args.output is None:
-        print('Output directory is not provided.')
-        return
 
-    output_path = os.path.join(root_folder, args.output)
+    output_path = os.path.join(root_folder, 'output')
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
     organization = 'localhost'
     country = 'DE'
 
-    root_private_key, root_cert = load_root_ca(root_ca_key_path=os.path.join(root_folder, args.root_ca_key),
+    root_cert, root_private_key = load_root_ca(root_ca_key_path=os.path.join(root_folder, args.root_ca_key),
                                                root_ca_cert_path=os.path.join(root_folder, args.root_ca_cert),
                                                password=args.password_root)
 
@@ -58,7 +55,7 @@ def load_root_ca(root_ca_key_path,
     with open(root_ca_cert_path, 'rb') as file:
         root_cert = x509.load_pem_x509_certificate(file.read())
 
-    return root_private_key, root_cert
+    return root_cert, root_private_key
 
 def issue_intermediate_ca(output_path,
                           root_private_key,
@@ -136,12 +133,11 @@ if __name__ == '__main__':
     root_folder = Path(__file__).resolve().parent
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--root-ca-key', type=str)
     parser.add_argument('--root-ca-cert', type=str)
+    parser.add_argument('--root-ca-key', type=str)
     parser.add_argument('--password-root', type=str)
     parser.add_argument('--password-int', type=str)
     parser.add_argument('--name', type=str)
-    parser.add_argument('--output', type=str)
     args = parser.parse_args()
 
     main(args=args,
