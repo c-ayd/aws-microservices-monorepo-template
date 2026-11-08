@@ -25,15 +25,16 @@ namespace Common.Grpc.Helpers.DependencyInjection
 
             var addGrpcClientMethodInfo = typeof(GrpcClientServiceExtensions)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)!
-                .Where(m => m.Name == nameof(GrpcClientServiceExtensions.AddGrpcClient) &&
-                    m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1)
-                .FirstOrDefault(m =>
+                .Where(m =>
                 {
                     var p = m.GetParameters();
-                    return p.Length == 2
-                        && p[0].ParameterType == typeof(IServiceCollection)
-                        && p[1].ParameterType == typeof(Action<GrpcClientFactoryOptions>);
-                })!;
+                    return m.Name == nameof(GrpcClientServiceExtensions.AddGrpcClient) &&
+                        m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1 &&
+                        p.Length == 2 &&
+                        p[0].ParameterType == typeof(IServiceCollection) &&
+                        p[1].ParameterType == typeof(Action<GrpcClientFactoryOptions>);
+                })
+                .First();
 
             X509Certificate2Collection? caBundle = null;
             if (caBundleValue != null)

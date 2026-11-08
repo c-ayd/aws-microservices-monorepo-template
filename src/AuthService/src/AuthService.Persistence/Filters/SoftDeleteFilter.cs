@@ -16,16 +16,18 @@ namespace AuthService.Persistence.Filters
                     continue;
 
                 var entityMethod = typeof(ModelBuilder).GetMethods()
-                    .FirstOrDefault(m => m.Name == nameof(ModelBuilder.Entity) &&
-                                    m.IsGenericMethod &&
-                                    m.GetParameters().Length == 0)!
+                    .Where(m => m.Name == nameof(ModelBuilder.Entity) &&
+                        m.IsGenericMethod &&
+                        m.GetParameters().Length == 0)
+                    .First()
                     .MakeGenericMethod(type);
 
                 var entityMethodReturn = entityMethod.Invoke(modelBuilder, null)!;
                 var hasQueryFilterMethod = entityMethodReturn.GetType().GetMethods()
-                    .FirstOrDefault(m => m.Name == nameof(EntityTypeBuilder.HasQueryFilter) &&
-                                    m.GetParameters().Length == 1 &&
-                                    m.GetParameters()[0].ParameterType == typeof(LambdaExpression))!;
+                    .Where(m => m.Name == nameof(EntityTypeBuilder.HasQueryFilter) &&
+                        m.GetParameters().Length == 1 &&
+                        m.GetParameters()[0].ParameterType == typeof(LambdaExpression))
+                    .First();
 
                 var parameter = Expression.Parameter(type, "e");
                 var property = Expression.Property(parameter, nameof(ISoftDelete.IsDeleted));

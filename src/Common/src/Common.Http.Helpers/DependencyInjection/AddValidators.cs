@@ -62,9 +62,10 @@ namespace Common.Http.DependencyInjection
             // services.AddScoped<IAsyncValidator<T>, AsyncValidator>();
 
             var addScopedMethod = typeof(ServiceCollectionServiceExtensions).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(m => m.Name == "AddScoped" &&
-                                !m.IsGenericMethod &&
-                                m.GetParameters().Length == 3)!;
+                .Where(m => m.Name == "AddScoped" &&
+                    !m.IsGenericMethod &&
+                    m.GetParameters().Length == 3)
+                .First();
 
             foreach (var validator in validators)
             {
