@@ -48,6 +48,12 @@
       "type": "shell",
       "command": "dotnet build src/RecoveryService/RecoveryServiceSolution.slnx",
       "problemMatcher": []
+    },
+    {
+      "label": "Build Lambdas",
+      "type": "shell",
+      "command": "dotnet build src/Lambdas/LambdasSolution.slnx",
+      "problemMatcher": []
     }
   ]
 }
