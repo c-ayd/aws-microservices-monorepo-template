@@ -17,26 +17,26 @@ namespace AuthService.Infrastructure.Authentication
         {
             foreach (var keyInfo in jwtKeysOptions.Value.Keys)
             {
-                var rsa = RSA.Create();
-                rsa.ImportFromPem(keyInfo.PrivateKey);
+                var privateRsa = RSA.Create();
+                privateRsa.ImportFromPem(keyInfo.PrivateKey);
                 _privateKeys.Add(new JwtKeyDto()
                 {
                     Id = keyInfo.KeyId,
                     ExpirationTime = keyInfo.ExpirationTime,
                     NotBeforeTime = keyInfo.NotBeforeTime,
-                    Key = new RsaSecurityKey(rsa) { KeyId = keyInfo.KeyId },
+                    Key = new RsaSecurityKey(privateRsa) { KeyId = keyInfo.KeyId },
                     Parameters = null
                 });
 
-                rsa = RSA.Create();
-                rsa.ImportFromPem(keyInfo.PublicKey);
+                var publicRsa = RSA.Create();
+                publicRsa.ImportFromPem(keyInfo.PublicKey);
                 _publicKeys.Add(new JwtKeyDto()
                 {
                     Id = keyInfo.KeyId,
                     ExpirationTime = keyInfo.ExpirationTime,
                     NotBeforeTime = keyInfo.NotBeforeTime,
-                    Key = new RsaSecurityKey(rsa) { KeyId = keyInfo.KeyId },
-                    Parameters = rsa.ExportParameters(false)
+                    Key = new RsaSecurityKey(publicRsa) { KeyId = keyInfo.KeyId },
+                    Parameters = publicRsa.ExportParameters(false)
                 });
             }
         }
