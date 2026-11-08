@@ -22,7 +22,7 @@ namespace Lambda.SecretsRotations
             // Deserialize the intermediate CA secret for issuing new certificates
             var intermediateCA = JsonSerializer.Deserialize<IntermediateCA>(secrets.SecretValues
                 .Where(s => s.Name == certificatesInfo.IntermediateCASecretId)
-                .FirstOrDefault()!
+                .Single()
                 .SecretString);
             if (intermediateCA == null)
                 throw new IntermediateCASecretFormatException();

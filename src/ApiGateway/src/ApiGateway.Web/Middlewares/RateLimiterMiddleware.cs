@@ -25,7 +25,8 @@ namespace ApiGateway.Web.Middlewares
             bool isAuthenticated = context.User.Identity != null && context.User.Identity.IsAuthenticated;
             bool isAdmin = isAuthenticated &&
                 context.User.FindAll(c => c.Type == ApiGatewayAuthKeys.Claims.Roles.ClaimType)
-                    .FirstOrDefault(c => c.Value == Policies.AdminPolicy.RoleName) != null;
+                    .Where(c => c.Value == Policies.AdminPolicy.RoleName)
+                    .FirstOrDefault() != null;
 
             string key;
             int limit;

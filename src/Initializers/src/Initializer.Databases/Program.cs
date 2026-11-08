@@ -33,9 +33,18 @@ namespace Initializer.Databases
                 SecretIdList = secretIds
             });
 
-            var connectionsOptions = Utility.DeserializeOptions<ConnectionsOptions>(response.SecretValues.FirstOrDefault(s => s.Name == "template/authdb-job/connections")!.SecretString)!;
-            var seedDataOptions = Utility.DeserializeOptions<SeedDataOptions>(response.SecretValues.FirstOrDefault(s => s.Name == "template/authdb-job/seed-data")!.SecretString)!;
-            var caBundleOptions = Utility.DeserializeOptions<CABundleOptions>(response.SecretValues.FirstOrDefault(s => s.Name == "template/cert/ca-bundle")!.SecretString)!;
+            var connectionsOptions = Utility.DeserializeOptions<ConnectionsOptions>(response.SecretValues
+                .Where(s => s.Name == "template/authdb-job/connections")
+                .Single()
+                .SecretString)!;
+            var seedDataOptions = Utility.DeserializeOptions<SeedDataOptions>(response.SecretValues
+                .Where(s => s.Name == "template/authdb-job/seed-data")
+                .Single()
+                .SecretString)!;
+            var caBundleOptions = Utility.DeserializeOptions<CABundleOptions>(response.SecretValues
+                .Where(s => s.Name == "template/cert/ca-bundle")
+                .Single()
+                .SecretString)!;
 
             await AuthDb.RolloutAsync(connectionsOptions.AuthDb, caBundleOptions, seedDataOptions.AuthDbSeedData);
             await DroppedMessagesDb.RolloutAsync(connectionsOptions.DroppedMessagesDb, caBundleOptions);
