@@ -167,7 +167,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
 
         private async Task SetupAwsAsync()
         {
-            await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/api-gateway/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -176,7 +176,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                         RateLimiterRedis = RateLimiterRedis.GetConnectionOptions()
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/api-gateway/certificates", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/api-gateway/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificates = new
@@ -185,7 +185,7 @@ namespace ApiGateway.Test.Integration.Web.Collections
                         ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _apiGatewayServerCertificatePrivateKeyPath))
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new

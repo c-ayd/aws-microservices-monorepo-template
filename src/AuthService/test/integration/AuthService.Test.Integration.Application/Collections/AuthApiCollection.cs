@@ -118,10 +118,10 @@ namespace AuthService.Test.Integration.Application.Collections
 
         private async Task SetupAwsAsync()
         {
-            await AwsFixture.KMS_CreateKekAsync(AwsKmsAliasForDroppedMessages);
-            await AwsFixture.S3Bucket_CreateBucketAsync(AwsS3BucketNameForDroppedMessages);
+            await AwsFixture.AwsKms.CreateKekAsync(AwsKmsAliasForDroppedMessages);
+            await AwsFixture.AwsS3Bucket.CreateBucketAsync(AwsS3BucketNameForDroppedMessages);
 
-            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/auth-svc/connections", JsonSerializer.Serialize(
                 new
                 {
                     Connections = new
@@ -132,7 +132,7 @@ namespace AuthService.Test.Integration.Application.Collections
                         TokenBlacklistRedis = TokenBlacklistRedisFixture.GetConnectionOptions()
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/jwt", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/jwt", JsonSerializer.Serialize(
                 new
                 {
                     JwtKeys = new
@@ -160,7 +160,7 @@ namespace AuthService.Test.Integration.Application.Collections
                     }
                 }
             ));
-            await AwsFixture.SecretsManager_AddStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/auth-svc/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificates = new
@@ -169,7 +169,7 @@ namespace AuthService.Test.Integration.Application.Collections
                         ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _authServiceServerKeyFilePath))
                     }
                 }));
-            await AwsFixture.SecretsManager_AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/cert/ca-bundle", JsonSerializer.Serialize(
                 new
                 {
                     CABundle = new

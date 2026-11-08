@@ -23,7 +23,7 @@ namespace Common.Test.Integration.Aws.Helpers.DependencyInjection
             // Arrange
             var secretId = "aws-secrets-manager/di-1";
             var secretValue = StringGenerator.GenerateAlphanumeric();
-            await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(
+            await _collectionCluster.AwsFixture.AwsSecretsManager.AddStringAsync(
                 secretId,
                 value: JsonSerializer.Serialize(new { Key = secretValue }));
 

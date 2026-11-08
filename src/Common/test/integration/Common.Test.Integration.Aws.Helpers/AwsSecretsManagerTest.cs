@@ -21,7 +21,7 @@ namespace Common.Test.Integration.Aws.Helpers
             // Arrange
             var id = "aws-secrets-manager/test-str";
             var value = StringGenerator.GenerateAlphanumeric();
-            await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(id, value);
+            await _collectionCluster.AwsFixture.AwsSecretsManager.AddStringAsync(id, value);
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
 
@@ -45,7 +45,7 @@ namespace Common.Test.Integration.Aws.Helpers
 
             foreach (var secret in secrets)
             {
-                await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(secret.Key, secret.Value);
+                await _collectionCluster.AwsFixture.AwsSecretsManager.AddStringAsync(secret.Key, secret.Value);
             }
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
@@ -77,7 +77,7 @@ namespace Common.Test.Integration.Aws.Helpers
 
             foreach (var secret in secrets)
             {
-                await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(secret.Key, secret.Value);
+                await _collectionCluster.AwsFixture.AwsSecretsManager.AddStringAsync(secret.Key, secret.Value);
             }
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
@@ -110,7 +110,7 @@ namespace Common.Test.Integration.Aws.Helpers
 
             foreach (var secret in secrets)
             {
-                await _collectionCluster.AwsFixture.SecretsManager_AddStringAsync(secret.Key, secret.Value);
+                await _collectionCluster.AwsFixture.AwsSecretsManager.AddStringAsync(secret.Key, secret.Value);
             }
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
@@ -149,7 +149,7 @@ namespace Common.Test.Integration.Aws.Helpers
             // Arrange
             var id = "aws-secrets-manager/test-binary";
             var value = Encoding.UTF8.GetBytes(StringGenerator.GenerateAlphanumeric());
-            await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(id, value);
+            await _collectionCluster.AwsFixture.AwsSecretsManager.AddBinaryAsync(id, value);
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
 
@@ -173,7 +173,7 @@ namespace Common.Test.Integration.Aws.Helpers
 
             foreach (var secret in secrets)
             {
-                await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(secret.Key, secret.Value);
+                await _collectionCluster.AwsFixture.AwsSecretsManager.AddBinaryAsync(secret.Key, secret.Value);
             }
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
@@ -205,7 +205,7 @@ namespace Common.Test.Integration.Aws.Helpers
 
             foreach (var secret in secrets)
             {
-                await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(secret.Key, secret.Value);
+                await _collectionCluster.AwsFixture.AwsSecretsManager.AddBinaryAsync(secret.Key, secret.Value);
             }
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
@@ -238,7 +238,7 @@ namespace Common.Test.Integration.Aws.Helpers
 
             foreach (var secret in secrets)
             {
-                await _collectionCluster.AwsFixture.SecretsManager_AddBinaryAsync(secret.Key, secret.Value);
+                await _collectionCluster.AwsFixture.AwsSecretsManager.AddBinaryAsync(secret.Key, secret.Value);
             }
 
             var awsSecretsManager = _collectionCluster.WebApiFixture.GetService<IAwsSecretsManager>();
