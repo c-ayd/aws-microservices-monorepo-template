@@ -8,17 +8,14 @@ from pathlib import Path
 import os
 
 def main(args, root_folder):
-    if args.int_ca_key is None:
-        print('Intermediate CA key path is not provided.')
-        return
     if args.int_ca_cert is None:
         print('Intermediate CA certificate path is not provided.')
         return
+    if args.int_ca_key is None:
+        print('Intermediate CA key path is not provided.')
+        return
     if args.password_int is None:
         print('Password for intermediate CA is not provided.')
-        return
-    if args.output is None:
-        print('Output directory is not provided.')
         return
     if args.service_name is None:
         print('Service name is not provided.')
@@ -30,7 +27,7 @@ def main(args, root_folder):
         print('Certificate type is not provided.')
         return
 
-    output_path = os.path.join(root_folder, args.output)
+    output_path = os.path.join(root_folder, 'output')
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
@@ -165,7 +162,7 @@ def issue_server_certificate(output_path,
     with open(os.path.join(save_path, f'{service_name}-server.crt'), 'wb') as file:
         file.write(bundle)
 
-    return server_private_key, server_cert
+    return server_cert, server_private_key
 
 def issue_client_certificate(output_path,
                              intermediate_private_key,
@@ -256,16 +253,15 @@ def issue_client_certificate(output_path,
     with open(os.path.join(save_path, f'{service_name}-client.crt'), 'wb') as file:
         file.write(bundle)
 
-    return client_private_key, client_cert
+    return client_cert, client_private_key
 
 if __name__ == '__main__':
     root_folder = Path(__file__).resolve().parent
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--int-ca-key', type = str)
-    parser.add_argument('--int-ca-cert', type = str)
-    parser.add_argument('--password-int', type = str)
-    parser.add_argument('--output', type = str)
+    parser.add_argument('--int-ca-cert', type=str)
+    parser.add_argument('--int-ca-key', type=str)
+    parser.add_argument('--password-int', type=str)
     parser.add_argument('--service-name', type=str)
     parser.add_argument('--dns-names', type=str, nargs='+')
     parser.add_argument('--cert-type', type=str, choices=['server', 'client', 'both'])

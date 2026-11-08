@@ -8,33 +8,30 @@ from pathlib import Path
 import os
 
 def main(args, root_folder):
-    if args.password is None:
-        print('Password is not provided.')
-        return
     if args.name is None:
         print('Name is not provided.')
         return
-    if args.output is None:
-        print('Output directory is not provided.')
+    if args.password is None:
+        print('Password is not provided.')
         return
 
-    output_path = os.path.join(root_folder, args.output)
+    output_path = os.path.join(root_folder, 'output')
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
     organization = 'localhost'
     country = 'DE'
 
-    _, _ = generate_root_ca(output_path=output_path,
-                            organization=organization,
-                            country=country,
-                            common_name=args.name,
-                            valid_days=36500,
-                            password=args.password)
+    _, _ = create_root_ca(output_path=output_path,
+                          organization=organization,
+                          country=country,
+                          common_name=args.name,
+                          valid_days=36500,
+                          password=args.password)
 
     print('Root CA is generated.')
 
-def generate_root_ca(output_path,
+def create_root_ca(output_path,
                      organization,
                      country,
                      common_name,
@@ -96,15 +93,14 @@ def generate_root_ca(output_path,
     with open(os.path.join(output_path, f'{common_name}.crt'), 'wb') as file:
         file.write(root_cert.public_bytes(serialization.Encoding.PEM))
     
-    return root_private_key, root_cert
+    return root_cert, root_private_key
 
 if __name__ == '__main__':
     root_folder = Path(__file__).resolve().parent
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--password', type=str)
     parser.add_argument('--name', type=str)
-    parser.add_argument('--output', type=str)
+    parser.add_argument('--password', type=str)
     args = parser.parse_args()
 
     main(args=args,
