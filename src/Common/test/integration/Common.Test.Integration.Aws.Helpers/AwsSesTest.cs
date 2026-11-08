@@ -24,7 +24,7 @@ namespace Common.Test.Integration.Aws.Helpers
             var subjectLineParameterValue = "test1";
             var body = "Body - {{param2}}";
             var bodyParameterValue = "test2";
-            await _collectionCluster.AwsFixture.SES_CreateTemplateAsync(templateName, subjectLine, body);
+            await _collectionCluster.AwsFixture.AwsSes.CreateTemplateAsync(templateName, subjectLine, body);
 
             var awsSes = _collectionCluster.WebApiFixture.GetService<IAwsSes>();
 
@@ -43,7 +43,7 @@ namespace Common.Test.Integration.Aws.Helpers
                 templateParams);
 
             // Assert
-            var sentEmails = await _collectionCluster.AwsFixture.SES_GetSentEmailsAsync();
+            var sentEmails = await _collectionCluster.AwsFixture.AwsSes.GetSentEmailsAsync();
 
             Assert.NotNull(messageId);
             Assert.Single(sentEmails);

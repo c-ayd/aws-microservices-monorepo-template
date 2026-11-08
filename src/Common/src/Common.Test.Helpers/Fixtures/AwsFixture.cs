@@ -25,14 +25,13 @@ namespace Common.Test.Helpers.Fixtures
     {
         protected override IContainer Container => _container;
         private IContainer _container = null!;
-
-        private string _endpoint = null!;
-        private AmazonSecretsManagerClient _awsSecretsManagerClient = null!;
-        private AmazonKeyManagementServiceClient _awsKmsClient = null!;
-        private AmazonSimpleEmailServiceV2Client _awsSesClient = null!;
-        private AmazonS3Client _awsS3BucketClient = null!;
-        private AmazonElastiCacheClient _awsElastiCache = null!;
-        private AmazonECSClient _awsEcsClient = null!;
+        
+        public SecretsManager AwsSecretsManager { get; private set; } = null!;
+        public Kms AwsKms { get; private set; } = null!;
+        public Ses AwsSes { get; private set; } = null!;
+        public S3Bucket AwsS3Bucket { get; private set; } = null!;
+        public ElastiCache AwsElastiCache { get; private set; } = null!;
+        public Ecs AwsEcs { get; private set; } = null!;
 
         public async Task InitializeAsync()
         {
@@ -44,52 +43,16 @@ namespace Common.Test.Helpers.Fixtures
             await _container.StartAsync();
 
             // Configurations
-            _endpoint = $"http://localhost:{GetMappedPort()}";
+            var serviceUrl = $"http://localhost:{GetMappedPort()}";
 
-            _awsSecretsManagerClient = new AmazonSecretsManagerClient(AwsTestConstants.Credentials,
-                new AmazonSecretsManagerConfig()
-                {
-                    ServiceURL = _endpoint,
-                    AuthenticationRegion = AwsTestConstants.Region
-                });
+            AwsSecretsManager = new SecretsManager(serviceUrl);
+            AwsKms = new Kms(serviceUrl);
+            AwsSes = new Ses(serviceUrl);
+            AwsS3Bucket = new S3Bucket(serviceUrl);
+            AwsElastiCache = new ElastiCache(serviceUrl);
+            AwsEcs = new Ecs(serviceUrl);
 
-            _awsKmsClient = new AmazonKeyManagementServiceClient(AwsTestConstants.Credentials,
-                new AmazonKeyManagementServiceConfig()
-                {
-                    ServiceURL = _endpoint,
-                    AuthenticationRegion = AwsTestConstants.Region
-                });
-
-            _awsSesClient = new AmazonSimpleEmailServiceV2Client(AwsTestConstants.Credentials,
-                new AmazonSimpleEmailServiceV2Config()
-                {
-                    ServiceURL = _endpoint,
-                    AuthenticationRegion = AwsTestConstants.Region
-                });
-
-            _awsS3BucketClient = new AmazonS3Client(AwsTestConstants.Credentials,
-                new AmazonS3Config()
-                {
-                    ServiceURL = _endpoint,
-                    AuthenticationRegion = AwsTestConstants.Region,
-                    ForcePathStyle = true
-                });
-
-            _awsElastiCache = new AmazonElastiCacheClient(AwsTestConstants.Credentials,
-                new AmazonElastiCacheConfig()
-                {
-                    ServiceURL = _endpoint,
-                    AuthenticationRegion = AwsTestConstants.Region,
-                });
-
-            _awsEcsClient = new AmazonECSClient(AwsTestConstants.Credentials,
-                new AmazonECSConfig()
-                {
-                    ServiceURL = _endpoint,
-                    AuthenticationRegion = AwsTestConstants.Region,
-                });
-
-            await SES_VerifyEmailAsync(AwsTestConstants.SesFromEmail);
+            await AwsSes.VerifyEmailAsync(AwsTestConstants.SesFromEmail);
         }
 
         public override int GetMappedPort(int? port = null)
@@ -97,300 +60,391 @@ namespace Common.Test.Helpers.Fixtures
             return _container.GetMappedPublicPort(4566);
         }
 
-        //~ Begin - AWS Secrets Manager
-        public async Task SecretsManager_AddStringAsync(string id, string value)
+        public async Task DisposeAsync()
         {
-            await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
-            {
-                Name = id,
-                SecretString = value
-            });
+            await _container.DisposeAsync();
         }
 
-        public async Task SecretsManager_AddBinaryAsync(string id, byte[] value)
+        //~ Begin - AWS Services
+
+        public class SecretsManager
         {
-            await using var memoryStream = new MemoryStream(value, writable: false);
-            await _awsSecretsManagerClient.CreateSecretAsync(new CreateSecretRequest()
+            private AmazonSecretsManagerClient _awsSecretsManager;
+
+            public SecretsManager(string serviceUrl)
             {
-                Name = id,
-                SecretBinary = memoryStream
-            });
-        }
+                _awsSecretsManager = new AmazonSecretsManagerClient(
+                    AwsTestConstants.Credentials,
+                    new AmazonSecretsManagerConfig()
+                    {
+                        ServiceURL = serviceUrl,
+                        AuthenticationRegion = AwsTestConstants.Region
+                    });
+            }
 
-        public async Task<string> SecretsManager_GetStringAsync(string id)
-        {
-            var response = await _awsSecretsManagerClient.GetSecretValueAsync(new GetSecretValueRequest()
+            public async Task AddStringAsync(string id, string value)
             {
-                SecretId = id
-            });
-
-            return response.SecretString;
-        }
-
-        public async Task<byte[]> SecretsManager_GetBinaryAsync(string id)
-        {
-            var response = await _awsSecretsManagerClient.GetSecretValueAsync(new GetSecretValueRequest()
-            {
-                SecretId = id
-            });
-
-            return response.SecretBinary.ToArray();
-        }
-
-        public async Task SecretsManager_DeleteAsync(string id)
-        {
-            await _awsSecretsManagerClient.DeleteSecretAsync(new DeleteSecretRequest()
-            {
-                SecretId = id,
-                ForceDeleteWithoutRecovery = true
-            });
-        }
-        //~ End
-
-        //~ Begin - AWS KMS
-        public async Task<string> KMS_CreateKekAsync(string? alias)
-        {
-            var kek = await _awsKmsClient.CreateKeyAsync(new CreateKeyRequest());
-
-            if (alias != null)
-            {
-                await _awsKmsClient.CreateAliasAsync(new CreateAliasRequest()
+                await _awsSecretsManager.CreateSecretAsync(new CreateSecretRequest()
                 {
-                    TargetKeyId = kek.KeyMetadata.KeyId,
+                    Name = id,
+                    SecretString = value
+                });
+            }
+
+            public async Task AddBinaryAsync(string id, byte[] value)
+            {
+                await using var memoryStream = new MemoryStream(value, writable: false);
+                await _awsSecretsManager.CreateSecretAsync(new CreateSecretRequest()
+                {
+                    Name = id,
+                    SecretBinary = memoryStream
+                });
+            }
+
+            public async Task<string> GetStringAsync(string id)
+            {
+                var response = await _awsSecretsManager.GetSecretValueAsync(new GetSecretValueRequest()
+                {
+                    SecretId = id
+                });
+
+                return response.SecretString;
+            }
+
+            public async Task<byte[]> GetBinaryAsync(string id)
+            {
+                var response = await _awsSecretsManager.GetSecretValueAsync(new GetSecretValueRequest()
+                {
+                    SecretId = id
+                });
+
+                return response.SecretBinary.ToArray();
+            }
+
+            public async Task DeleteAsync(string id)
+            {
+                await _awsSecretsManager.DeleteSecretAsync(new DeleteSecretRequest()
+                {
+                    SecretId = id,
+                    ForceDeleteWithoutRecovery = true
+                });
+            }
+        }
+
+        public class Kms
+        {
+            private AmazonKeyManagementServiceClient _awsKms;
+
+            public Kms(string serviceUrl)
+            {
+                _awsKms = new AmazonKeyManagementServiceClient(
+                    AwsTestConstants.Credentials,
+                    new AmazonKeyManagementServiceConfig()
+                    {
+                        ServiceURL = serviceUrl,
+                        AuthenticationRegion = AwsTestConstants.Region
+                    });
+            }
+
+            public async Task<string> CreateKekAsync(string? alias)
+            {
+                var kek = await _awsKms.CreateKeyAsync(new CreateKeyRequest());
+
+                if (alias != null)
+                {
+                    await _awsKms.CreateAliasAsync(new CreateAliasRequest()
+                    {
+                        TargetKeyId = kek.KeyMetadata.KeyId,
+                        AliasName = alias
+                    });
+                }
+
+                return kek.KeyMetadata.KeyId;
+            }
+
+            public async Task DeleteAliasAsync(string alias)
+            {
+                await _awsKms.DeleteAliasAsync(new DeleteAliasRequest()
+                {
                     AliasName = alias
                 });
             }
-            
-            return kek.KeyMetadata.KeyId;
         }
 
-        public async Task KMS_DeleteAliasAsync(string alias)
+        public class Ses
         {
-            await _awsKmsClient.DeleteAliasAsync(new DeleteAliasRequest()
+            private string _serviceUrl;
+            private AmazonSimpleEmailServiceV2Client _awsSes;
+
+            public Ses(string serviceUrl)
             {
-                AliasName = alias
-            });
-        }
-        //~ End
-
-        //~ Begin - AWS SES
-        public async Task SES_VerifyEmailAsync(string email)
-        {
-            await _awsSesClient.CreateEmailIdentityAsync(new CreateEmailIdentityRequest()
-            {
-                EmailIdentity = email
-            });
-        }
-
-        public async Task SES_CreateTemplateAsync(string templateName, string subject, string body)
-        {
-            await _awsSesClient.CreateEmailTemplateAsync(new CreateEmailTemplateRequest
-            {
-                TemplateName = templateName,
-                TemplateContent = new EmailTemplateContent
-                {
-                    Subject = subject,
-                    Text = body
-                }
-            });
-        }
-
-        private record SesResponse(
-            Dictionary<string, List<SesMessage>>? Messages
-        );
-
-        public async Task<List<SesMessage>> SES_GetSentEmailsAsync()
-        {
-            using var client = new HttpClient()
-            {
-                BaseAddress = new Uri(_endpoint)
-            };
-
-            var response = await client.GetFromJsonAsync<SesResponse>("_ministack/ses/messages");
-            if (response == null || response.Messages == null)
-                return new List<SesMessage>();
-
-            var result = new List<SesMessage>();
-            foreach (var messages in response.Messages.Values)
-            {
-                result.AddRange(messages);
+                _serviceUrl = serviceUrl;
+                _awsSes = new AmazonSimpleEmailServiceV2Client(
+                    AwsTestConstants.Credentials,
+                    new AmazonSimpleEmailServiceV2Config()
+                    {
+                        ServiceURL = serviceUrl,
+                        AuthenticationRegion = AwsTestConstants.Region
+                    });
             }
 
-            return result;
-        }
-        //~ End
-
-        //~ Begin - AWS S3 Bucket
-        public async Task S3Bucket_CreateBucketAsync(string bucketName)
-        {
-            await _awsS3BucketClient.PutBucketAsync(new PutBucketRequest
+            public async Task VerifyEmailAsync(string email)
             {
-                BucketName = bucketName
-            });
+                await _awsSes.CreateEmailIdentityAsync(new CreateEmailIdentityRequest()
+                {
+                    EmailIdentity = email
+                });
+            }
+
+            public async Task CreateTemplateAsync(string templateName, string subject, string body)
+            {
+                await _awsSes.CreateEmailTemplateAsync(new CreateEmailTemplateRequest
+                {
+                    TemplateName = templateName,
+                    TemplateContent = new EmailTemplateContent
+                    {
+                        Subject = subject,
+                        Text = body
+                    }
+                });
+            }
+
+            public async Task<List<SesMessage>> GetSentEmailsAsync()
+            {
+                using var client = new HttpClient()
+                {
+                    BaseAddress = new Uri(_serviceUrl)
+                };
+
+                var response = await client.GetFromJsonAsync<SesResponse>("_ministack/ses/messages");
+                if (response == null || response.Messages == null)
+                    return new List<SesMessage>();
+
+                var result = new List<SesMessage>();
+                foreach (var messages in response.Messages.Values)
+                {
+                    result.AddRange(messages);
+                }
+
+                return result;
+            }
+
+            private record SesResponse(
+                Dictionary<string, List<SesMessage>>? Messages
+            );
         }
 
-        public async Task S3Bucket_PutObjectAsync(string bucketName, string key, byte[] data)
+        public class S3Bucket
         {
-            await _awsS3BucketClient.PutObjectAsync(new PutObjectRequest()
+            private AmazonS3Client _awsS3Bucket;
+
+            public S3Bucket(string serviceUrl)
             {
-                BucketName = bucketName,
-                Key = key,
-                InputStream = new MemoryStream(data, writable: false),
-                AutoCloseStream = true
-            });
-        }
+                _awsS3Bucket = new AmazonS3Client(
+                    AwsTestConstants.Credentials,
+                    new AmazonS3Config()
+                    {
+                        ServiceURL = serviceUrl,
+                        AuthenticationRegion = AwsTestConstants.Region,
+                        ForcePathStyle = true
+                    });
+            }
 
-        public async Task<byte[]> S3Bucket_GetObjectAsync(string bucketName, string key)
-        {
-            using var response = await _awsS3BucketClient.GetObjectAsync(new GetObjectRequest()
+            public async Task CreateBucketAsync(string bucketName)
             {
-                BucketName = bucketName,
-                Key = key
-            });
+                await _awsS3Bucket.PutBucketAsync(new PutBucketRequest
+                {
+                    BucketName = bucketName
+                });
+            }
 
-            await using var memoryStream = new MemoryStream();
-            await response.ResponseStream.CopyToAsync(memoryStream);
-            memoryStream.Position = 0;
-
-            return memoryStream.ToArray();
-        }
-
-        public async Task<bool> S3Bucket_FileExistsAsync(string bucketName, string key)
-        {
-            try
+            public async Task PutObjectAsync(string bucketName, string key, byte[] data)
             {
-                await _awsS3BucketClient.GetObjectMetadataAsync(new GetObjectMetadataRequest()
+                await _awsS3Bucket.PutObjectAsync(new PutObjectRequest()
+                {
+                    BucketName = bucketName,
+                    Key = key,
+                    InputStream = new MemoryStream(data, writable: false),
+                    AutoCloseStream = true
+                });
+            }
+
+            public async Task<byte[]> GetObjectAsync(string bucketName, string key)
+            {
+                using var response = await _awsS3Bucket.GetObjectAsync(new GetObjectRequest()
                 {
                     BucketName = bucketName,
                     Key = key
                 });
 
-                return true;
+                await using var memoryStream = new MemoryStream();
+                await response.ResponseStream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                return memoryStream.ToArray();
             }
-            catch
-            {
-                return false;
-            }
-        }
 
-        public async Task S3Bucket_DeleteBucketAsync(string bucketName)
-        {
-            await _awsS3BucketClient.DeleteBucketAsync(new DeleteBucketRequest()
+            public async Task<bool> FileExistsAsync(string bucketName, string key)
             {
-                BucketName = bucketName
-            });
-        }
-        //~ End
-
-        //~ Begin - ElastiCache
-        public async Task ElastiCache_CreateUser(
-            string username,
-            string password,
-            string accessString = "~* +@all -@dangerous",
-            string engine = "redis")
-        {
-            await _awsElastiCache.CreateUserAsync(new CreateUserRequest()
-            {
-                UserId = username,
-                UserName = username,
-                Engine = engine,
-                AccessString = accessString,
-                Passwords = new List<string>() { password }
-            });
-        }
-        
-        public async Task ElastiCache_CreateUserGroup(string groupName, string engine = "redis")
-        {
-            await _awsElastiCache.CreateUserGroupAsync(new CreateUserGroupRequest
-            {
-                UserGroupId = groupName,
-                Engine = engine,
-                UserIds = new List<string> { "default" }
-            });
-        }
-
-        public async Task ElastiCache_ModifyUserGroup(string groupName, List<string>? usersToAdd, List<string>? usersToRemove)
-        {
-            await _awsElastiCache.ModifyUserGroupAsync(new ModifyUserGroupRequest
-            {
-                UserGroupId = groupName,
-                UserIdsToAdd = usersToAdd ?? new List<string>(),
-                UserIdsToRemove = usersToRemove ?? new List<string>()
-            });
-        }
-
-        public async Task<User?> ElastiCache_GetUser(string username)
-        {
-            var usersResponse = await _awsElastiCache.DescribeUsersAsync(new DescribeUsersRequest()
-            {
-                UserId = username
-            });
-
-            return usersResponse.Users
-                .Where(u => u.UserName == username)
-                .FirstOrDefault();
-        }
-
-        public async Task ElastiCache_DeleteUser(string username)
-        {
-            await _awsElastiCache.DeleteUserAsync(new DeleteUserRequest()
-            {
-                UserId = username
-            });
-        }
-        //~ End
-
-        //~ Begin - ECS
-        public async Task Ecs_CreateClusterAsync(string clusterName)
-        {
-            await _awsEcsClient.CreateClusterAsync(new Amazon.ECS.Model.CreateClusterRequest
-            {
-                ClusterName = clusterName
-            });
-        }
-
-        public async Task Ecs_RegisterTaskDefiniton(string taskName)
-        {
-            await _awsEcsClient.RegisterTaskDefinitionAsync(new Amazon.ECS.Model.RegisterTaskDefinitionRequest
-            {
-                Family = taskName,
-                NetworkMode = NetworkMode.Awsvpc,
-                RequiresCompatibilities = [Compatibility.FARGATE],
-                Cpu = "256",
-                Memory = "512",
-                ContainerDefinitions = [
-                    new Amazon.ECS.Model.ContainerDefinition
-                    {
-                        Name = "app",
-                        Image = "image"
-                    }
-                ]
-            });
-        }
-
-        public async Task Ecs_CreateServiceAsync(string clusterName, string taskName, string serviceName)
-        {
-            await _awsEcsClient.CreateServiceAsync(new Amazon.ECS.Model.CreateServiceRequest
-            {
-                Cluster = clusterName,
-                TaskDefinition = taskName,
-                ServiceName = serviceName,
-                LaunchType = LaunchType.FARGATE,
-                DesiredCount = 0,
-                NetworkConfiguration = new Amazon.ECS.Model.NetworkConfiguration
+                try
                 {
-                    AwsvpcConfiguration = new Amazon.ECS.Model.AwsVpcConfiguration
+                    await _awsS3Bucket.GetObjectMetadataAsync(new GetObjectMetadataRequest()
                     {
-                        Subnets = ["subnet-123"]
-                    }
-                }
-            });
-        }
-        //~ End
+                        BucketName = bucketName,
+                        Key = key
+                    });
 
-        public async Task DisposeAsync()
-        {
-            await _container.DisposeAsync();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            public async Task DeleteBucketAsync(string bucketName)
+            {
+                await _awsS3Bucket.DeleteBucketAsync(new DeleteBucketRequest()
+                {
+                    BucketName = bucketName
+                });
+            }
         }
+
+        public class ElastiCache
+        {
+            private AmazonElastiCacheClient _awsElastiCache;
+
+            public ElastiCache(string serviceUrl)
+            {
+                _awsElastiCache = new AmazonElastiCacheClient(
+                    AwsTestConstants.Credentials,
+                    new AmazonElastiCacheConfig()
+                    {
+                        ServiceURL = serviceUrl,
+                        AuthenticationRegion = AwsTestConstants.Region,
+                    });
+            }
+
+            public async Task CreateUser(
+                string username,
+                string password,
+                string accessString = "~* +@all -@dangerous",
+                string engine = "redis")
+            {
+                await _awsElastiCache.CreateUserAsync(new CreateUserRequest()
+                {
+                    UserId = username,
+                    UserName = username,
+                    Engine = engine,
+                    AccessString = accessString,
+                    Passwords = new List<string>() { password }
+                });
+            }
+
+            public async Task CreateUserGroup(string groupId, string engine = "redis")
+            {
+                await _awsElastiCache.CreateUserGroupAsync(new CreateUserGroupRequest
+                {
+                    UserGroupId = groupId,
+                    Engine = engine,
+                    UserIds = new List<string> { "default" }
+                });
+            }
+
+            public async Task ModifyUserGroup(string groupId, List<string>? usersToAdd, List<string>? usersToRemove)
+            {
+                await _awsElastiCache.ModifyUserGroupAsync(new ModifyUserGroupRequest
+                {
+                    UserGroupId = groupId,
+                    UserIdsToAdd = usersToAdd ?? new List<string>(),
+                    UserIdsToRemove = usersToRemove ?? new List<string>()
+                });
+            }
+
+            public async Task<User?> GetUser(string username)
+            {
+                var usersResponse = await _awsElastiCache.DescribeUsersAsync(new DescribeUsersRequest()
+                {
+                    UserId = username
+                });
+
+                return usersResponse.Users
+                    .Where(u => u.UserName == username)
+                    .FirstOrDefault();
+            }
+
+            public async Task DeleteUser(string username)
+            {
+                await _awsElastiCache.DeleteUserAsync(new DeleteUserRequest()
+                {
+                    UserId = username
+                });
+            }
+        }
+
+        public class Ecs
+        {
+            private AmazonECSClient _awsEcs;
+
+            public Ecs(string serviceUrl)
+            {
+                _awsEcs = new AmazonECSClient(
+                    AwsTestConstants.Credentials,
+                    new AmazonECSConfig()
+                    {
+                        ServiceURL = serviceUrl,
+                        AuthenticationRegion = AwsTestConstants.Region,
+                    });
+            }
+
+            public async Task CreateClusterAsync(string clusterName)
+            {
+                await _awsEcs.CreateClusterAsync(new Amazon.ECS.Model.CreateClusterRequest
+                {
+                    ClusterName = clusterName
+                });
+            }
+
+            public async Task RegisterTaskDefiniton(string taskName)
+            {
+                await _awsEcs.RegisterTaskDefinitionAsync(new Amazon.ECS.Model.RegisterTaskDefinitionRequest
+                {
+                    Family = taskName,
+                    NetworkMode = NetworkMode.Awsvpc,
+                    RequiresCompatibilities = [Compatibility.FARGATE],
+                    Cpu = "256",
+                    Memory = "512",
+                    ContainerDefinitions = [
+                        new Amazon.ECS.Model.ContainerDefinition
+                        {
+                            Name = "app",
+                            Image = "image"
+                        }
+                    ]
+                });
+            }
+
+            public async Task CreateServiceAsync(string clusterName, string taskName, string serviceName)
+            {
+                await _awsEcs.CreateServiceAsync(new Amazon.ECS.Model.CreateServiceRequest
+                {
+                    Cluster = clusterName,
+                    TaskDefinition = taskName,
+                    ServiceName = serviceName,
+                    LaunchType = LaunchType.FARGATE,
+                    DesiredCount = 0,
+                    NetworkConfiguration = new Amazon.ECS.Model.NetworkConfiguration
+                    {
+                        AwsvpcConfiguration = new Amazon.ECS.Model.AwsVpcConfiguration
+                        {
+                            Subnets = ["subnet-123"]
+                        }
+                    }
+                });
+            }
+        }
+
+        //~ End
     }
 }
