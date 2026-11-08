@@ -74,7 +74,7 @@ namespace Lambda.SecretsRotations
 
             await UpdateJwtKeys(secrets, eventJson.JwtKeysSecretId, startDate, context.Logger);
             await UpdateCertificates(secrets, eventJson.Certificates, startDate, results, context.Logger);
-            await UpdateConnectionCredentials(secrets, eventJson.Connections, startDate, results, context.Logger);
+            await UpdateConnectionCredentials(secrets, eventJson.Connections, eventJson.Environment, startDate, results, context.Logger);
 
             // Restart AWS ECS tasks
             await RestartEcsTasks(eventJson.EcsClusterName, results, context.Logger);

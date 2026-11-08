@@ -201,6 +201,11 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                 {
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
+                        if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
+                        {
+                            sslPolicyErrors &= ~SslPolicyErrors.RemoteCertificateNameMismatch;
+                        }
+
                         return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
                     }
                 },

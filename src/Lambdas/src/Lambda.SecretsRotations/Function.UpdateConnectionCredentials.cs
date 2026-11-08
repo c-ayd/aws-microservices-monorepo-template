@@ -24,6 +24,7 @@ namespace Lambda.SecretsRotations
         private async Task UpdateConnectionCredentials(
             BatchGetSecretValueResponse secrets,
             EventJson.ConnectionsInfo connectionsInfo,
+            EventJson.EnvironmentInfo? environmentInfo,
             DateTimeOffset startDate,
             Dictionary<string, ServiceRotationResult> results,
             ILambdaLogger logger)
@@ -51,6 +52,12 @@ namespace Lambda.SecretsRotations
                 {
                     RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                     {
+                        if ((environmentInfo != null && !environmentInfo.IsProduction) &&
+                            ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0))
+                        {
+                            sslPolicyErrors &= ~SslPolicyErrors.RemoteCertificateNameMismatch;
+                        }
+
                         return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
                     }
                 },
