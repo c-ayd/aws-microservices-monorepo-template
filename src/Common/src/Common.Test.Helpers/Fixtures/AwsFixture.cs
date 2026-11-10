@@ -364,14 +364,21 @@ namespace Common.Test.Helpers.Fixtures
 
             public async Task<User?> GetUser(string username)
             {
-                var usersResponse = await _awsElastiCache.DescribeUsersAsync(new DescribeUsersRequest()
+                try
                 {
-                    UserId = username
-                });
+                    var usersResponse = await _awsElastiCache.DescribeUsersAsync(new DescribeUsersRequest()
+                    {
+                        UserId = username
+                    });
 
-                return usersResponse.Users
-                    .Where(u => u.UserName == username)
-                    .FirstOrDefault();
+                    return usersResponse.Users
+                        .Where(u => u.UserName == username)
+                        .FirstOrDefault();
+                }
+                catch (UserNotFoundException)
+                {
+                    return null;
+                }
             }
 
             public async Task DeleteUser(string username)
