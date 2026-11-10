@@ -447,7 +447,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
-            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-connections", JsonSerializer.Serialize("{}"));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-users", JsonSerializer.Serialize("{}"));
 
             await AwsFixture.AwsElastiCache.CreateUserGroup(groupId: "test-group");
             foreach (var oldUsername in OldUsernames)

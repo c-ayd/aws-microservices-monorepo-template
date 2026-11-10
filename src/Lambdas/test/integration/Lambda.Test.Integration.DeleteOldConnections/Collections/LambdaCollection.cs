@@ -231,18 +231,18 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
             var postgreSqlConnectionsOptions = PostgreSqlFixture.GetConnectionOptions("postgres");
             var rabbitMqConnectionsOptions = RabbitMqFixture.GetConnectionOptions();
             
-            var oldConnections = new OldConnections();
+            var oldUsers = new OldUsers();
             foreach (var oldUsername in OldUsernames)
             {
-                oldConnections.PostgreSqlUsers.Add(new OldConnections.PostgreSqlUser()
+                oldUsers.PostgreSqlUsers.Add(new OldUsers.PostgreSqlUser()
                 {
                     Username = oldUsername,
                     Database = PostgreSqlDbName
                 });
 
-                oldConnections.RabbitMqUsers.Add(oldUsername);
+                oldUsers.RabbitMqUsers.Add(oldUsername);
 
-                oldConnections.RedisUsers.Add(new OldConnections.RedisUser()
+                oldUsers.RedisUsers.Add(new OldUsers.RedisUser()
                 {
                     Username = oldUsername,
                     UserGroupId = RedisGroupId
@@ -274,7 +274,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
-            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-connections", JsonSerializer.Serialize(oldConnections));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-users", JsonSerializer.Serialize(oldUsers));
 
             await AwsFixture.AwsElastiCache.CreateUserGroup(RedisGroupId);
             foreach (var oldUsername in OldUsernames)

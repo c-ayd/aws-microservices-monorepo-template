@@ -10,7 +10,6 @@ using Common.RabbitMq.Helpers.Options.Extensions;
 using Common.Redis.Helpers.Options.Extensions;
 using Common.Test.Helpers.Structures;
 using Lambda.SecretsRotations;
-using Lambda.SecretsRotations.Structures;
 using Lambda.SecretsRotations.Utilities;
 using Lambdas.Test.Integration.SecretsRotations.Collections;
 using Npgsql;
@@ -92,7 +91,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
                     Connection = new EventJson.ConnectionInfo()
                     {
                         AdminConnectionsSecretId = "template/admin-connections",
-                        OldConnectionsSecretId = "template/old-connections"
+                        OldUsersSecretId = "template/old-users"
                     },
                     Services = new List<EventJson.ServiceInfo>()
                     {
@@ -182,8 +181,8 @@ namespace Lambdas.Test.Integration.SecretsRotations
                 rsa.ImportFromPem(key.PrivateKey);
             }
 
-            var oldConnectionsToDelete = JsonSerializer.Deserialize<OldConnections>(
-                await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/old-connections"))!;
+            var oldUsersToDelete = JsonSerializer.Deserialize<OldUsers>(
+                await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/old-users"))!;
 
             foreach (var oldConnection in oldConnections)
             {
@@ -200,7 +199,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
                         jsonDocForNewPostgreSql.RootElement.GetProperty("Connections").GetProperty("PostgreSql").GetRawText())!;
 
                     Assert.NotEqual(oldPostgreSqlConnectionOptions.Username, newPostgreSqlConnectionOptions.Username);
-                    Assert.Contains(oldConnectionsToDelete.PostgreSqlUsers, u => u.Username == oldPostgreSqlConnectionOptions.Username);
+                    Assert.Contains(oldUsersToDelete.PostgreSqlUsers, u => u.Username == oldPostgreSqlConnectionOptions.Username);
 
                     var connStringBuilder = new NpgsqlConnectionStringBuilder()
                     {
@@ -237,7 +236,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
                         jsonDocForNewRabbitMq.RootElement.GetProperty("Connections").GetProperty("RabbitMq").GetRawText())!;
 
                     Assert.NotEqual(oldRabbitMqConnectionOptions.Username, newRabbitMqConnectionOptions.Username);
-                    Assert.Contains(oldRabbitMqConnectionOptions.Username, oldConnectionsToDelete.RabbitMqUsers);
+                    Assert.Contains(oldRabbitMqConnectionOptions.Username, oldUsersToDelete.RabbitMqUsers);
 
                     var connectionFactory = new ConnectionFactory()
                     {
@@ -273,7 +272,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
                         jsonDocForNewRedis.RootElement.GetProperty("Connections").GetProperty("Redis").GetRawText())!;
 
                     Assert.NotEqual(oldRedisConnectionOptions.Username, newRedisConnectionOptions.Username);
-                    Assert.Contains(oldConnectionsToDelete.RedisUsers, u => u.Username == oldRedisConnectionOptions.Username);
+                    Assert.Contains(oldUsersToDelete.RedisUsers, u => u.Username == oldRedisConnectionOptions.Username);
 
                     var newRedisUser = await _collectionCluster.AwsFixture.AwsElastiCache.GetUser(newRedisConnectionOptions.Username);
                     Assert.NotNull(newRedisUser);

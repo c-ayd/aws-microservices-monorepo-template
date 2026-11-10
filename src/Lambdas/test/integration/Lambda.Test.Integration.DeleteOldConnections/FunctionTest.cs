@@ -10,7 +10,6 @@ using Lambda.DeleteOldConnections.Utilities;
 using Lambdas.Test.Integration.SecretsRotations.Collections;
 using Npgsql;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Exceptions;
 
 namespace Lambda.Test.Integration.DeleteOldConnections
 {
@@ -44,7 +43,7 @@ namespace Lambda.Test.Integration.DeleteOldConnections
                 {
                     CABundleSecretId = "template/cert/ca-bundle",
                     AdminConnectionsSecretId = "template/admin-connections",
-                    OldConnectionsSecretId = "template/old-connections",
+                    OldUsersSecretId = "template/old-users",
                     Environment = new EventJson.EnvironmentInfo()
                     {
                         IsProduction = false,

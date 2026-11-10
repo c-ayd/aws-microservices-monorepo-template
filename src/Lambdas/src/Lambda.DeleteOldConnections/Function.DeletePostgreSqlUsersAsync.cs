@@ -14,7 +14,7 @@ namespace Lambda.DeleteOldConnections
         private async Task DeletePostgreSqlUsersAsync(
             PostgreSqlConnectionOptions connectionOptions,
             X509Certificate2Collection caBundle,
-            List<OldConnections.PostgreSqlUser> users,
+            List<OldUsers.PostgreSqlUser> users,
             DeletionResults deletionResults,
             ILambdaLogger logger)
         {
