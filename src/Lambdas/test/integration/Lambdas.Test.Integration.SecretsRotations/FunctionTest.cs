@@ -200,7 +200,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
                         jsonDocForNewPostgreSql.RootElement.GetProperty("Connections").GetProperty("PostgreSql").GetRawText())!;
 
                     Assert.NotEqual(oldPostgreSqlConnectionOptions.Username, newPostgreSqlConnectionOptions.Username);
-                    Assert.Contains(oldPostgreSqlConnectionOptions.Username, oldConnectionsToDelete.PostgreSqlRoles);
+                    Assert.Contains(oldConnectionsToDelete.PostgreSqlUsers, u => u.Username == oldPostgreSqlConnectionOptions.Username);
 
                     var connStringBuilder = new NpgsqlConnectionStringBuilder()
                     {
