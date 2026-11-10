@@ -6,9 +6,8 @@ using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Common.Aws.Helpers.Test;
-using Lambda.SecretsRotations.Exceptions;
+using Common.Lambda.Helpers.Exceptions;
 using Lambda.SecretsRotations.Structures;
-using Lambda.SecretsRotations.Utilities;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 

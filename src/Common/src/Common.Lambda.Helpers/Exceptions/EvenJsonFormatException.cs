@@ -1,4 +1,4 @@
-namespace Lambda.DeleteOldConnections.Exceptions
+namespace Common.Lambda.Helpers.Exceptions
 {
     public class EvenJsonFormatException : Exception
     {
