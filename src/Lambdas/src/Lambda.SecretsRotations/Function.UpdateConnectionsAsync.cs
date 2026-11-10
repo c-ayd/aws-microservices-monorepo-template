@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 using System.Net.Security;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using Amazon.ElastiCache.Model;
@@ -21,29 +20,57 @@ namespace Lambda.SecretsRotations
 {
     public partial class Function
     {
-        private async Task UpdateConnectionCredentials(
+        private async Task UpdateConnectionsAsync(
             BatchGetSecretValueResponse secrets,
-            EventJson.ConnectionsInfo connectionsInfo,
+            EventJson.CertificateInfo certificateInfo,
+            EventJson.ConnectionInfo connectionInfo,
+            List<EventJson.ServiceInfo> services,
             EventJson.EnvironmentInfo? environmentInfo,
             DateTimeOffset startDate,
-            Dictionary<string, ServiceRotationResult> results,
+            Dictionary<string, ServiceRotationResult> serviceResults,
             ILambdaLogger logger)
         {
             var startDatePostfix = startDate.ToString("yyyy-MM");
-            var oldConnectionCredentialsToDelete = new OldConnectionCredentials();
+            var oldConnectionsToDelete = new OldConnections();
 
             // Deserialize secrets required for connecting infrastructure services and TLS handshake
             var adminConnections = JsonSerializer.Deserialize<AdminConnections>(secrets.SecretValues
-                .Where(s => s.Name == connectionsInfo.AdminConnectionsSecretId)
+                .Where(s => s.Name == connectionInfo.AdminConnectionsSecretId)
                 .Single()
                 .SecretString)!;
-            var caBundleOptions = Utility.GetOptionsFromJson<CABundleOptionsBase>(
+            Utility.TryDeserializeJson<CABundleOptionsBase>(
                 json: secrets.SecretValues
-                .Where(s => s.Name == connectionsInfo.CABundleSecretId)
+                .Where(s => s.Name == certificateInfo.CABundleSecretId)
                 .Single()
                 .SecretString,
-                elementName: CABundleOptionsBase.Key)!;
-            var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions.Value);
+                section: CABundleOptionsBase.Key,
+                out var caBundleOptions);
+            var caBundle = TlsUtility.LoadCertificateChain(caBundleOptions!.Value);
+
+            // Establish connection to PostgreSQL
+            var postgreSqlConnStringBuilder = new NpgsqlConnectionStringBuilder()
+            {
+                Host = adminConnections.PostgreSql.Host,
+                Port = adminConnections.PostgreSql.Port,
+                Database = adminConnections.PostgreSql.Database,
+                Username = adminConnections.PostgreSql.Username,
+                Password = adminConnections.PostgreSql.Password,
+                SslMode = SslMode.Require
+            };
+
+            var postgreSqlSourceBuilder = new NpgsqlDataSourceBuilder(postgreSqlConnStringBuilder.ConnectionString);
+            postgreSqlSourceBuilder.UseSslClientAuthenticationOptionsCallback(options =>
+            {
+                options.EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+                options.TargetHost = adminConnections.PostgreSql.Ssl.ServerName;
+                options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                {
+                    return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
+                };
+            });
+
+            await using var postgreSqlDataSource = postgreSqlSourceBuilder.Build();
+            await using var postgreSqlConnection = await postgreSqlDataSource.OpenConnectionAsync();
 
             // Create HTTP client for RabbitMQ
             using var rabbitMqHttpClient = new HttpClient(new SocketsHttpHandler()
@@ -66,68 +93,85 @@ namespace Lambda.SecretsRotations
             rabbitMqHttpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Basic " +
                 Convert.ToBase64String(Encoding.UTF8.GetBytes($"{adminConnections.RabbitMq.Username}:{adminConnections.RabbitMq.Password}")));
 
-            // Update connection credentials
+            // Update connection secret values
             var updateTasks = new Dictionary<string, Task>();
-            foreach (var service in connectionsInfo.Services)
+            foreach (var service in services)
             {
+                if (service.Connection == null)
+                    continue;
+
                 using var jsonDoc = JsonDocument.Parse(secrets.SecretValues
-                    .Where(s => s.Name == service.ConncetionsSecretId)
+                    .Where(s => s.Name == service.Connection.ConncetionsSecretId)
                     .Single()
                     .SecretString);
 
                 var newConnectionsOptions = new Dictionary<string, object>();
                 var oldConnectionsOptions = jsonDoc.RootElement.GetProperty(ConnectionsOptionsBase.Key);
-                foreach (var property in oldConnectionsOptions.EnumerateObject())
+                foreach (var connectionJsonProperty in oldConnectionsOptions.EnumerateObject())
                 {
-                    var json = property.Value.GetRawText();
-                    if (Utility.TryDeserializeJson(json, out PostgreSqlConnectionOptions? postgreSqlConnectionOptions))
+                    var connectionJson = connectionJsonProperty.Value.GetRawText();
+                    if (Utility.TryDeserializeJson<PostgreSqlConnectionOptions>(
+                        connectionJson,
+                        section: null,
+                        out var postgreSqlConnectionOptions))
                     {
+                        serviceResults[service.ServiceName].Connections.PostgreSql = false;
+
                         try
                         {
-                            await UpdateConnectionCredentials_CreateNewPostgresqlCredentialsAsync(
-                                adminConnections.PostgreSql,
-                                caBundle,
+                            await UpdateConnections_CreateNewPostgresqlRoleAsync(
+                                postgreSqlConnection,
                                 startDatePostfix,
                                 postgreSqlConnectionOptions!,
-                                oldConnectionCredentialsToDelete,
+                                oldConnectionsToDelete,
                                 logger);
 
-                            newConnectionsOptions.Add(property.Name, postgreSqlConnectionOptions!);
+                            newConnectionsOptions.Add(connectionJsonProperty.Name, postgreSqlConnectionOptions!);
                         }
                         catch (Exception exception)
                         {
                             logger.LogError(exception, $"Connection_PostgreSQL ({postgreSqlConnectionOptions!.Username}) - Something went wrong. Message {exception.Message}.");
                         }
                     }
-                    else if (Utility.TryDeserializeJson(json, out RabbitMqConnectionOptions? rabbitMqConnectionOptions))
+                    else if (Utility.TryDeserializeJson<RabbitMqConnectionOptions>(
+                        connectionJson,
+                        section: null,
+                        out var rabbitMqConnectionOptions))
                     {
+                        serviceResults[service.ServiceName].Connections.RabbitMq = false;
+
                         try
                         {
-                            await UpdateConnectionCredentials_CreateNewRabbitMqCredentialsAsync(
+                            await UpdateConnections_CreateNewRabbitMqUserAsync(
                                 rabbitMqHttpClient,
                                 startDatePostfix,
                                 rabbitMqConnectionOptions!,
-                                oldConnectionCredentialsToDelete,
+                                oldConnectionsToDelete,
                                 logger);
 
-                            newConnectionsOptions.Add(property.Name, rabbitMqConnectionOptions!);
+                            newConnectionsOptions.Add(connectionJsonProperty.Name, rabbitMqConnectionOptions!);
                         }
                         catch (Exception exception)
                         {
                             logger.LogError(exception, $"Connection_RabbitMQ ({rabbitMqConnectionOptions!.Username}) - Something went wrong. Message {exception.Message}.");
                         }
                     }
-                    else if (Utility.TryDeserializeJson(json, out RedisConnectionOptions? redisConnectionOptions))
+                    else if (Utility.TryDeserializeJson<RedisConnectionOptions>(
+                        connectionJson,
+                        section: null,
+                        out var redisConnectionOptions))
                     {
+                        serviceResults[service.ServiceName].Connections.Redis = false;
+
                         try
                         {
-                            await UpdateConnectionCredentials_CreateNewRedisCredentialsAsync(
+                            await UpdateConnections_CreateNewRedisUserAsync(
                                 startDatePostfix,
                                 redisConnectionOptions!,
-                                oldConnectionCredentialsToDelete,
+                                oldConnectionsToDelete,
                                 logger);
 
-                            newConnectionsOptions.Add(property.Name, redisConnectionOptions!);
+                            newConnectionsOptions.Add(connectionJsonProperty.Name, redisConnectionOptions!);
                         }
                         catch (Exception exception)
                         {
@@ -136,14 +180,14 @@ namespace Lambda.SecretsRotations
                     }
                     else
                     {
-                        logger.LogCritical($"Unknown connection type. Service Name: {service.ServiceName}, JSON Key: {property.Name}.");
+                        logger.LogCritical($"Unknown connection type. Service Name: {service.ServiceName}, JSON Key: {connectionJsonProperty.Name}.");
                     }
                 }
 
                 // Add task to the list for batch update
                 updateTasks.Add(service.ServiceName, AwsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
                 {
-                    SecretId = service.ConncetionsSecretId,
+                    SecretId = service.Connection.ConncetionsSecretId,
                     SecretString = JsonSerializer.Serialize(new Dictionary<string, object>()
                     {
                         { ConnectionsOptionsBase.Key, newConnectionsOptions }
@@ -153,62 +197,39 @@ namespace Lambda.SecretsRotations
                 // Wait for the batch to be completed before creating more credentials
                 if (updateTasks.Count >= _batchSize)
                 {
-                    await UpdateConnectionCredentials_WaitForUpdateTasksAsync(updateTasks, results, logger);
+                    await UpdateConnectionCredentials_WaitForUpdateTasksAsync(updateTasks, serviceResults, logger);
+
+                    // Wait 1 second to avoid API throttling
+                    await Task.Delay(1000);
                 }
             }
 
             // Wait for the last batch if there is any
             if (updateTasks.Count != 0)
             {
-                await UpdateConnectionCredentials_WaitForUpdateTasksAsync(updateTasks, results, logger);
+                await UpdateConnectionCredentials_WaitForUpdateTasksAsync(updateTasks, serviceResults, logger);
             }
 
-            // Save the old connection credentials to AWS Secrets Manager to delete them later in another lambda fuction
+            // Save the old connection options to AWS Secrets Manager to delete them later in another lambda fuction
             await AwsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
             {
-                SecretId = connectionsInfo.OldConnectionCredentialsSecretId,
-                SecretString = JsonSerializer.Serialize(oldConnectionCredentialsToDelete)
+                SecretId = connectionInfo.OldConnectionsSecretId,
+                SecretString = JsonSerializer.Serialize(oldConnectionsToDelete)
             });
 
             logger.LogInformation("Connection_FINAL - The old connection credentials are saved to AWS Secrets Manager.");
         }
 
-        private async Task UpdateConnectionCredentials_CreateNewPostgresqlCredentialsAsync(
-            PostgreSqlConnectionOptions adminConnectionOptions,
-            X509Certificate2Collection caBundle,
+        private async Task UpdateConnections_CreateNewPostgresqlRoleAsync(
+            NpgsqlConnection connection,
             string startDatePostfix,
             PostgreSqlConnectionOptions oldConnectionOptions,
-            OldConnectionCredentials oldConnectionCredentialsToDelete,
+            OldConnections oldConnectionsToDelete,
             ILambdaLogger logger)
         {
             var baseUsername = oldConnectionOptions.Username.Split('_')[0];
             var newUsername = $"{baseUsername}_{startDatePostfix}";
             var newPassword = Utility.GeneratePassword(length: 50);
-
-            // Connect to DB
-            var connStringBuilder = new NpgsqlConnectionStringBuilder()
-            {
-                Host = adminConnectionOptions.Host,
-                Port = adminConnectionOptions.Port,
-                Database = oldConnectionOptions.Database,
-                Username = adminConnectionOptions.Username,
-                Password = adminConnectionOptions.Password,
-                SslMode = SslMode.Require
-            };
-
-            var builder = new NpgsqlDataSourceBuilder(connStringBuilder.ConnectionString);
-            builder.UseSslClientAuthenticationOptionsCallback(options =>
-            {
-                options.EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-                options.TargetHost = adminConnectionOptions.Ssl.ServerName;
-                options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
-                {
-                    return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
-                };
-            });
-
-            await using var dataSource = builder.Build();
-            await using var connection = await dataSource.OpenConnectionAsync();
 
             // Create a new user and copy the permissions from the template user
             await using var transaction = await connection.BeginTransactionAsync();
@@ -216,32 +237,29 @@ namespace Lambda.SecretsRotations
             await using (var command = new NpgsqlCommand(
                 $@"CREATE ROLE ""{newUsername}"" LOGIN PASSWORD '{newPassword}';
                 GRANT ""{baseUsername}_default"" TO ""{newUsername}"";",
-                connection, transaction))
+                connection,
+                transaction))
             {
                 await command.ExecuteNonQueryAsync();
             }
 
             await transaction.CommitAsync();
 
-            logger.LogInformation($"Connection_PostgreSQL ({oldConnectionOptions.Username}) - A new user has been created with permissions.");
+            logger.LogInformation($"Connection_PostgreSQL ({oldConnectionOptions.Username}) - A new user has been created.");
 
-            // Add the old connection credentials to the deletion list
-            oldConnectionCredentialsToDelete.PostgreSqlUsers.Add(new OldConnectionCredentials.PostgreSqlUser()
-            {
-                Username = oldConnectionOptions.Username,
-                Database = oldConnectionOptions.Database
-            });
+            // Add the old role to the deletion list
+            oldConnectionsToDelete.PostgreSqlRoles.Add(oldConnectionOptions.Username);
 
             // Update old values
             oldConnectionOptions.Username = newUsername;
             oldConnectionOptions.Password = newPassword;
         }
 
-        private async Task UpdateConnectionCredentials_CreateNewRabbitMqCredentialsAsync(
+        private async Task UpdateConnections_CreateNewRabbitMqUserAsync(
             HttpClient rabbitMqHttpClient,
             string startDatePostfix,
             RabbitMqConnectionOptions oldConnectionOptions,
-            OldConnectionCredentials oldConnectionCredentialsToDelete,
+            OldConnections oldConnectionsToDelete,
             ILambdaLogger logger)
         {
             var newUsername = $"{oldConnectionOptions.Username.Split('_')[0]}_{startDatePostfix}";
@@ -257,30 +275,30 @@ namespace Lambda.SecretsRotations
 
             logger.LogInformation($"Connection_RabbitMQ ({oldConnectionOptions.Username}) - A new user has been created.");
 
-            // Copy old permissions to new user
-            var oldPermissions = await rabbitMqHttpClient.GetFromJsonAsync<JsonElement>($"/api/permissions/{Uri.EscapeDataString("/")}/{oldConnectionOptions.Username}");
+            // Copy permissions to new user
+            var permissions = await rabbitMqHttpClient.GetFromJsonAsync<JsonElement>($"/api/permissions/{Uri.EscapeDataString("/")}/{oldConnectionOptions.Username}");
             var permissionsResponse = await rabbitMqHttpClient.PutAsJsonAsync($"/api/permissions/{Uri.EscapeDataString("/")}/{newUsername}", new
             {
-                configure = oldPermissions.GetProperty("configure").GetString(),
-                write = oldPermissions.GetProperty("write").GetString(),
-                read = oldPermissions.GetProperty("read").GetString()
+                configure = permissions.GetProperty("configure").GetString(),
+                write = permissions.GetProperty("write").GetString(),
+                read = permissions.GetProperty("read").GetString()
             });
             permissionsResponse.EnsureSuccessStatusCode();
 
             logger.LogInformation($"Connection_RabbitMQ ({oldConnectionOptions.Username}) - The new user's permissions have been updated.");
 
-            // Add the old connection credentials to the deletion list
-            oldConnectionCredentialsToDelete.RabbitMqUsers.Add(oldConnectionOptions.Username);
+            // Add the old user to the deletion list
+            oldConnectionsToDelete.RabbitMqUsers.Add(oldConnectionOptions.Username);
 
             // Update old values
             oldConnectionOptions.Username = newUsername;
             oldConnectionOptions.Password = newPassword;
         }
 
-        private async Task UpdateConnectionCredentials_CreateNewRedisCredentialsAsync(
+        private async Task UpdateConnections_CreateNewRedisUserAsync(
             string startDatePostfix,
             RedisConnectionOptions oldConnectionOptions,
-            OldConnectionCredentials oldConnectionCredentialsToDelete,
+            OldConnections oldConnectionsToDelete,
             ILambdaLogger logger)
         {
             var newUsername = $"{oldConnectionOptions.Username.Split('_')[0]}_{startDatePostfix}";
@@ -316,8 +334,8 @@ namespace Lambda.SecretsRotations
 
             logger.LogInformation($"Connection_Redis ({oldConnectionOptions.Username}) - The new user has been assigned to a group.");
 
-            // Add the old connection credentials to the deletion list
-            oldConnectionCredentialsToDelete.RedisUsers.Add(new OldConnectionCredentials.RedisUser()
+            // Add the old user to the deletion list
+            oldConnectionsToDelete.RedisUsers.Add(new OldConnections.RedisUser()
             {
                 Username = oldConnectionOptions.Username,
                 UserGroupId = oldUser.UserGroupIds[0]
@@ -330,7 +348,7 @@ namespace Lambda.SecretsRotations
 
         private async Task UpdateConnectionCredentials_WaitForUpdateTasksAsync(
             Dictionary<string, Task> updateTasks,
-            Dictionary<string, ServiceRotationResult> results,
+            Dictionary<string, ServiceRotationResult> serviceResults,
             ILambdaLogger logger)
         {
             try
@@ -343,35 +361,15 @@ namespace Lambda.SecretsRotations
             {
                 if (task.Value.IsCompletedSuccessfully)
                 {
-                    if (results.ContainsKey(task.Key))
-                    {
-                        results[task.Key].Connections = true;
-                    }
-                    else
-                    {
-                        results.Add(task.Key, new ServiceRotationResult()
-                        {
-                            Connections = true
-                        });
-                    }
+                    serviceResults[task.Key].Connections.SetValues(value: true);
 
                     logger.LogInformation($"Connections ({task.Key}) - The connection credentials have been updated.");
                 }
                 else
                 {
-                    if (results.ContainsKey(task.Key))
-                    {
-                        results[task.Key].Connections = false;
-                    }
-                    else
-                    {
-                        results.Add(task.Key, new ServiceRotationResult()
-                        {
-                            Connections = false
-                        });
-                    }
+                    serviceResults[task.Key].Connections.SetValues(value: false);
 
-                    logger.LogError($"Connections ({task.Key}) - Something went wrong. Message: {task.Value.Exception?.Message}, Stack Trace: {task.Value.Exception?.StackTrace}");
+                    logger.LogError($"Connections ({task.Key}) - Something went wrong. Message: {task.Value.Exception?.Message}.");
                 }
             }
 
