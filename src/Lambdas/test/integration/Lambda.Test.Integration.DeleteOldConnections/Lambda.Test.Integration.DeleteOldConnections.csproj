@@ -19,4 +19,19 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\src\Common.Test.Helpers\Common.Test.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\..\Common\src\Common.Test.Generators\Common.Test.Generators.csproj" />
+    <ProjectReference Include="..\..\..\src\Lambda.DeleteOldConnections\Lambda.DeleteOldConnections.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Certs/test-ca-bundle.crt" Link="Certs/test-ca-bundle.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/PostgreSql/test-postgresql-server.key" Link="Certs/PostgreSql/test-postgresql-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/PostgreSql/test-postgresql-server.crt" Link="Certs/PostgreSql/test-postgresql-server.crt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/RabbitMq/rabbitmq.conf" Link="Certs/RabbitMq/rabbitmq.conf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/RabbitMq/test-rabbitmq-server.key" Link="Certs/RabbitMq/test-rabbitmq-server.key" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Certs/RabbitMq/test-rabbitmq-server.crt" Link="Certs/RabbitMq/test-rabbitmq-server.crt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
