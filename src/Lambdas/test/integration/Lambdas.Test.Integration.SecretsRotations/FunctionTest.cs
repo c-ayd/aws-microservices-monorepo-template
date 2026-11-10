@@ -15,6 +15,7 @@ using Lambda.SecretsRotations.Utilities;
 using Lambdas.Test.Integration.SecretsRotations.Collections;
 using Npgsql;
 using RabbitMQ.Client;
+using Shared.Lambda.Structures;
 
 namespace Lambdas.Test.Integration.SecretsRotations
 {

@@ -1,4 +1,4 @@
-namespace Lambda.SecretsRotations.Structures
+namespace Shared.Lambda.Structures
 {
     /// <summary>
     /// Holds necessary information to delete old users from the infrastructure services.

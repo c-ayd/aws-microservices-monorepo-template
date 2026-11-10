@@ -15,6 +15,7 @@ using Lambda.SecretsRotations.Structures;
 using Lambda.SecretsRotations.Utilities;
 using Microsoft.Net.Http.Headers;
 using Npgsql;
+using Shared.Lambda.Structures;
 
 namespace Lambda.SecretsRotations
 {

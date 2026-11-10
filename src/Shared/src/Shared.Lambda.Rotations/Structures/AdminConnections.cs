@@ -1,7 +1,7 @@
 using Common.PostgreSql.Helpers.Options.Extensions;
 using Common.RabbitMq.Helpers.Options.Extensions;
 
-namespace Lambda.SecretsRotations.Structures
+namespace Shared.Lambda.Structures
 {
     /// <summary>
     /// Holds the connections options coming from AWS Secrets Manager for administrative operations.
