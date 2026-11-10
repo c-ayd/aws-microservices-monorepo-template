@@ -15,4 +15,8 @@
     <PackageReference Include="Amazon.Lambda.Core" Version="2.8.1" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.5" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\src\Common.Aws.Helpers\Common.Aws.Helpers.csproj" />
+    <ProjectReference Include="..\..\..\Shared\src\Shared.Lambda.Rotations\Shared.Lambda.Rotations.csproj" />
+  </ItemGroup>
 </Project>
