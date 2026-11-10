@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography;
@@ -35,29 +36,44 @@ namespace Lambdas.Test.Integration.SecretsRotations
         public async Task FunctionHandler_WhenIsCalled_ShouldUpdateSecretsAndRestartServices()
         {
             // Arrange
+            Utility.TryDeserializeJson<CertificatesOptionsBase>(
+                json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc1/certificates"),
+                section: CertificatesOptionsBase.Key,
+                out var servic1OldCertificate);
+            Utility.TryDeserializeJson<CertificatesOptionsBase>(
+                json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc2/certificates"),
+                section: CertificatesOptionsBase.Key,
+                out var servic2OldCertificate);
+            Utility.TryDeserializeJson<CertificatesOptionsBase>(
+                json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc3/certificates"),
+                section: CertificatesOptionsBase.Key,
+                out var servic3OldCertificate);
+            Utility.TryDeserializeJson<CertificatesOptionsBase>(
+                json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc4/certificates"),
+                section: CertificatesOptionsBase.Key,
+                out var servic4OldCertificate);
+
             var oldCertificates = new Dictionary<string, CertificatesOptionsBase>()
             {
-                { "template/svc1/certificates", Utility.GetOptionsFromJson<CertificatesOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc1/certificates"),
-                    elementName: CertificatesOptionsBase.Key)! },
-                { "template/svc2/certificates", Utility.GetOptionsFromJson<CertificatesOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc2/certificates"),
-                    elementName: CertificatesOptionsBase.Key)! },
-                { "template/svc3/certificates", Utility.GetOptionsFromJson<CertificatesOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc3/certificates"),
-                    elementName: CertificatesOptionsBase.Key)! }
+                { "template/svc1/certificates", servic1OldCertificate! },
+                { "template/svc2/certificates", servic2OldCertificate! },
+                { "template/svc3/certificates", servic3OldCertificate! },
+                { "template/svc4/certificates", servic4OldCertificate! }
             };
 
             var oldConnections = new Dictionary<string, string>()
             {
                 { "template/svc1/connections", await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc1/connections") },
-                { "template/svc2/connections", await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc2/connections") }
+                { "template/svc2/connections", await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc2/connections") },
+                { "template/svc3/connections", await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc3/connections") },
+                { "template/svc5/connections", await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc5/connections") }
             };
 
-            var cABundleOptions = Utility.GetOptionsFromJson<CABundleOptionsBase>(
-                    json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/cert/ca-bundle"),
-                    elementName: CABundleOptionsBase.Key)!;
-            var caBundle = TlsUtility.LoadCertificateChain(cABundleOptions.Value);
+            Utility.TryDeserializeJson<CABundleOptionsBase>(
+                json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/cert/ca-bundle"),
+                section: CABundleOptionsBase.Key,
+                out var cABundleOptions);
+            var caBundle = TlsUtility.LoadCertificateChain(cABundleOptions!.Value);
 
             var input = JsonSerializer.Serialize(new
             {
@@ -65,49 +81,74 @@ namespace Lambdas.Test.Integration.SecretsRotations
                 {
                     EcsClusterName = "template-ecs-cluster",
                     JwtKeysSecretId = "template/jwt",
-                    Certificates = new EventJson.CertificatesInfo()
+                    Certificate = new EventJson.CertificateInfo()
                     {
                         IntermediateCASecretId = "template/cert/intermediate",
+                        CABundleSecretId = "template/cert/ca-bundle",
                         Organization = "localhost",
-                        Country = "DE",
-                        Services = new List<EventJson.CertificatesInfo.ServiceInfo>()
+                        Country = "DE"
+                    },
+                    Connection = new EventJson.ConnectionInfo()
+                    {
+                        AdminConnectionsSecretId = "template/admin-connections",
+                        OldConnectionsSecretId = "template/old-connections"
+                    },
+                    Services = new List<EventJson.ServiceInfo>()
+                    {
+                        new EventJson.ServiceInfo()
                         {
-                            new EventJson.CertificatesInfo.ServiceInfo()
+                            ServiceName = "Service1",
+                            Certificate = new EventJson.ServiceInfo.CertificateUpdateInfo()
                             {
                                 CertificateSecretId = "template/svc1/certificates",
-                                ServiceName = "Service1",
                                 DnsNames = new List<string>() { "localhost", "127.0.0.1" }
                             },
-                            new EventJson.CertificatesInfo.ServiceInfo()
+                            Connection = new EventJson.ServiceInfo.ConnectionUpdateInfo()
+                            {
+                                ConncetionsSecretId = "template/svc1/connections"
+                            }
+                        },
+                        new EventJson.ServiceInfo()
+                        {
+                            ServiceName = "Service2",
+                            Certificate = new EventJson.ServiceInfo.CertificateUpdateInfo()
                             {
                                 CertificateSecretId = "template/svc2/certificates",
-                                ServiceName = "Service2",
                                 DnsNames = new List<string>() { "localhost", "127.0.0.1" }
                             },
-                            new EventJson.CertificatesInfo.ServiceInfo()
+                            Connection = new EventJson.ServiceInfo.ConnectionUpdateInfo()
+                            {
+                                ConncetionsSecretId = "template/svc2/connections"
+                            }
+                        },
+                        new EventJson.ServiceInfo()
+                        {
+                            ServiceName = "Service3",
+                            Certificate = new EventJson.ServiceInfo.CertificateUpdateInfo()
                             {
                                 CertificateSecretId = "template/svc3/certificates",
-                                ServiceName = "Service3",
+                                DnsNames = new List<string>() { "localhost", "127.0.0.1" }
+                            },
+                            Connection = new EventJson.ServiceInfo.ConnectionUpdateInfo()
+                            {
+                                ConncetionsSecretId = "template/svc3/connections"
+                            }
+                        },
+                        new EventJson.ServiceInfo()
+                        {
+                            ServiceName = "Service4",
+                            Certificate = new EventJson.ServiceInfo.CertificateUpdateInfo()
+                            {
+                                CertificateSecretId = "template/svc4/certificates",
                                 DnsNames = new List<string>() { "localhost", "127.0.0.1" }
                             }
-                        }
-                    },
-                    Connections = new EventJson.ConnectionsInfo()
-                    {
-                        CABundleSecretId = "template/cert/ca-bundle",
-                        AdminConnectionsSecretId = "template/admin-connections",
-                        OldConnectionCredentialsSecretId = "template/old-connection-credentials",
-                        Services = new List<EventJson.ConnectionsInfo.ServiceInfo>()
+                        },
+                        new EventJson.ServiceInfo()
                         {
-                            new EventJson.ConnectionsInfo.ServiceInfo()
+                            ServiceName = "Service5",
+                            Connection = new EventJson.ServiceInfo.ConnectionUpdateInfo()
                             {
-                                ConncetionsSecretId = "template/svc1/connections",
-                                ServiceName = "Service1"
-                            },
-                            new EventJson.ConnectionsInfo.ServiceInfo()
-                            {
-                                ConncetionsSecretId = "template/svc2/connections",
-                                ServiceName = "Service2"
+                                ConncetionsSecretId = "template/svc5/connections"
                             }
                         }
                     },
@@ -120,14 +161,17 @@ namespace Lambdas.Test.Integration.SecretsRotations
             });
 
             // Act
-            await _lambdaFunction.FunctionHandler(input, new LambdaContextTest());
+            var lambdaResult = await _lambdaFunction.FunctionHandler(input, new LambdaContextTest());
 
             // Assert
+            Assert.Equal(HttpStatusCode.OK, (HttpStatusCode)lambdaResult["statusCode"]);
+
             var jwtKeysSecret = await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/jwt");
-            var jwtKeys = Utility.GetOptionsFromJson<JwtKeysOptionsBase>(
+            Utility.TryDeserializeJson<JwtKeysOptionsBase>(
                 json: jwtKeysSecret,
-                elementName: JwtKeysOptionsBase.Key)!;
-            Assert.NotEqual("v2", jwtKeys.CurrentKeyId);
+                section: JwtKeysOptionsBase.Key,
+                out var jwtKeys);
+            Assert.NotEqual("v2", jwtKeys!.CurrentKeyId);
             Assert.Equal(2, jwtKeys.Keys.Count);
             foreach (var key in jwtKeys.Keys)
             {
@@ -137,112 +181,113 @@ namespace Lambdas.Test.Integration.SecretsRotations
                 rsa.ImportFromPem(key.PrivateKey);
             }
 
-            var oldConnectionCredentials = JsonSerializer.Deserialize<OldConnectionCredentials>(
-                await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/old-connection-credentials"))!;
-
-            foreach (var oldUsername in LambdaCollectionCluster.OldUsernames)
-            {
-                Assert.Contains(oldConnectionCredentials.PostgreSqlUsers, u => u.Username == oldUsername);
-                Assert.Contains(oldUsername, oldConnectionCredentials.RabbitMqUsers);
-                Assert.Contains(oldConnectionCredentials.RedisUsers, u => u.Username == oldUsername);
-            }
+            var oldConnectionsToDelete = JsonSerializer.Deserialize<OldConnections>(
+                await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/old-connections"))!;
 
             foreach (var oldConnection in oldConnections)
             {
                 using var jsonDocForOldConnections = JsonDocument.Parse(oldConnection.Value);
+                var connectionsJsonProperty = jsonDocForOldConnections.RootElement.GetProperty("Connections");
 
                 // PostgreSQL
-                var oldPostgreSqlConnectionOptions = JsonSerializer.Deserialize<PostgreSqlConnectionOptions>(
-                    jsonDocForOldConnections.RootElement.GetProperty("Connections").GetProperty("PostgreSql").GetRawText())!;
-
-                using var jsonDocForNewPostgreSql = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
-                var newPostgreSqlConnectionOptions = JsonSerializer.Deserialize<PostgreSqlConnectionOptions>(
-                    jsonDocForNewPostgreSql.RootElement.GetProperty("Connections").GetProperty("PostgreSql").GetRawText())!;
-                
-                Assert.NotEqual(oldPostgreSqlConnectionOptions.Username, newPostgreSqlConnectionOptions.Username);
-                Assert.DoesNotContain(oldConnectionCredentials.PostgreSqlUsers, u => u.Username == newPostgreSqlConnectionOptions.Username);
-
-                var connStringBuilder = new NpgsqlConnectionStringBuilder()
+                if (connectionsJsonProperty.TryGetProperty("PostgreSql", out var postgreSqlConnectionJson))
                 {
-                    Host = newPostgreSqlConnectionOptions.Host,
-                    Port = newPostgreSqlConnectionOptions.Port,
-                    Database = newPostgreSqlConnectionOptions.Database,
-                    Username = newPostgreSqlConnectionOptions.Username,
-                    Password = newPostgreSqlConnectionOptions.Password,
-                    SslMode = SslMode.Require
-                };
+                    var oldPostgreSqlConnectionOptions = JsonSerializer.Deserialize<PostgreSqlConnectionOptions>(postgreSqlConnectionJson.GetRawText())!;
 
-                var builder = new NpgsqlDataSourceBuilder(connStringBuilder.ConnectionString);
-                builder.UseSslClientAuthenticationOptionsCallback(options =>
-                {
-                    options.EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-                    options.TargetHost = newPostgreSqlConnectionOptions.Ssl.ServerName;
-                    options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                    using var jsonDocForNewPostgreSql = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
+                    var newPostgreSqlConnectionOptions = JsonSerializer.Deserialize<PostgreSqlConnectionOptions>(
+                        jsonDocForNewPostgreSql.RootElement.GetProperty("Connections").GetProperty("PostgreSql").GetRawText())!;
+
+                    Assert.NotEqual(oldPostgreSqlConnectionOptions.Username, newPostgreSqlConnectionOptions.Username);
+                    Assert.Contains(oldPostgreSqlConnectionOptions.Username, oldConnectionsToDelete.PostgreSqlRoles);
+
+                    var connStringBuilder = new NpgsqlConnectionStringBuilder()
                     {
-                        return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
+                        Host = newPostgreSqlConnectionOptions.Host,
+                        Port = newPostgreSqlConnectionOptions.Port,
+                        Database = newPostgreSqlConnectionOptions.Database,
+                        Username = newPostgreSqlConnectionOptions.Username,
+                        Password = newPostgreSqlConnectionOptions.Password,
+                        SslMode = SslMode.Require
                     };
-                });
 
-                await using var dataSource = builder.Build();
-                await using var postgreSqlConnection = await dataSource.OpenConnectionAsync(); // Should not throw
-
-                // RabbitMQ
-                var oldRabbitMqConnectionOptions = JsonSerializer.Deserialize<RabbitMqConnectionOptions>(
-                    jsonDocForOldConnections.RootElement.GetProperty("Connections").GetProperty("RabbitMq").GetRawText())!;
-
-                using var jsonDocForNewRabbitMq = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
-                var newRabbitMqConnectionOptions = JsonSerializer.Deserialize<RabbitMqConnectionOptions>(
-                    jsonDocForNewRabbitMq.RootElement.GetProperty("Connections").GetProperty("RabbitMq").GetRawText())!;
-
-                Assert.NotEqual(oldRabbitMqConnectionOptions.Username, newRabbitMqConnectionOptions.Username);
-                Assert.DoesNotContain(newRabbitMqConnectionOptions.Username, oldConnectionCredentials.RabbitMqUsers);
-
-                var connectionFactory = new ConnectionFactory()
-                {
-                    HostName = newRabbitMqConnectionOptions.Host,
-                    Port = newRabbitMqConnectionOptions.Port,
-                    UserName = newRabbitMqConnectionOptions.Username,
-                    Password = newRabbitMqConnectionOptions.Password,
-                    AutomaticRecoveryEnabled = false,
-                    TopologyRecoveryEnabled = false,
-                    Ssl = new SslOption()
+                    var builder = new NpgsqlDataSourceBuilder(connStringBuilder.ConnectionString);
+                    builder.UseSslClientAuthenticationOptionsCallback(options =>
                     {
-                        Enabled = true,
-                        Version = SslProtocols.Tls12 | SslProtocols.Tls13,
-                        AcceptablePolicyErrors = SslPolicyErrors.None,
-                        ServerName = newRabbitMqConnectionOptions.Ssl.ServerName!,
-                        CertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                        options.EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+                        options.TargetHost = newPostgreSqlConnectionOptions.Ssl.ServerName;
+                        options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
                         {
                             return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
+                        };
+                    });
+
+                    await using var dataSource = builder.Build();
+                    await using var postgreSqlConnection = await dataSource.OpenConnectionAsync(); // Should not throw
+                }
+                
+                // RabbitMQ
+                if (connectionsJsonProperty.TryGetProperty("RabbitMq", out var rabbitMqConnectionJson))
+                {
+                    var oldRabbitMqConnectionOptions = JsonSerializer.Deserialize<RabbitMqConnectionOptions>(rabbitMqConnectionJson.GetRawText())!;
+
+                    using var jsonDocForNewRabbitMq = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
+                    var newRabbitMqConnectionOptions = JsonSerializer.Deserialize<RabbitMqConnectionOptions>(
+                        jsonDocForNewRabbitMq.RootElement.GetProperty("Connections").GetProperty("RabbitMq").GetRawText())!;
+
+                    Assert.NotEqual(oldRabbitMqConnectionOptions.Username, newRabbitMqConnectionOptions.Username);
+                    Assert.Contains(oldRabbitMqConnectionOptions.Username, oldConnectionsToDelete.RabbitMqUsers);
+
+                    var connectionFactory = new ConnectionFactory()
+                    {
+                        HostName = newRabbitMqConnectionOptions.Host,
+                        Port = newRabbitMqConnectionOptions.Port,
+                        UserName = newRabbitMqConnectionOptions.Username,
+                        Password = newRabbitMqConnectionOptions.Password,
+                        AutomaticRecoveryEnabled = false,
+                        TopologyRecoveryEnabled = false,
+                        Ssl = new SslOption()
+                        {
+                            Enabled = true,
+                            Version = SslProtocols.Tls12 | SslProtocols.Tls13,
+                            AcceptablePolicyErrors = SslPolicyErrors.None,
+                            ServerName = newRabbitMqConnectionOptions.Ssl.ServerName!,
+                            CertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) =>
+                            {
+                                return TlsUtility.ValidateServerCertificate(certificate, chain, caBundle, sslPolicyErrors);
+                            }
                         }
-                    }
-                };
+                    };
 
-                await using var rabbitMqConnection = await connectionFactory.CreateConnectionAsync(); // Should not throw
-
+                    await using var rabbitMqConnection = await connectionFactory.CreateConnectionAsync(); // Should not throw
+                }
+                
                 // Redis
-                var oldRedisConnectionOptions = JsonSerializer.Deserialize<RedisConnectionOptions>(
-                    jsonDocForOldConnections.RootElement.GetProperty("Connections").GetProperty("Redis").GetRawText())!;
+                if (connectionsJsonProperty.TryGetProperty("Redis", out var redisConnectionJson))
+                {
+                    var oldRedisConnectionOptions = JsonSerializer.Deserialize<RedisConnectionOptions>(redisConnectionJson.GetRawText())!;
 
-                using var jsonDocForNewRedis = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
-                var newRedisConnectionOptions = JsonSerializer.Deserialize<RedisConnectionOptions>(
-                    jsonDocForNewRedis.RootElement.GetProperty("Connections").GetProperty("Redis").GetRawText())!;
+                    using var jsonDocForNewRedis = JsonDocument.Parse(await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldConnection.Key));
+                    var newRedisConnectionOptions = JsonSerializer.Deserialize<RedisConnectionOptions>(
+                        jsonDocForNewRedis.RootElement.GetProperty("Connections").GetProperty("Redis").GetRawText())!;
 
-                Assert.NotEqual(oldRedisConnectionOptions.Username, newRedisConnectionOptions.Username);
-                Assert.DoesNotContain(oldConnectionCredentials.RedisUsers, u => u.Username == newRedisConnectionOptions.Username);
+                    Assert.NotEqual(oldRedisConnectionOptions.Username, newRedisConnectionOptions.Username);
+                    Assert.Contains(oldConnectionsToDelete.RedisUsers, u => u.Username == oldRedisConnectionOptions.Username);
 
-                var newRedisUser = await _collectionCluster.AwsFixture.AwsElastiCache.GetUser(newRedisConnectionOptions.Username);
-                Assert.NotNull(newRedisUser);
-                Assert.Equal(newRedisConnectionOptions.Username, newRedisUser.UserName);
+                    var newRedisUser = await _collectionCluster.AwsFixture.AwsElastiCache.GetUser(newRedisConnectionOptions.Username);
+                    Assert.NotNull(newRedisUser);
+                    Assert.Equal(newRedisConnectionOptions.Username, newRedisUser.UserName);
+                }
             }
 
             foreach (var oldCertificate in oldCertificates)
             {
-                var newCertificates = Utility.GetOptionsFromJson<CertificatesOptionsBase>(
+                Utility.TryDeserializeJson<CertificatesOptionsBase>(
                     json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldCertificate.Key),
-                    elementName: CertificatesOptionsBase.Key)!;
+                    section: CertificatesOptionsBase.Key,
+                    out var newCertificates);
 
-                Assert.NotEqual(oldCertificate.Value.ServerCertificate, newCertificates.ServerCertificate);
+                Assert.NotEqual(oldCertificate.Value.ServerCertificate, newCertificates!.ServerCertificate);
                 Assert.NotEqual(oldCertificate.Value.ServerPrivateKey, newCertificates.ServerPrivateKey);
                 TlsUtility.LoadCertificate(newCertificates.ServerCertificate, newCertificates.ServerPrivateKey); // Should not throw
             }
