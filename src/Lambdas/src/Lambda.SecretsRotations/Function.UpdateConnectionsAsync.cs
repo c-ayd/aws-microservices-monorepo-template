@@ -120,7 +120,7 @@ namespace Lambda.SecretsRotations
 
                         try
                         {
-                            await UpdateConnections_CreateNewPostgresqlRoleAsync(
+                            await UpdateConnections_CreateNewPostgresqlUserAsync(
                                 postgreSqlConnection,
                                 startDatePostfix,
                                 postgreSqlConnectionOptions!,
@@ -221,7 +221,7 @@ namespace Lambda.SecretsRotations
             logger.LogInformation("Connection_FINAL - The old connection credentials are saved to AWS Secrets Manager.");
         }
 
-        private async Task UpdateConnections_CreateNewPostgresqlRoleAsync(
+        private async Task UpdateConnections_CreateNewPostgresqlUserAsync(
             NpgsqlConnection connection,
             string startDatePostfix,
             PostgreSqlConnectionOptions oldConnectionOptions,
