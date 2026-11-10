@@ -248,8 +248,12 @@ namespace Lambda.SecretsRotations
 
             logger.LogInformation($"Connection_PostgreSQL ({oldConnectionOptions.Username}) - A new user has been created.");
 
-            // Add the old role to the deletion list
-            oldConnectionsToDelete.PostgreSqlRoles.Add(oldConnectionOptions.Username);
+            // Add the old user to the deletion list
+            oldConnectionsToDelete.PostgreSqlUsers.Add(new OldConnections.PostgreSqlUser()
+            {
+                Username = oldConnectionOptions.Username,
+                Database = oldConnectionOptions.Database
+            });
 
             // Update old values
             oldConnectionOptions.Username = newUsername;
