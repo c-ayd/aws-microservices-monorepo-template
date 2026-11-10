@@ -825,7 +825,7 @@
       "common.test.webapi": {
         "type": "Project"
       },
-      "lambda.deleteoldconnections": {
+      "lambda.deleteoldusers": {
         "type": "Project",
         "dependencies": {
           "Amazon.Lambda.Core": "[2.8.1, )",
