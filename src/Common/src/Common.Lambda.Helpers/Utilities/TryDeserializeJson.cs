@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace Lambda.SecretsRotations.Utilities
+namespace Common.Lambda.Helpers.Utilities
 {
     public static partial class Utility
     {
