@@ -6,9 +6,8 @@ using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Common.Aws.Helpers.Test;
-using Lambda.SecretsRotations.Exceptions;
+using Common.Lambda.Helpers.Exceptions;
 using Lambda.SecretsRotations.Structures;
-using Lambda.SecretsRotations.Utilities;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
@@ -25,7 +24,7 @@ namespace Lambda.SecretsRotations
         public async Task<Dictionary<string, object>> FunctionHandler(string input, ILambdaContext context)
         {
             // Get event JSON from input
-            if (!Utility.TryDeserializeJson<EventJson>(input, section: "detail", out var eventJson))
+            if (!Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<EventJson>(input, section: "detail", out var eventJson))
                 throw new EvenJsonFormatException();
             
             // Set AWS clients

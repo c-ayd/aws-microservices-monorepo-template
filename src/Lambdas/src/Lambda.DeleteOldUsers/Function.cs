@@ -7,9 +7,9 @@ using Amazon.SecretsManager.Model;
 using Common.AspNetCore.Helpers.Kestrel.Utilities;
 using Common.Aws.Helpers.Options;
 using Common.Aws.Helpers.Test;
-using Lambda.DeleteOldConnections.Exceptions;
+using Common.Lambda.Helpers.Exceptions;
+using Common.Lambda.Helpers.Utilities;
 using Lambda.DeleteOldConnections.Structures;
-using Lambda.DeleteOldConnections.Utilities;
 using Shared.Lambda.Structures;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -53,7 +53,7 @@ namespace Lambda.DeleteOldConnections
                 SecretIdList = [
                     eventJson.CABundleSecretId,
                     eventJson.AdminConnectionsSecretId,
-                    eventJson.OldConnectionsSecretId
+                    eventJson.OldUsersSecretId
                 ]
             });
 
@@ -71,13 +71,13 @@ namespace Lambda.DeleteOldConnections
                     .SecretString,
                 section: null,
                 out var adminConnections);
-            Utility.TryDeserializeJson<OldConnections>(
+            Utility.TryDeserializeJson<OldUsers>(
                 json: secrets.SecretValues
-                    .Where(s => s.Name == eventJson.OldConnectionsSecretId)
+                    .Where(s => s.Name == eventJson.OldUsersSecretId)
                     .Single()
                     .SecretString,
                 section: null,
-                out var oldConnections);
+                out var oldUsers);
             
             var caBundle = TlsUtility.LoadCertificateChain(cABundleOptions!.Value);
 
@@ -92,7 +92,7 @@ namespace Lambda.DeleteOldConnections
                 await DeletePostgreSqlUsersAsync(
                     adminConnections!.PostgreSql,
                     caBundle,
-                    oldConnections!.PostgreSqlUsers,
+                    oldUsers!.PostgreSqlUsers,
                     deletionResults,
                     context.Logger);
             }
@@ -107,7 +107,7 @@ namespace Lambda.DeleteOldConnections
                     adminConnections!.RabbitMq,
                     caBundle,
                     eventJson.Environment,
-                    oldConnections!.RabbitMqUsers,
+                    oldUsers!.RabbitMqUsers,
                     deletionResults,
                     context.Logger);
             }
@@ -119,7 +119,7 @@ namespace Lambda.DeleteOldConnections
             try
             {
                 await DeleteRedisUsersAsync(
-                    oldConnections!.RedisUsers,
+                    oldUsers!.RedisUsers,
                     deletionResults,
                     context.Logger);
             }
@@ -132,21 +132,21 @@ namespace Lambda.DeleteOldConnections
             // users in the results, it means some users could not deleted, and they should be
             // returned in the lambda function.
             CheckProcessedUsers(
-                allUsers: oldConnections!.PostgreSqlUsers.Select(u => $"{u.Database}/{u.Username}").ToList(),
+                allUsers: oldUsers!.PostgreSqlUsers.Select(u => $"{u.Database}/{u.Username}").ToList(),
                 deletedUsers: deletionResults.DeletedPostgreSqlUsers,
                 failedUsers: deletionResults.FailedPostgreSqlUsers);
             CheckProcessedUsers(
-                allUsers: oldConnections.RabbitMqUsers,
+                allUsers: oldUsers.RabbitMqUsers,
                 deletedUsers: deletionResults.DeletedRabbitMqUsers,
                 failedUsers: deletionResults.FailedRabbitMqUsers);
             CheckProcessedUsers(
-                allUsers: oldConnections.RedisUsers.Select(u => $"{u.UserGroupId}/{u.Username}").ToList(),
+                allUsers: oldUsers.RedisUsers.Select(u => $"{u.UserGroupId}/{u.Username}").ToList(),
                 deletedUsers: deletionResults.DeletedRedisUsers,
                 failedUsers: deletionResults.FailedRedisUsers);
 
             return new Dictionary<string, object>()
             {
-                { "statusCode", GetHttpStatusCodeFromResults(oldConnections, deletionResults) },
+                { "statusCode", GetHttpStatusCodeFromResults(oldUsers, deletionResults) },
                 { "users", JsonSerializer.Serialize(deletionResults) }
             };
         }
@@ -169,11 +169,11 @@ namespace Lambda.DeleteOldConnections
             }
         }
 
-        private HttpStatusCode GetHttpStatusCodeFromResults(OldConnections oldConnections, DeletionResults deletionResults)
+        private HttpStatusCode GetHttpStatusCodeFromResults(OldUsers oldUsers, DeletionResults deletionResults)
         {
-            var totalUsers = oldConnections.PostgreSqlUsers.Count +
-                oldConnections.RabbitMqUsers.Count +
-                oldConnections.RedisUsers.Count;
+            var totalUsers = oldUsers.PostgreSqlUsers.Count +
+                oldUsers.RabbitMqUsers.Count +
+                oldUsers.RedisUsers.Count;
             var totalFailures = deletionResults.FailedPostgreSqlUsers.Count +
                 deletionResults.FailedRabbitMqUsers.Count +
                 deletionResults.FailedRedisUsers.Count;

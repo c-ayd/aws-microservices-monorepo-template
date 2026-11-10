@@ -18,5 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\src\Common.Aws.Helpers\Common.Aws.Helpers.csproj" />
     <ProjectReference Include="..\..\..\Shared\src\Shared.Lambda.Rotations\Shared.Lambda.Rotations.csproj" />
+    <ProjectReference Include="..\..\..\Common\src\Common.Lambda.Helpers\Common.Lambda.Helpers.csproj" />
   </ItemGroup>
 </Project>

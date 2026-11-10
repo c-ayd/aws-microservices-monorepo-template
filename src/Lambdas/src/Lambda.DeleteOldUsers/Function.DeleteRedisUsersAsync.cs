@@ -8,7 +8,7 @@ namespace Lambda.DeleteOldConnections
     public partial class Function
     {
         private async Task DeleteRedisUsersAsync(
-            List<OldConnections.RedisUser> users,
+            List<OldUsers.RedisUser> users,
             DeletionResults deletionResults,
             ILambdaLogger logger)
         {

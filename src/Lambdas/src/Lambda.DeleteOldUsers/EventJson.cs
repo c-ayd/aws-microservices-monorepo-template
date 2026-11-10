@@ -7,7 +7,7 @@ namespace Lambda.DeleteOldConnections
     {
         public required string CABundleSecretId { get; set; }
         public required string AdminConnectionsSecretId { get; set; }
-        public required string OldConnectionsSecretId { get; set; }
+        public required string OldUsersSecretId { get; set; }
         public EnvironmentInfo? Environment { get; set; }
 
         public class EnvironmentInfo

@@ -6,6 +6,7 @@
     <Project Path="src/Common.Crypto/Common.Crypto.csproj" />
     <Project Path="src/Common.Grpc.Helpers/Common.Grpc.Helpers.csproj" />
     <Project Path="src/Common.Http.Helpers/Common.Http.Helpers.csproj" />
+    <Project Path="src/Common.Lambda.Helpers/Common.Lambda.Helpers.csproj" />
     <Project Path="src/Common.Logging/Common.Logging.csproj" />
     <Project Path="src/Common.PostgreSql.Helpers/Common.PostgreSql.Helpers.csproj" />
     <Project Path="src/Common.RabbitMq.Helpers/Common.RabbitMq.Helpers.csproj" />
@@ -28,5 +29,8 @@
     <Project Path="test/unit/Common.Test.Unit.Crypto/Common.Test.Unit.Crypto.csproj" />
     <Project Path="test/unit/Common.Test.Unit.Logging/Common.Test.Unit.Logging.csproj" />
     <Project Path="test/unit/Common.Test.Unit.Test.Generators/Common.Test.Unit.Test.Generators.csproj" />
+  </Folder>
+  <Folder Name="/test/unit/Common.Test.Unit.Lambda.Helpers/">
+    <Project Path="test/unit/Common.Test.Unit.Lambda.Helpers/Common.Test.Unit.Lambda.Helpers.csproj" />
   </Folder>
 </Solution>

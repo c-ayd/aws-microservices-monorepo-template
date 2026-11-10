@@ -4,13 +4,12 @@ using System.Security.Authentication;
 using System.Text.Json;
 using Common.AspNetCore.Helpers.Kestrel.Utilities;
 using Common.Aws.Helpers.Options;
+using Common.Lambda.Helpers.Utilities;
 using Common.Test.Helpers.Structures;
 using Lambda.DeleteOldConnections;
-using Lambda.DeleteOldConnections.Utilities;
 using Lambdas.Test.Integration.SecretsRotations.Collections;
 using Npgsql;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Exceptions;
 
 namespace Lambda.Test.Integration.DeleteOldConnections
 {
@@ -44,7 +43,7 @@ namespace Lambda.Test.Integration.DeleteOldConnections
                 {
                     CABundleSecretId = "template/cert/ca-bundle",
                     AdminConnectionsSecretId = "template/admin-connections",
-                    OldConnectionsSecretId = "template/old-connections",
+                    OldUsersSecretId = "template/old-users",
                     Environment = new EventJson.EnvironmentInfo()
                     {
                         IsProduction = false,

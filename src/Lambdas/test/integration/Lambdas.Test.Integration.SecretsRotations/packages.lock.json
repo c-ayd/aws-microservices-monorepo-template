@@ -772,6 +772,9 @@
           "System.IdentityModel.Tokens.Jwt": "[8.19.2, )"
         }
       },
+      "common.lambda.helpers": {
+        "type": "Project"
+      },
       "common.postgresql.helpers": {
         "type": "Project",
         "dependencies": {
@@ -829,6 +832,7 @@
           "Amazon.Lambda.Serialization.SystemTextJson": "[2.4.5, )",
           "BouncyCastle.Cryptography": "[2.7.0, )",
           "Common.Aws.Helpers": "[1.0.0, )",
+          "Common.Lambda.Helpers": "[1.0.0, )",
           "Common.PostgreSql.Helpers": "[1.0.0, )",
           "Common.RabbitMq.Helpers": "[1.0.0, )",
           "Common.Redis.Helpers": "[1.0.0, )",

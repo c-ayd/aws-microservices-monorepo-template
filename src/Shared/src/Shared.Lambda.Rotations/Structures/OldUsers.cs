@@ -3,7 +3,7 @@ namespace Shared.Lambda.Structures
     /// <summary>
     /// Holds necessary information to delete old users from the infrastructure services.
     /// </summary>
-    public class OldConnections
+    public class OldUsers
     {
         public List<PostgreSqlUser> PostgreSqlUsers { get; set; } = new List<PostgreSqlUser>();
         public List<string> RabbitMqUsers { get; set; } = new List<string>();

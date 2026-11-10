@@ -1,11 +1,11 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Lambda.DeleteOldConnections/Lambda.DeleteOldConnections.csproj" />
+    <Project Path="src/Lambda.DeleteOldUsers/Lambda.DeleteOldUsers.csproj" />
     <Project Path="src/Lambda.SecretsRotations/Lambda.SecretsRotations.csproj" />
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/integration/">
-    <Project Path="test/integration/Lambda.Test.Integration.DeleteOldConnections/Lambda.Test.Integration.DeleteOldConnections.csproj" />
+    <Project Path="test/integration/Lambda.Test.Integration.DeleteOldUsers/Lambda.Test.Integration.DeleteOldUsers.csproj" />
     <Project Path="test/integration/Lambdas.Test.Integration.SecretsRotations/Lambdas.Test.Integration.SecretsRotations.csproj" />
   </Folder>
 </Solution>

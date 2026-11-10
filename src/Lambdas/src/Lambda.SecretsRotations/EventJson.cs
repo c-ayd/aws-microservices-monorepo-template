@@ -23,7 +23,7 @@ namespace Lambda.SecretsRotations
         public class ConnectionInfo
         {
             public required string AdminConnectionsSecretId { get; set; }
-            public required string OldConnectionsSecretId { get; set; }
+            public required string OldUsersSecretId { get; set; }
         }
 
         public class ServiceInfo
