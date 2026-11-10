@@ -55,7 +55,7 @@ namespace Lambda.SecretsRotations
                 };
 
                 // Add task to the list for batch update
-                updateTasks.Add(service.ServiceName, AwsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
+                updateTasks.Add(service.ServiceName, _awsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
                 {
                     SecretId = service.Certificate.CertificateSecretId,
                     SecretString = JsonSerializer.Serialize(new Dictionary<string, CertificatesOptionsBase>()

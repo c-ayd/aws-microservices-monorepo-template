@@ -186,7 +186,7 @@ namespace Lambda.SecretsRotations
                 }
 
                 // Add task to the list for batch update
-                updateTasks.Add(service.ServiceName, AwsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
+                updateTasks.Add(service.ServiceName, _awsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
                 {
                     SecretId = service.Connection.ConncetionsSecretId,
                     SecretString = JsonSerializer.Serialize(new Dictionary<string, object>()
@@ -212,7 +212,7 @@ namespace Lambda.SecretsRotations
             }
 
             // Save the old connection options to AWS Secrets Manager to delete them later in another lambda fuction
-            await AwsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
+            await _awsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
             {
                 SecretId = connectionInfo.OldConnectionsSecretId,
                 SecretString = JsonSerializer.Serialize(oldConnectionsToDelete)

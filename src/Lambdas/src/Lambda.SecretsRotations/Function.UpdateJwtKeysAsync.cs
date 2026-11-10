@@ -55,7 +55,7 @@ namespace Lambda.SecretsRotations
             jwtKeysOptions.Keys.Add(currentKey);
 
             // Update the secret
-            await AwsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
+            await _awsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
             {
                 SecretId = jwtKeysSecretId,
                 SecretString = JsonSerializer.Serialize(new Dictionary<string, JwtKeysOptionsBase>()
