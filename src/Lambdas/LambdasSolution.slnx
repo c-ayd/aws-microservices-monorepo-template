@@ -5,6 +5,7 @@
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/integration/">
+    <Project Path="test/integration/Lambda.Test.Integration.DeleteOldConnections/Lambda.Test.Integration.DeleteOldConnections.csproj" />
     <Project Path="test/integration/Lambdas.Test.Integration.SecretsRotations/Lambdas.Test.Integration.SecretsRotations.csproj" />
   </Folder>
 </Solution>
