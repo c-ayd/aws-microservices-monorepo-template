@@ -11,6 +11,6 @@
   "function-architecture": "x86_64",
   "function-runtime": "dotnet10",
   "function-memory-size": 512,
-  "function-timeout": 30,
+  "function-timeout": 300,
   "function-handler": "Lambda.DeleteOldConnections::Lambda.DeleteOldConnections.Function::FunctionHandler"
 }
