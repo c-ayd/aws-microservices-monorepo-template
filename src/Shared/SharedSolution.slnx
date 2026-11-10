@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Shared.Lambda.Rotations/Shared.Lambda.Rotations.csproj" />
     <Project Path="src/Shared.RabbitMq.Notifications/Shared.RabbitMq.Notifications.csproj" />
     <Project Path="src/Shared.Grpc.Auth/Shared.Grpc.Auth.csproj" />
   </Folder>
