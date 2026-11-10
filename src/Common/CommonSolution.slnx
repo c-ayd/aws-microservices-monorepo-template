@@ -6,6 +6,7 @@
     <Project Path="src/Common.Crypto/Common.Crypto.csproj" />
     <Project Path="src/Common.Grpc.Helpers/Common.Grpc.Helpers.csproj" />
     <Project Path="src/Common.Http.Helpers/Common.Http.Helpers.csproj" />
+    <Project Path="src/Common.Lambda.Helpers/Common.Lambda.Helpers.csproj" />
     <Project Path="src/Common.Logging/Common.Logging.csproj" />
     <Project Path="src/Common.PostgreSql.Helpers/Common.PostgreSql.Helpers.csproj" />
     <Project Path="src/Common.RabbitMq.Helpers/Common.RabbitMq.Helpers.csproj" />
