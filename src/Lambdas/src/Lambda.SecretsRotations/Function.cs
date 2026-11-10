@@ -16,9 +16,9 @@ namespace Lambda.SecretsRotations
 {
     public partial class Function
     {
-        public static AmazonSecretsManagerClient AwsSecretsManager { get; private set; } = null!;
-        private static AmazonElastiCacheClient _awsElastiCache = null!;
-        private static AmazonECSClient _awsEcs = null!;
+        private AmazonSecretsManagerClient _awsSecretsManager = null!;
+        private AmazonElastiCacheClient _awsElastiCache = null!;
+        private AmazonECSClient _awsEcs = null!;
 
         private const int _batchSize = 100;
 
@@ -31,13 +31,13 @@ namespace Lambda.SecretsRotations
             // Set AWS clients
             if (eventJson!.Environment == null || eventJson.Environment.IsProduction)
             {
-                AwsSecretsManager = new AmazonSecretsManagerClient();
+                _awsSecretsManager = new AmazonSecretsManagerClient();
                 _awsElastiCache = new AmazonElastiCacheClient();
                 _awsEcs = new AmazonECSClient();
             }
             else
             {
-                AwsSecretsManager = new AmazonSecretsManagerClient(AwsTestConstants.Credentials, new AmazonSecretsManagerConfig()
+                _awsSecretsManager = new AmazonSecretsManagerClient(AwsTestConstants.Credentials, new AmazonSecretsManagerConfig()
                 {
                     ServiceURL = eventJson.Environment.ServiceUrl,
                     AuthenticationRegion = AwsTestConstants.Region
@@ -55,7 +55,7 @@ namespace Lambda.SecretsRotations
             }
 
             // Get required secrets all at once
-            var secrets = await AwsSecretsManager.BatchGetSecretValueAsync(new BatchGetSecretValueRequest()
+            var secrets = await _awsSecretsManager.BatchGetSecretValueAsync(new BatchGetSecretValueRequest()
             {
                 SecretIdList = [
                     eventJson.JwtKeysSecretId,

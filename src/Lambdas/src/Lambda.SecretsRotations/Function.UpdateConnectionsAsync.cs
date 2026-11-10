@@ -186,7 +186,7 @@ namespace Lambda.SecretsRotations
                 }
 
                 // Add task to the list for batch update
-                updateTasks.Add(service.ServiceName, AwsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
+                updateTasks.Add(service.ServiceName, _awsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
                 {
                     SecretId = service.Connection.ConncetionsSecretId,
                     SecretString = JsonSerializer.Serialize(new Dictionary<string, object>()
@@ -212,7 +212,7 @@ namespace Lambda.SecretsRotations
             }
 
             // Save the old connection options to AWS Secrets Manager to delete them later in another lambda fuction
-            await AwsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
+            await _awsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
             {
                 SecretId = connectionInfo.OldConnectionsSecretId,
                 SecretString = JsonSerializer.Serialize(oldConnectionsToDelete)
@@ -248,8 +248,12 @@ namespace Lambda.SecretsRotations
 
             logger.LogInformation($"Connection_PostgreSQL ({oldConnectionOptions.Username}) - A new user has been created.");
 
-            // Add the old role to the deletion list
-            oldConnectionsToDelete.PostgreSqlRoles.Add(oldConnectionOptions.Username);
+            // Add the old user to the deletion list
+            oldConnectionsToDelete.PostgreSqlUsers.Add(new OldConnections.PostgreSqlUser()
+            {
+                Username = oldConnectionOptions.Username,
+                Database = oldConnectionOptions.Database
+            });
 
             // Update old values
             oldConnectionOptions.Username = newUsername;
