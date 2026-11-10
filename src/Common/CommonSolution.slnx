@@ -30,4 +30,7 @@
     <Project Path="test/unit/Common.Test.Unit.Logging/Common.Test.Unit.Logging.csproj" />
     <Project Path="test/unit/Common.Test.Unit.Test.Generators/Common.Test.Unit.Test.Generators.csproj" />
   </Folder>
+  <Folder Name="/test/unit/Common.Test.Unit.Lambda.Helpers/">
+    <Project Path="test/unit/Common.Test.Unit.Lambda.Helpers/Common.Test.Unit.Lambda.Helpers.csproj" />
+  </Folder>
 </Solution>
