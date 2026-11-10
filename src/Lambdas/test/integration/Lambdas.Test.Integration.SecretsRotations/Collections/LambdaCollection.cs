@@ -265,16 +265,16 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                             new
                             {
                                 KeyId = "v1",
-                                PublicKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, _jwtPublicKeyV1Path)),
-                                PrivateKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, _jwtPrivateKeyV1Path)),
+                                PublicKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _jwtPublicKeyV1Path)),
+                                PrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _jwtPrivateKeyV1Path)),
                                 NotBeforeTime = DateTimeOffset.UtcNow.AddMonths(-3).ToUnixTimeSeconds(),
                                 ExpirationTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds()
                             },
                             new
                             {
                                 KeyId = "v2",
-                                PublicKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, _jwtPublicKeyV2Path)),
-                                PrivateKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, _jwtPrivateKeyV2Path)),
+                                PublicKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _jwtPublicKeyV2Path)),
+                                PrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _jwtPrivateKeyV2Path)),
                                 NotBeforeTime = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds(),
                                 ExpirationTime = DateTimeOffset.UtcNow.AddMonths(3).ToUnixTimeSeconds(),
                             }
