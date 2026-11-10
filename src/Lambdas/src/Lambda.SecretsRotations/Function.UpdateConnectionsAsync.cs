@@ -39,7 +39,7 @@ namespace Lambda.SecretsRotations
                 .Where(s => s.Name == connectionInfo.AdminConnectionsSecretId)
                 .Single()
                 .SecretString)!;
-            Utility.TryDeserializeJson<CABundleOptionsBase>(
+            Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<CABundleOptionsBase>(
                 json: secrets.SecretValues
                 .Where(s => s.Name == certificateInfo.CABundleSecretId)
                 .Single()
@@ -111,7 +111,7 @@ namespace Lambda.SecretsRotations
                 foreach (var connectionJsonProperty in oldConnectionsOptions.EnumerateObject())
                 {
                     var connectionJson = connectionJsonProperty.Value.GetRawText();
-                    if (Utility.TryDeserializeJson<PostgreSqlConnectionOptions>(
+                    if (Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<PostgreSqlConnectionOptions>(
                         connectionJson,
                         section: null,
                         out var postgreSqlConnectionOptions))
@@ -134,7 +134,7 @@ namespace Lambda.SecretsRotations
                             logger.LogError(exception, $"Connection_PostgreSQL ({postgreSqlConnectionOptions!.Username}) - Something went wrong. Message {exception.Message}.");
                         }
                     }
-                    else if (Utility.TryDeserializeJson<RabbitMqConnectionOptions>(
+                    else if (Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<RabbitMqConnectionOptions>(
                         connectionJson,
                         section: null,
                         out var rabbitMqConnectionOptions))
@@ -157,7 +157,7 @@ namespace Lambda.SecretsRotations
                             logger.LogError(exception, $"Connection_RabbitMQ ({rabbitMqConnectionOptions!.Username}) - Something went wrong. Message {exception.Message}.");
                         }
                     }
-                    else if (Utility.TryDeserializeJson<RedisConnectionOptions>(
+                    else if (Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<RedisConnectionOptions>(
                         connectionJson,
                         section: null,
                         out var redisConnectionOptions))

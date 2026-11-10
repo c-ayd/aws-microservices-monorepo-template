@@ -259,6 +259,9 @@
           "Common.AspNetCore.Helpers": "[1.0.0, )"
         }
       },
+      "common.lambda.helpers": {
+        "type": "Project"
+      },
       "common.postgresql.helpers": {
         "type": "Project",
         "dependencies": {

@@ -40,7 +40,7 @@ namespace Lambda.SecretsRotations
             };
 
             // Deserialize the old JWT keys secret to find and keep the latest key in the new secret value
-            Utility.TryDeserializeJson<JwtKeysOptionsBase>(
+            Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<JwtKeysOptionsBase>(
                 json: secrets.SecretValues
                 .Where(s => s.Name == jwtKeysSecretId)
                 .Single()

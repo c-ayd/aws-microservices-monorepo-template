@@ -36,19 +36,19 @@ namespace Lambdas.Test.Integration.SecretsRotations
         public async Task FunctionHandler_WhenIsCalled_ShouldUpdateSecretsAndRestartServices()
         {
             // Arrange
-            Utility.TryDeserializeJson<CertificatesOptionsBase>(
+            Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<CertificatesOptionsBase>(
                 json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc1/certificates"),
                 section: CertificatesOptionsBase.Key,
                 out var servic1OldCertificate);
-            Utility.TryDeserializeJson<CertificatesOptionsBase>(
+            Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<CertificatesOptionsBase>(
                 json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc2/certificates"),
                 section: CertificatesOptionsBase.Key,
                 out var servic2OldCertificate);
-            Utility.TryDeserializeJson<CertificatesOptionsBase>(
+            Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<CertificatesOptionsBase>(
                 json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc3/certificates"),
                 section: CertificatesOptionsBase.Key,
                 out var servic3OldCertificate);
-            Utility.TryDeserializeJson<CertificatesOptionsBase>(
+            Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<CertificatesOptionsBase>(
                 json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc4/certificates"),
                 section: CertificatesOptionsBase.Key,
                 out var servic4OldCertificate);
@@ -69,7 +69,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
                 { "template/svc5/connections", await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/svc5/connections") }
             };
 
-            Utility.TryDeserializeJson<CABundleOptionsBase>(
+            Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<CABundleOptionsBase>(
                 json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/cert/ca-bundle"),
                 section: CABundleOptionsBase.Key,
                 out var cABundleOptions);
@@ -167,7 +167,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
             Assert.Equal(HttpStatusCode.OK, (HttpStatusCode)lambdaResult["statusCode"]);
 
             var jwtKeysSecret = await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync("template/jwt");
-            Utility.TryDeserializeJson<JwtKeysOptionsBase>(
+            Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<JwtKeysOptionsBase>(
                 json: jwtKeysSecret,
                 section: JwtKeysOptionsBase.Key,
                 out var jwtKeys);
@@ -282,7 +282,7 @@ namespace Lambdas.Test.Integration.SecretsRotations
 
             foreach (var oldCertificate in oldCertificates)
             {
-                Utility.TryDeserializeJson<CertificatesOptionsBase>(
+                Common.Lambda.Helpers.Utilities.Utility.TryDeserializeJson<CertificatesOptionsBase>(
                     json: await _collectionCluster.AwsFixture.AwsSecretsManager.GetStringAsync(oldCertificate.Key),
                     section: CertificatesOptionsBase.Key,
                     out var newCertificates);

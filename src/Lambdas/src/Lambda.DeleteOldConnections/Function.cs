@@ -7,9 +7,9 @@ using Amazon.SecretsManager.Model;
 using Common.AspNetCore.Helpers.Kestrel.Utilities;
 using Common.Aws.Helpers.Options;
 using Common.Aws.Helpers.Test;
+using Common.Lambda.Helpers.Utilities;
 using Lambda.DeleteOldConnections.Exceptions;
 using Lambda.DeleteOldConnections.Structures;
-using Lambda.DeleteOldConnections.Utilities;
 using Shared.Lambda.Structures;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
