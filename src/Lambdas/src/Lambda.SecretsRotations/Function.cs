@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using Amazon.ECS;
 using Amazon.ElastiCache;
 using Amazon.Lambda.Core;
@@ -19,15 +20,16 @@ namespace Lambda.SecretsRotations
         private static AmazonElastiCacheClient _awsElastiCache = null!;
         private static AmazonECSClient _awsEcs = null!;
 
+        private const int _batchSize = 100;
+
         public async Task<Dictionary<string, object>> FunctionHandler(string input, ILambdaContext context)
         {
             // Get event JSON from input
-            var eventJson = Utility.GetOptionsFromJson<EventJson>(input, elementName: "detail");
-            if (eventJson == null)
+            if (!Utility.TryDeserializeJson<EventJson>(input, section: "detail", out var eventJson))
                 throw new EvenJsonFormatException();
-
+            
             // Set AWS clients
-            if (eventJson.Environment == null || eventJson.Environment.IsProduction)
+            if (eventJson!.Environment == null || eventJson.Environment.IsProduction)
             {
                 AwsSecretsManager = new AmazonSecretsManagerClient();
                 _awsElastiCache = new AmazonElastiCacheClient();
@@ -57,40 +59,103 @@ namespace Lambda.SecretsRotations
             {
                 SecretIdList = [
                     eventJson.JwtKeysSecretId,
-                    eventJson.Certificates.IntermediateCASecretId,
-                    ..eventJson.Certificates.Services.Select(s => s.CertificateSecretId),
-                    eventJson.Connections.CABundleSecretId,
-                    eventJson.Connections.AdminConnectionsSecretId,
-                    ..eventJson.Connections.Services.Select(s => s.ConncetionsSecretId)
+                    eventJson.Certificate.IntermediateCASecretId,
+                    eventJson.Certificate.CABundleSecretId,
+                    eventJson.Connection.AdminConnectionsSecretId,
+                    ..eventJson.Services
+                        .Where(s => s.Certificate != null)
+                        .Select(s => s.Certificate!.CertificateSecretId),
+                    ..eventJson.Services
+                        .Where(s => s.Connection != null)
+                        .Select(s => s.Connection!.ConncetionsSecretId)
                 ]
             });
 
-            // Update secrets
+            // Update secret values
             var now = DateTimeOffset.UtcNow;
             var startDate = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
-            var results = new Dictionary<string, ServiceRotationResult>();
+            var jwtKeysRotationResult = false;
+            var servicesResults = new Dictionary<string, ServiceRotationResult>();
+            foreach (var service in eventJson.Services)
+            {
+                servicesResults.Add(service.ServiceName, new ServiceRotationResult());
+            }
 
             context.Logger.LogInformation($"The rotation has been started. Date: {now.ToString("yyyy-MM")}");
 
-            await UpdateJwtKeys(secrets, eventJson.JwtKeysSecretId, startDate, context.Logger);
-            await UpdateCertificates(secrets, eventJson.Certificates, startDate, results, context.Logger);
-            await UpdateConnectionCredentials(secrets, eventJson.Connections, eventJson.Environment, startDate, results, context.Logger);
+            try
+            {
+                await UpdateJwtKeysAsync(
+                    secrets,
+                    eventJson.JwtKeysSecretId,
+                    startDate,
+                    context.Logger);
+                
+                jwtKeysRotationResult = true;
+            }
+            catch (Exception exception)
+            {
+                context.Logger.LogError(exception, $"JWT - Something went wrong. Message: {exception.Message}.");
+            }
 
+            try
+            {
+                await UpdateCertificatesAsync(
+                    secrets,
+                    eventJson.Certificate,
+                    eventJson.Services,
+                    startDate,
+                    servicesResults,
+                    context.Logger);
+            }
+            catch (Exception exception)
+            {
+                context.Logger.LogError(exception, $"Certificates - Something went wrong. Message: {exception.Message}.");
+            }
+
+            try
+            {
+                await UpdateConnectionsAsync(
+                    secrets,
+                    eventJson.Certificate,
+                    eventJson.Connection,
+                    eventJson.Services,
+                    eventJson.Environment,
+                    startDate,
+                    servicesResults,
+                    context.Logger);
+            }
+            catch (Exception exception)
+            {
+                context.Logger.LogError(exception, $"Connections - Something went wrong. Message: {exception.Message}.");
+            }
+            
             // Restart AWS ECS tasks
-            await RestartEcsTasks(eventJson.EcsClusterName, results, context.Logger);
+            await RestartEcsTasks(eventJson.EcsClusterName, servicesResults, context.Logger);
 
             return new Dictionary<string, object>()
             {
-                { "statusCode", HttpStatusCode.OK },
-                { "failedServices", results
-                    .Where(p => p.Value.IsFailed())
-                    .Select(p => new
-                    {
-                        Name = p.Key,
-                        Results = p.Value
-                    })
-                    .ToList() }
+                { "statusCode", GetHttpStatusCodeFromResults(jwtKeysRotationResult, servicesResults) },
+                { "jwtKeys", jwtKeysRotationResult },
+                { "services", JsonSerializer.Serialize(servicesResults) }
             };
+        }
+
+        private HttpStatusCode GetHttpStatusCodeFromResults(
+            bool jwtKeysRotationResult,
+            Dictionary<string, ServiceRotationResult> serviceResults)
+        {
+            var failedServicesCount = serviceResults
+                .Where(r => r.Value.AnyFailure())
+                .Count();
+
+            if (!jwtKeysRotationResult && failedServicesCount == serviceResults.Count)
+                return HttpStatusCode.InternalServerError;
+
+            if (!jwtKeysRotationResult || failedServicesCount != 0)
+                return HttpStatusCode.MultiStatus;
+            
+            return HttpStatusCode.OK;
         }
     }
 }

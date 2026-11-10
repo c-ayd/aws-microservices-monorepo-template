@@ -7,36 +7,40 @@ namespace Lambda.SecretsRotations
     {
         public required string EcsClusterName { get; set; }
         public required string JwtKeysSecretId { get; set; }
-        public required CertificatesInfo Certificates { get; set; }
-        public required ConnectionsInfo Connections { get; set; }
+        public required CertificateInfo Certificate { get; set; }
+        public required ConnectionInfo Connection { get; set; }
+        public required List<ServiceInfo> Services { get; set; }
         public EnvironmentInfo? Environment { get; set; }
 
-        public class CertificatesInfo
+        public class CertificateInfo
         {
             public required string IntermediateCASecretId { get; set; }
+            public required string CABundleSecretId { get; set; }
             public required string Organization { get; set; }
             public required string Country { get; set; }
-            public required List<ServiceInfo> Services { get; set; }
-
-            public class ServiceInfo
-            {
-                public required string CertificateSecretId { get; set; }
-                public required string ServiceName { get; set; }
-                public required List<string> DnsNames { get; set; }
-            }
         }
 
-        public class ConnectionsInfo
+        public class ConnectionInfo
         {
-            public required string CABundleSecretId { get; set; }
             public required string AdminConnectionsSecretId { get; set; }
-            public required string OldConnectionCredentialsSecretId { get; set; }
-            public required List<ServiceInfo> Services { get; set; }
+            public required string OldConnectionsSecretId { get; set; }
+        }
 
-            public class ServiceInfo
+        public class ServiceInfo
+        {
+            public required string ServiceName { get; set; }
+            public CertificateUpdateInfo? Certificate { get; set; }
+            public ConnectionUpdateInfo? Connection { get; set; }
+
+            public class CertificateUpdateInfo
+            {
+                public required string CertificateSecretId { get; set; }
+                public required List<string> DnsNames { get; set; }
+            }
+
+            public class ConnectionUpdateInfo
             {
                 public required string ConncetionsSecretId { get; set; }
-                public required string ServiceName { get; set; }
             }
         }
 

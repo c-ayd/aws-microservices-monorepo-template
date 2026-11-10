@@ -35,7 +35,14 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
         private const string _jwtPublicKeyV2Path = "test-jwt-v2-public.pem";
         private const string _jwtPrivateKeyV2Path = "test-jwt-v2-private.pem";
 
-        public static readonly string[] OldUsernames = ["svc1_2026-09", "svc2_2026-09"];
+        public static readonly string[] OldUsernames = [
+            "svc1_2026-09",
+            "svc2_2026-09",
+            "svc3_2026-09",
+            "svc4_2026-09",
+            "svc5_2026-09",
+        ];
+
         public static readonly string DefaultPassword = PasswordGenerator.GenerateValid();
 
         public const string PostgreSqlDbName = "test-db";
@@ -134,9 +141,10 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
 
                     foreach (var oldUsername in OldUsernames)
                     {
+                        var defaultUsername = $"{oldUsername.Split('_')[0]}_default";
                         await using (var command = new NpgsqlCommand(
                             $@"CREATE ROLE ""{oldUsername}"" LOGIN PASSWORD '{DefaultPassword}';
-                            GRANT CONNECT ON DATABASE ""{PostgreSqlDbName}"" TO ""{oldUsername}"";",
+                            GRANT ""{defaultUsername}"" TO ""{oldUsername}"";",
                             connection))
                         {
                             await command.ExecuteNonQueryAsync();
@@ -175,17 +183,6 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                                 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ""{defaultUsername}"";
                             ALTER DEFAULT PRIVILEGES FOR ROLE ""{connectionOptions.Username}"" IN SCHEMA public
                                 GRANT USAGE, SELECT ON SEQUENCES TO ""{defaultUsername}"";",
-                            connection))
-                        {
-                            await command.ExecuteNonQueryAsync();
-                        }
-                    }
-
-                    foreach (var oldUsername in OldUsernames)
-                    {
-                        var defaultUsername = $"{oldUsername.Split('_')[0]}_default";
-                        await using (var command = new NpgsqlCommand(
-                            $"GRANT \"{defaultUsername}\" TO \"{oldUsername}\";",
                             connection))
                         {
                             await command.ExecuteNonQueryAsync();
@@ -351,6 +348,37 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc3/connections", JsonSerializer.Serialize(
+                new
+                {
+                    Connections = new
+                    {
+                        RabbitMq = new RabbitMqConnectionOptions()
+                        {
+                            Host = rabbitMqConnectionsOptions.Host,
+                            Port = rabbitMqConnectionsOptions.Port,
+                            Username = OldUsernames[2],
+                            Password = DefaultPassword,
+                            Ssl = rabbitMqConnectionsOptions.Ssl
+                        }
+                    }
+                }));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc5/connections", JsonSerializer.Serialize(
+                new
+                {
+                    Connections = new
+                    {
+                        Redis = new RedisConnectionOptions()
+                        {
+                            Host = redisConnectionsOptions.Host,
+                            Port = redisConnectionsOptions.Port,
+                            Username = OldUsernames[4],
+                            Password = DefaultPassword,
+                            AbortOnConnectionFail = redisConnectionsOptions.AbortOnConnectionFail,
+                            Ssl = redisConnectionsOptions.Ssl
+                        }
+                    }
+                }));
             await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc1/certificates", JsonSerializer.Serialize(
                 new
                 {
@@ -370,6 +398,15 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                     }
                 }));
             await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc3/certificates", JsonSerializer.Serialize(
+                new
+                {
+                    Certificates = new
+                    {
+                        ServerCertificate = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _webApiCertificatePath)),
+                        ServerPrivateKey = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, _webApiCertificatePrivateKeyPath))
+                    }
+                }));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/svc4/certificates", JsonSerializer.Serialize(
                 new
                 {
                     Certificates = new
@@ -410,7 +447,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
-            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-connection-credentials", JsonSerializer.Serialize("{}"));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-connections", JsonSerializer.Serialize("{}"));
 
             await AwsFixture.AwsElastiCache.CreateUserGroup(groupId: "test-group");
             foreach (var oldUsername in OldUsernames)
@@ -436,6 +473,14 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                 clusterName: "template-ecs-cluster",
                 taskName: "test-task-definition",
                 serviceName: "Service3");
+            await AwsFixture.AwsEcs.CreateServiceAsync(
+                clusterName: "template-ecs-cluster",
+                taskName: "test-task-definition",
+                serviceName: "Service4");
+            await AwsFixture.AwsEcs.CreateServiceAsync(
+                clusterName: "template-ecs-cluster",
+                taskName: "test-task-definition",
+                serviceName: "Service5");
         }
     }
 }

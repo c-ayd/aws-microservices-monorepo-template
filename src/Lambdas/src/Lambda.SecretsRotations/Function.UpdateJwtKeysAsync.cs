@@ -9,7 +9,7 @@ namespace Lambda.SecretsRotations
 {
     public partial class Function
     {
-        private async Task UpdateJwtKeys(
+        private async Task UpdateJwtKeysAsync(
             BatchGetSecretValueResponse secrets,
             string jwtKeysSecretId,
             DateTimeOffset startDate,
@@ -40,13 +40,15 @@ namespace Lambda.SecretsRotations
             };
 
             // Deserialize the old JWT keys secret to find and keep the latest key in the new secret value
-            var oldJwtKeys = Utility.GetOptionsFromJson<JwtKeysOptionsBase>(
+            Utility.TryDeserializeJson<JwtKeysOptionsBase>(
                 json: secrets.SecretValues
                 .Where(s => s.Name == jwtKeysSecretId)
                 .Single()
                 .SecretString,
-                elementName: JwtKeysOptionsBase.Key)!;
-            var currentKey = oldJwtKeys.Keys.MaxBy(k => k.NotBeforeTime);
+                section: JwtKeysOptionsBase.Key,
+                out var oldJwtKeys);
+
+            var currentKey = oldJwtKeys!.Keys.MaxBy(k => k.NotBeforeTime);
             if (currentKey == null)
                 throw new JwtKeyMissingException();
 

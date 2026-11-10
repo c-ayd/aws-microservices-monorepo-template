@@ -831,7 +831,15 @@
           "Common.Aws.Helpers": "[1.0.0, )",
           "Common.PostgreSql.Helpers": "[1.0.0, )",
           "Common.RabbitMq.Helpers": "[1.0.0, )",
-          "Common.Redis.Helpers": "[1.0.0, )"
+          "Common.Redis.Helpers": "[1.0.0, )",
+          "Shared.Lambda.Rotations": "[1.0.0, )"
+        }
+      },
+      "shared.lambda.rotations": {
+        "type": "Project",
+        "dependencies": {
+          "Common.PostgreSql.Helpers": "[1.0.0, )",
+          "Common.RabbitMq.Helpers": "[1.0.0, )"
         }
       }
     }

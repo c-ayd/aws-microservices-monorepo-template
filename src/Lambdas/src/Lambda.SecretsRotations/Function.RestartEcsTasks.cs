@@ -13,7 +13,7 @@ namespace Lambda.SecretsRotations
             // Restart services gradually
             foreach (var (serviceName, rotationResult) in results)
             {
-                if (rotationResult.IsFailed())
+                if (rotationResult.AnyFailure())
                 {
                     logger.LogWarning($"ECS - {serviceName} is being skipped since there are some errors.");
                     continue;
