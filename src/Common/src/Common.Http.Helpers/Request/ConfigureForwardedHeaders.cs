@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,7 @@ namespace Common.Http.Request
         /// Configures which IP addresses are trusted for reading forwarded headers.
         /// </summary>
         /// <param name="cidrBlocks">IP range of the trusted IPs</param>
-        public static void ConfigureForwardedHeaders(this IServiceCollection services, params string[] cidrBlocks)
+        public static void ConfigureForwardedHeaders(this IServiceCollection services, IEnumerable<string> cidrBlocks)
         {
             services.Configure<ForwardedHeadersOptions>(options =>
             {

@@ -138,10 +138,11 @@ builder.Logging.AddStructuredConsoleLogging(
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHsts();
-
 app.UseCors("AllowAngularWeb");
 
 app.UseMiddleware<LoggingMiddleware>();
