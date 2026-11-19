@@ -68,11 +68,14 @@ namespace Common.Grpc.Helpers.DependencyInjection
                                         RetryableStatusCodes =
                                         {
                                             StatusCode.Unavailable,
-                                            StatusCode.ResourceExhausted,
-                                            StatusCode.Internal
+                                            StatusCode.ResourceExhausted
                                         }
                                     }
                                 }
+                            },
+                            LoadBalancingConfigs =
+                            {
+                                new RoundRobinConfig()
                             }
                         };
                     })
