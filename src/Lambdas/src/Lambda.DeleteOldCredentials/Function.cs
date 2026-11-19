@@ -53,7 +53,7 @@ namespace Lambda.DeleteOldConnections
                 SecretIdList = [
                     eventJson.CABundleSecretId,
                     eventJson.AdminConnectionsSecretId,
-                    eventJson.OldUsersSecretId
+                    eventJson.OldCredentialsSecretId
                 ]
             });
 
@@ -71,13 +71,13 @@ namespace Lambda.DeleteOldConnections
                     .SecretString,
                 section: null,
                 out var adminConnections);
-            Utility.TryDeserializeJson<OldUsers>(
+            Utility.TryDeserializeJson<OldCredentials>(
                 json: secrets.SecretValues
-                    .Where(s => s.Name == eventJson.OldUsersSecretId)
+                    .Where(s => s.Name == eventJson.OldCredentialsSecretId)
                     .Single()
                     .SecretString,
                 section: null,
-                out var oldUsers);
+                out var oldCredentials);
             
             var caBundle = TlsUtility.LoadCertificateChain(cABundleOptions!.Value);
 
@@ -89,10 +89,10 @@ namespace Lambda.DeleteOldConnections
 
             try
             {
-                await DeletePostgreSqlUsersAsync(
+                await DeletePostgreSqlCredentialsAsync(
                     adminConnections!.PostgreSql,
                     caBundle,
-                    oldUsers!.PostgreSqlUsers,
+                    oldCredentials!.PostgreSql,
                     deletionResults,
                     context.Logger);
             }
@@ -103,11 +103,11 @@ namespace Lambda.DeleteOldConnections
 
             try
             {
-                await DeleteRabbitMqUsersAsync(
+                await DeleteRabbitMqCredentialsAsync(
                     adminConnections!.RabbitMq,
                     caBundle,
                     eventJson.Environment,
-                    oldUsers!.RabbitMqUsers,
+                    oldCredentials!.RabbitMq,
                     deletionResults,
                     context.Logger);
             }
@@ -118,8 +118,8 @@ namespace Lambda.DeleteOldConnections
 
             try
             {
-                await DeleteRedisUsersAsync(
-                    oldUsers!.RedisUsers,
+                await DeleteRedisCredentialsAsync(
+                    oldCredentials!.Redis,
                     deletionResults,
                     context.Logger);
             }
@@ -129,58 +129,58 @@ namespace Lambda.DeleteOldConnections
             }
 
             // If the number of the old connections options does not match with the number of
-            // users in the results, it means some users could not deleted, and they should be
-            // returned in the lambda function.
-            CheckProcessedUsers(
-                allUsers: oldUsers!.PostgreSqlUsers.Select(u => $"{u.Database}/{u.Username}").ToList(),
-                deletedUsers: deletionResults.DeletedPostgreSqlUsers,
-                failedUsers: deletionResults.FailedPostgreSqlUsers);
-            CheckProcessedUsers(
-                allUsers: oldUsers.RabbitMqUsers,
-                deletedUsers: deletionResults.DeletedRabbitMqUsers,
-                failedUsers: deletionResults.FailedRabbitMqUsers);
-            CheckProcessedUsers(
-                allUsers: oldUsers.RedisUsers.Select(u => $"{u.UserGroupId}/{u.Username}").ToList(),
-                deletedUsers: deletionResults.DeletedRedisUsers,
-                failedUsers: deletionResults.FailedRedisUsers);
+            // credentials in the results, it means some credentials could not deleted, and
+            // they should be returned in the lambda function.
+            CheckProcessedCredentials(
+                allCredentials: oldCredentials!.PostgreSql.Select(u => $"{u.Database}/{u.Username}").ToList(),
+                deletedCredentials: deletionResults.DeletedPostgreSqlCredentials,
+                failedCredentials: deletionResults.FailedPostgreSqlCredentials);
+            CheckProcessedCredentials(
+                allCredentials: oldCredentials.RabbitMq,
+                deletedCredentials: deletionResults.DeletedRabbitMqCredentials,
+                failedCredentials: deletionResults.FailedRabbitMqCredentials);
+            CheckProcessedCredentials(
+                allCredentials: oldCredentials.Redis.Select(u => $"{u.UserGroupId}/{u.Username}").ToList(),
+                deletedCredentials: deletionResults.DeletedRedisCredentials,
+                failedCredentials: deletionResults.FailedRedisCredentials);
 
             return new Dictionary<string, object>()
             {
-                { "statusCode", GetHttpStatusCodeFromResults(oldUsers, deletionResults) },
-                { "users", JsonSerializer.Serialize(deletionResults) }
+                { "statusCode", GetHttpStatusCodeFromResults(oldCredentials, deletionResults) },
+                { "credentials", JsonSerializer.Serialize(deletionResults) }
             };
         }
 
-        private void CheckProcessedUsers(
-            List<string> allUsers,
-            List<string> deletedUsers,
-            List<string> failedUsers)
+        private void CheckProcessedCredentials(
+            List<string> allCredentials,
+            List<string> deletedCredentials,
+            List<string> failedCredentials)
         {
-            var processedUsers = deletedUsers.Concat(failedUsers).ToHashSet();
-            if (processedUsers.Count == allUsers.Count)
+            var processedCredentials = deletedCredentials.Concat(failedCredentials).ToHashSet();
+            if (processedCredentials.Count == allCredentials.Count)
                 return;
 
-            foreach (var user in allUsers)
+            foreach (var credentials in allCredentials)
             {
-                if (!processedUsers.Contains(user))
+                if (!processedCredentials.Contains(credentials))
                 {
-                    failedUsers.Add(user);
+                    failedCredentials.Add(credentials);
                 }
             }
         }
 
-        private HttpStatusCode GetHttpStatusCodeFromResults(OldUsers oldUsers, DeletionResults deletionResults)
+        private HttpStatusCode GetHttpStatusCodeFromResults(OldCredentials oldCredentials, DeletionResults deletionResults)
         {
-            var totalUsers = oldUsers.PostgreSqlUsers.Count +
-                oldUsers.RabbitMqUsers.Count +
-                oldUsers.RedisUsers.Count;
-            var totalFailures = deletionResults.FailedPostgreSqlUsers.Count +
-                deletionResults.FailedRabbitMqUsers.Count +
-                deletionResults.FailedRedisUsers.Count;
+            var totalCredentials = oldCredentials.PostgreSql.Count +
+                oldCredentials.RabbitMq.Count +
+                oldCredentials.Redis.Count;
+            var totalFailures = deletionResults.FailedPostgreSqlCredentials.Count +
+                deletionResults.FailedRabbitMqCredentials.Count +
+                deletionResults.FailedRedisCredentials.Count;
 
             if (totalFailures != 0)
             {
-                return totalFailures == totalUsers ?
+                return totalFailures == totalCredentials ?
                     HttpStatusCode.InternalServerError :
                     HttpStatusCode.MultiStatus;
             }

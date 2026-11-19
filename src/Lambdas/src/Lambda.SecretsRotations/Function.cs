@@ -130,7 +130,7 @@ namespace Lambda.SecretsRotations
             }
             
             // Restart AWS ECS tasks
-            await RestartEcsTasks(eventJson.EcsClusterName, servicesResults, context.Logger);
+            await RestartEcsTasksAsync(eventJson.EcsClusterName, servicesResults, context.Logger);
 
             return new Dictionary<string, object>()
             {

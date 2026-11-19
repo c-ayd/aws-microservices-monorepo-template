@@ -11,10 +11,10 @@ namespace Lambda.DeleteOldConnections
 {
     public partial class Function
     {
-        private async Task DeletePostgreSqlUsersAsync(
+        private async Task DeletePostgreSqlCredentialsAsync(
             PostgreSqlConnectionOptions connectionOptions,
             X509Certificate2Collection caBundle,
-            List<OldUsers.PostgreSqlUser> users,
+            List<OldCredentials.PostgreSqlCredentials> credentialsToDelete,
             DeletionResults deletionResults,
             ILambdaLogger logger)
         {
@@ -42,9 +42,9 @@ namespace Lambda.DeleteOldConnections
             await using var dataSource = builder.Build();
             await using var connection = await dataSource.OpenConnectionAsync();
 
-            foreach (var user in users)
+            foreach (var credentials in credentialsToDelete)
             {
-                var id = $"{user.Database}/{user.Username}";
+                var id = $"{credentials.Database}/{credentials.Username}";
                 
                 await using var transaction = await connection.BeginTransactionAsync();
 
@@ -52,7 +52,7 @@ namespace Lambda.DeleteOldConnections
                 {
                     // Stop new logins
                     await using (var command = new NpgsqlCommand(
-                        $"ALTER ROLE \"{user.Username}\" WITH NOLOGIN;",
+                        $"ALTER ROLE \"{credentials.Username}\" WITH NOLOGIN;",
                         connection,
                         transaction))
                     {
@@ -63,8 +63,8 @@ namespace Lambda.DeleteOldConnections
                     await using (var command = new NpgsqlCommand(
                         $@"SELECT pg_terminate_backend(pid)
                         FROM pg_stat_activity
-                        WHERE usename = '{user.Username}'
-                            AND datname = '{user.Database}'
+                        WHERE usename = '{credentials.Username}'
+                            AND datname = '{credentials.Database}'
                             AND pid <> pg_backend_pid();",
                         connection,
                         transaction))
@@ -72,9 +72,9 @@ namespace Lambda.DeleteOldConnections
                         await command.ExecuteNonQueryAsync();
                     }
 
-                    // Delete user
+                    // Delete role
                     await using (var command = new NpgsqlCommand(
-                        $"DROP ROLE \"{user.Username}\";",
+                        $"DROP ROLE \"{credentials.Username}\";",
                         connection,
                         transaction))
                     {
@@ -83,15 +83,15 @@ namespace Lambda.DeleteOldConnections
 
                     await transaction.CommitAsync();
 
-                    deletionResults.DeletedPostgreSqlUsers.Add(id);
+                    deletionResults.DeletedPostgreSqlCredentials.Add(id);
 
-                    logger.LogInformation($"PostgreSQL ({id}) - The user has been deleted.");
+                    logger.LogInformation($"PostgreSQL ({id}) - The credentials have been deleted.");
                 }
                 catch (Exception exception)
                 {
                     await transaction.RollbackAsync();
 
-                    deletionResults.FailedPostgreSqlUsers.Add(id);
+                    deletionResults.FailedPostgreSqlCredentials.Add(id);
 
                     logger.LogError(exception, $"PostgreSQL ({id}) - Something went wrong. Message: {exception.Message}.");
                 }

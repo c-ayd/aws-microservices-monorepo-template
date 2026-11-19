@@ -5,7 +5,7 @@ namespace Lambda.SecretsRotations
 {
     public partial class Function
     {
-        private async Task RestartEcsTasks(
+        private async Task RestartEcsTasksAsync(
             string ecsClusterName,
             Dictionary<string, ServiceRotationResult> results,
             ILambdaLogger logger)

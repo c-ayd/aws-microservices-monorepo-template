@@ -42,8 +42,8 @@ namespace Lambda.Test.Integration.DeleteOldConnections
                 detail = new EventJson()
                 {
                     CABundleSecretId = "template/cert/ca-bundle",
-                    AdminConnectionsSecretId = "template/admin-connections",
-                    OldUsersSecretId = "template/old-users",
+                    AdminConnectionsSecretId = "template/admin/admin-connections",
+                    OldCredentialsSecretId = "template/admin/old-credentials",
                     Environment = new EventJson.EnvironmentInfo()
                     {
                         IsProduction = false,
