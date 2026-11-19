@@ -21,7 +21,7 @@ namespace Lambda.DeleteOldConnections
         private AmazonSecretsManagerClient _awsSecretsManager = null!;
         private AmazonElastiCacheClient _awsElastiCache = null!;
 
-        public async Task<Dictionary<string, object>> FunctionHandler(string input, ILambdaContext context)
+        public async Task<Dictionary<string, object?>> FunctionHandler(string input, ILambdaContext context)
         {
             // Get event JSON from input
             if (!Utility.TryDeserializeJson<EventJson>(input, section: "detail", out var eventJson))
@@ -57,6 +57,25 @@ namespace Lambda.DeleteOldConnections
                 ]
             });
 
+            Utility.TryDeserializeJson<OldCredentials>(
+                json: secrets.SecretValues
+                    .Where(s => s.Name == eventJson.OldCredentialsSecretId)
+                    .Single()
+                    .SecretString,
+                section: null,
+                out var oldCredentials);
+            
+            if (oldCredentials!.IsEmpty())
+            {
+                context.Logger.LogInformation($"There is no old credentials to delete. Date: {DateTimeOffset.UtcNow.ToString("yyyy-MM")}");
+
+                return new Dictionary<string, object?>()
+                {
+                    { "statusCode", HttpStatusCode.InternalServerError },
+                    { "credentials", null }
+                };
+            }
+
             Utility.TryDeserializeJson<CABundleOptionsBase>(
                 json: secrets.SecretValues
                     .Where(s => s.Name == eventJson.CABundleSecretId)
@@ -71,21 +90,13 @@ namespace Lambda.DeleteOldConnections
                     .SecretString,
                 section: null,
                 out var adminConnections);
-            Utility.TryDeserializeJson<OldCredentials>(
-                json: secrets.SecretValues
-                    .Where(s => s.Name == eventJson.OldCredentialsSecretId)
-                    .Single()
-                    .SecretString,
-                section: null,
-                out var oldCredentials);
             
             var caBundle = TlsUtility.LoadCertificateChain(cABundleOptions!.Value);
 
             // Delete old connections options
-            var now = DateTimeOffset.UtcNow;
             var deletionResults = new DeletionResults();
 
-            context.Logger.LogInformation($"The deletion of the old connections options has been started. Date: {now.ToString("yyyy-MM")}");
+            context.Logger.LogInformation($"The deletion of the old credentials has been started. Date: {DateTimeOffset.UtcNow.ToString("yyyy-MM")}");
 
             try
             {
@@ -144,7 +155,7 @@ namespace Lambda.DeleteOldConnections
                 deletedCredentials: deletionResults.DeletedRedisCredentials,
                 failedCredentials: deletionResults.FailedRedisCredentials);
 
-            return new Dictionary<string, object>()
+            return new Dictionary<string, object?>()
             {
                 { "statusCode", GetHttpStatusCodeFromResults(oldCredentials, deletionResults) },
                 { "credentials", JsonSerializer.Serialize(deletionResults) }
