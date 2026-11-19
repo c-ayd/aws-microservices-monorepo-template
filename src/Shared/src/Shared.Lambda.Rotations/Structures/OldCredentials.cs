@@ -20,5 +20,10 @@ namespace Shared.Lambda.Structures
             public required string Username { get; set; }
             public required string UserGroupId { get; set; }
         }
+
+        public bool IsEmpty()
+        {
+            return PostgreSql.Count + RabbitMq.Count + Redis.Count == 0;
+        }
     }
 }
