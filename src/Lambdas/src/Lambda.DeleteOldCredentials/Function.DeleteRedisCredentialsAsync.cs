@@ -7,14 +7,14 @@ namespace Lambda.DeleteOldConnections
 {
     public partial class Function
     {
-        private async Task DeleteRedisUsersAsync(
-            List<OldUsers.RedisUser> users,
+        private async Task DeleteRedisCredentialsAsync(
+            List<OldCredentials.RedisCredentials> credentialsToDelete,
             DeletionResults deletionResults,
             ILambdaLogger logger)
         {
             // The users are grouped by their group IDs to make fewer API calls to AWS.
             // These API calls are for stopping new logins.
-            var groupedUsers = users.GroupBy(u => u.UserGroupId);
+            var groupedUsers = credentialsToDelete.GroupBy(u => u.UserGroupId);
             foreach (var group in groupedUsers)
             {
                 var groupResponse = await _awsElastiCache.ModifyUserGroupAsync(new ModifyUserGroupRequest
@@ -44,26 +44,26 @@ namespace Lambda.DeleteOldConnections
                 await Task.Delay(1000);
             }
 
-            // Delete users
-            foreach (var user in users)
+            // Delete credentials
+            foreach (var credentials in credentialsToDelete)
             {
-                var id = $"{user.UserGroupId}/{user.Username}";
+                var id = $"{credentials.UserGroupId}/{credentials.Username}";
 
                 var deleteResponse = await _awsElastiCache.DeleteUserAsync(new DeleteUserRequest()
                 {
-                    UserId = user.Username
+                    UserId = credentials.Username
                 });
 
                 var statusCodeInt = (int)deleteResponse.HttpStatusCode;
                 if (statusCodeInt >= 200 && statusCodeInt < 300)
                 {
-                    deletionResults.DeletedRedisUsers.Add(id);
+                    deletionResults.DeletedRedisCredentials.Add(id);
 
-                    logger.LogInformation($"Redis ({id}) - The user has been deleted.");
+                    logger.LogInformation($"Redis ({id}) - The credentials have been deleted.");
                 }
                 else
                 {
-                    deletionResults.FailedRedisUsers.Add(id);
+                    deletionResults.FailedRedisCredentials.Add(id);
 
                     logger.LogInformation($"Redis ({id}) - Something went wrong. Status Code: {statusCodeInt}");
                 }

@@ -32,7 +32,7 @@ namespace Lambda.SecretsRotations
             ILambdaLogger logger)
         {
             var startDatePostfix = startDate.ToString("yyyy-MM");
-            var oldUsersToDelete = new OldUsers();
+            var oldCredentialsToDelete = new OldCredentials();
 
             // Deserialize secrets required for connecting infrastructure services and TLS handshake
             var adminConnections = JsonSerializer.Deserialize<AdminConnections>(secrets.SecretValues
@@ -120,11 +120,11 @@ namespace Lambda.SecretsRotations
 
                         try
                         {
-                            await UpdateConnections_CreateNewPostgresqlUserAsync(
+                            await UpdateConnections_CreateNewPostgresqlCredentialsAsync(
                                 postgreSqlConnection,
                                 startDatePostfix,
                                 postgreSqlConnectionOptions!,
-                                oldUsersToDelete,
+                                oldCredentialsToDelete,
                                 logger);
 
                             newConnectionsOptions.Add(connectionJsonProperty.Name, postgreSqlConnectionOptions!);
@@ -143,11 +143,11 @@ namespace Lambda.SecretsRotations
 
                         try
                         {
-                            await UpdateConnections_CreateNewRabbitMqUserAsync(
+                            await UpdateConnections_CreateNewRabbitMqCredentialsAsync(
                                 rabbitMqHttpClient,
                                 startDatePostfix,
                                 rabbitMqConnectionOptions!,
-                                oldUsersToDelete,
+                                oldCredentialsToDelete,
                                 logger);
 
                             newConnectionsOptions.Add(connectionJsonProperty.Name, rabbitMqConnectionOptions!);
@@ -166,10 +166,10 @@ namespace Lambda.SecretsRotations
 
                         try
                         {
-                            await UpdateConnections_CreateNewRedisUserAsync(
+                            await UpdateConnections_CreateNewRedisCredentialsAsync(
                                 startDatePostfix,
                                 redisConnectionOptions!,
-                                oldUsersToDelete,
+                                oldCredentialsToDelete,
                                 logger);
 
                             newConnectionsOptions.Add(connectionJsonProperty.Name, redisConnectionOptions!);
@@ -214,25 +214,25 @@ namespace Lambda.SecretsRotations
             // Save the old connection options to AWS Secrets Manager to delete them later in another lambda fuction
             await _awsSecretsManager.PutSecretValueAsync(new PutSecretValueRequest()
             {
-                SecretId = connectionInfo.OldUsersSecretId,
-                SecretString = JsonSerializer.Serialize(oldUsersToDelete)
+                SecretId = connectionInfo.OldCredentialsSecretId,
+                SecretString = JsonSerializer.Serialize(oldCredentialsToDelete)
             });
 
             logger.LogInformation("Connection_FINAL - The old connection credentials are saved to AWS Secrets Manager.");
         }
 
-        private async Task UpdateConnections_CreateNewPostgresqlUserAsync(
+        private async Task UpdateConnections_CreateNewPostgresqlCredentialsAsync(
             NpgsqlConnection connection,
             string startDatePostfix,
             PostgreSqlConnectionOptions oldConnectionOptions,
-            OldUsers oldUsersToDelete,
+            OldCredentials oldCredentialsToDelete,
             ILambdaLogger logger)
         {
             var baseUsername = oldConnectionOptions.Username.Split('_')[0];
             var newUsername = $"{baseUsername}_{startDatePostfix}";
             var newPassword = Utility.GeneratePassword(length: 50);
 
-            // Create a new user and copy the permissions from the template user
+            // Create a new role and copy the permissions from the template role
             await using var transaction = await connection.BeginTransactionAsync();
 
             await using (var command = new NpgsqlCommand(
@@ -246,10 +246,10 @@ namespace Lambda.SecretsRotations
 
             await transaction.CommitAsync();
 
-            logger.LogInformation($"Connection_PostgreSQL ({oldConnectionOptions.Username}) - A new user has been created.");
+            logger.LogInformation($"Connection_PostgreSQL ({oldConnectionOptions.Username}) - A new role has been created with permissions.");
 
-            // Add the old user to the deletion list
-            oldUsersToDelete.PostgreSqlUsers.Add(new OldUsers.PostgreSqlUser()
+            // Add the old credentials to the deletion list
+            oldCredentialsToDelete.PostgreSql.Add(new OldCredentials.PostgreSqlCredentials()
             {
                 Username = oldConnectionOptions.Username,
                 Database = oldConnectionOptions.Database
@@ -260,11 +260,11 @@ namespace Lambda.SecretsRotations
             oldConnectionOptions.Password = newPassword;
         }
 
-        private async Task UpdateConnections_CreateNewRabbitMqUserAsync(
+        private async Task UpdateConnections_CreateNewRabbitMqCredentialsAsync(
             HttpClient rabbitMqHttpClient,
             string startDatePostfix,
             RabbitMqConnectionOptions oldConnectionOptions,
-            OldUsers oldUsersToDelete,
+            OldCredentials oldCredentialsToDelete,
             ILambdaLogger logger)
         {
             var newUsername = $"{oldConnectionOptions.Username.Split('_')[0]}_{startDatePostfix}";
@@ -292,18 +292,18 @@ namespace Lambda.SecretsRotations
 
             logger.LogInformation($"Connection_RabbitMQ ({oldConnectionOptions.Username}) - The new user's permissions have been updated.");
 
-            // Add the old user to the deletion list
-            oldUsersToDelete.RabbitMqUsers.Add(oldConnectionOptions.Username);
+            // Add the old credentials to the deletion list
+            oldCredentialsToDelete.RabbitMq.Add(oldConnectionOptions.Username);
 
             // Update old values
             oldConnectionOptions.Username = newUsername;
             oldConnectionOptions.Password = newPassword;
         }
 
-        private async Task UpdateConnections_CreateNewRedisUserAsync(
+        private async Task UpdateConnections_CreateNewRedisCredentialsAsync(
             string startDatePostfix,
             RedisConnectionOptions oldConnectionOptions,
-            OldUsers oldUsersToDelete,
+            OldCredentials oldCredentialsToDelete,
             ILambdaLogger logger)
         {
             var newUsername = $"{oldConnectionOptions.Username.Split('_')[0]}_{startDatePostfix}";
@@ -340,7 +340,7 @@ namespace Lambda.SecretsRotations
             logger.LogInformation($"Connection_Redis ({oldConnectionOptions.Username}) - The new user has been assigned to a group.");
 
             // Add the old user to the deletion list
-            oldUsersToDelete.RedisUsers.Add(new OldUsers.RedisUser()
+            oldCredentialsToDelete.Redis.Add(new OldCredentials.RedisCredentials()
             {
                 Username = oldConnectionOptions.Username,
                 UserGroupId = oldUser.UserGroupIds[0]

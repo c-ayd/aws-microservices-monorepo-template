@@ -11,11 +11,11 @@ namespace Lambda.DeleteOldConnections
 {
     public partial class Function
     {
-        private async Task DeleteRabbitMqUsersAsync(
+        private async Task DeleteRabbitMqCredentialsAsync(
             RabbitMqConnectionOptions connectionOptions,
             X509Certificate2Collection caBundle,
             EventJson.EnvironmentInfo? environmentInfo,
-            List<string> users,
+            List<string> credentialsToDelete,
             DeletionResults deletionResults,
             ILambdaLogger logger)
         {
@@ -39,22 +39,22 @@ namespace Lambda.DeleteOldConnections
             httpClient.DefaultRequestHeaders.Add(HeaderNames.Authorization, "Basic " +
                 Convert.ToBase64String(Encoding.UTF8.GetBytes($"{connectionOptions.Username}:{connectionOptions.Password}")));
 
-            foreach (var user in users)
+            foreach (var credentials in credentialsToDelete)
             {
-                // The deletion of a user in RabbitMQ closes the open sessions automatically.
-                var deleteResponse = await httpClient.DeleteAsync($"/api/users/{user}");
+                // The deletion of credentials in RabbitMQ closes the open sessions automatically.
+                var deleteResponse = await httpClient.DeleteAsync($"/api/users/{credentials}");
 
                 if (deleteResponse.IsSuccessStatusCode)
                 {
-                    deletionResults.DeletedRabbitMqUsers.Add(user);
+                    deletionResults.DeletedRabbitMqCredentials.Add(credentials);
 
-                    logger.LogInformation($"RabbitMQ ({user}) - The user has been deleted.");
+                    logger.LogInformation($"RabbitMQ ({credentials}) - The credentials have been deleted.");
                 }
                 else
                 {
-                    deletionResults.FailedRabbitMqUsers.Add(user);
+                    deletionResults.FailedRabbitMqCredentials.Add(credentials);
 
-                    logger.LogError($"RabbitMQ ({user}) - Something went wrong. Status Code: {deleteResponse.StatusCode}.");
+                    logger.LogError($"RabbitMQ ({credentials}) - Something went wrong. Status Code: {deleteResponse.StatusCode}.");
                 }
             }
         }

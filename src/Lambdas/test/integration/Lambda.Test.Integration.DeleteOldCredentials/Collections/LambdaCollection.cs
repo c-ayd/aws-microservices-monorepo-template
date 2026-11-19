@@ -231,18 +231,18 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
             var postgreSqlConnectionsOptions = PostgreSqlFixture.GetConnectionOptions("postgres");
             var rabbitMqConnectionsOptions = RabbitMqFixture.GetConnectionOptions();
             
-            var oldUsers = new OldUsers();
+            var oldUsers = new OldCredentials();
             foreach (var oldUsername in OldUsernames)
             {
-                oldUsers.PostgreSqlUsers.Add(new OldUsers.PostgreSqlUser()
+                oldUsers.PostgreSql.Add(new OldCredentials.PostgreSqlCredentials()
                 {
                     Username = oldUsername,
                     Database = PostgreSqlDbName
                 });
 
-                oldUsers.RabbitMqUsers.Add(oldUsername);
+                oldUsers.RabbitMq.Add(oldUsername);
 
-                oldUsers.RedisUsers.Add(new OldUsers.RedisUser()
+                oldUsers.Redis.Add(new OldCredentials.RedisCredentials()
                 {
                     Username = oldUsername,
                     UserGroupId = RedisGroupId
@@ -257,7 +257,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath))
                     }
                 }));
-            await AwsFixture.AwsSecretsManager.AddStringAsync("template/admin-connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/admin/admin-connections", JsonSerializer.Serialize(
                 new
                 {
                     PostgreSql = postgreSqlConnectionsOptions,
@@ -274,7 +274,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
-            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-users", JsonSerializer.Serialize(oldUsers));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/admin/old-credentials", JsonSerializer.Serialize(oldUsers));
 
             await AwsFixture.AwsElastiCache.CreateUserGroup(RedisGroupId);
             foreach (var oldUsername in OldUsernames)

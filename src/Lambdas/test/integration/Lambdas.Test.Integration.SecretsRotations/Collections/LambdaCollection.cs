@@ -430,7 +430,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         Value = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, CABundlePath))
                     }
                 }));
-            await AwsFixture.AwsSecretsManager.AddStringAsync("template/admin-connections", JsonSerializer.Serialize(
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/admin/admin-connections", JsonSerializer.Serialize(
                 new
                 {
                     PostgreSql = postgreSqlConnectionsOptions,
@@ -447,7 +447,7 @@ namespace Lambdas.Test.Integration.SecretsRotations.Collections
                         }
                     }
                 }));
-            await AwsFixture.AwsSecretsManager.AddStringAsync("template/old-users", JsonSerializer.Serialize("{}"));
+            await AwsFixture.AwsSecretsManager.AddStringAsync("template/admin/old-credentials", JsonSerializer.Serialize("{}"));
 
             await AwsFixture.AwsElastiCache.CreateUserGroup(groupId: "test-group");
             foreach (var oldUsername in OldUsernames)
