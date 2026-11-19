@@ -75,6 +75,8 @@ builder.Logging.AddStructuredConsoleLogging(
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<LoggingMiddleware>();
 

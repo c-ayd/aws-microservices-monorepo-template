@@ -96,6 +96,8 @@ builder.Host.ConfigureHostOptions(options =>
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<LoggingMiddleware>();
 

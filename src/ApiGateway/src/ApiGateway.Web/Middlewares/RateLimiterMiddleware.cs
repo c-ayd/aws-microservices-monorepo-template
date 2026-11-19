@@ -9,6 +9,10 @@ namespace ApiGateway.Web.Middlewares
 {
     public class RateLimiterMiddleware
     {
+        private const int _adminLimit = 300;
+        private const int _authenticatedLimit = 100;
+        private const int _notAuthenticatedLimit = 30;
+
         private readonly RequestDelegate _next;
         private readonly RateLimiterRedis _rateLimiterRedis;
 
@@ -31,22 +35,23 @@ namespace ApiGateway.Web.Middlewares
             string key;
             int limit;
             TimeSpan window;
+            string ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             if (isAdmin)
             {
-                key = $"admin:{context.User.Identity!.Name}";
-                limit = 300;
+                key = $"admin:{context.User.Identity!.Name}:{ip}";
+                limit = _adminLimit;
                 window = TimeSpan.FromMinutes(1);
             }
             else if (isAuthenticated)
             {
-                key = $"auth:{context.User.Identity!.Name}";
-                limit = 100;
+                key = $"auth:{context.User.Identity!.Name}:{ip}";
+                limit = _authenticatedLimit;
                 window = TimeSpan.FromMinutes(1);
             }
             else
             {
-                key = $"not-auth:{context.Connection.RemoteIpAddress?.ToString() ?? "unknown"}";
-                limit = 30;
+                key = $"not-auth:{ip}";
+                limit = _notAuthenticatedLimit;
                 window = TimeSpan.FromMinutes(1);
             }
 

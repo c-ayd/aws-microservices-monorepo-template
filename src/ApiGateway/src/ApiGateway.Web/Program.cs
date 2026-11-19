@@ -18,6 +18,7 @@ using Common.Http.Response.Middlewares;
 using Common.Logging.DependencyInjection;
 using Common.Logging.Middlewares;
 using Common.Http.Helpers.Authentication;
+using Common.Http.Request;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,9 @@ builder.WebHost.ConfigureKestrel(options =>
         portConfigs);
 });
 builder.Services.AddSingleton(portConfigs);
+
+builder.Services.ConfigureForwardedHeaders(
+    builder.Configuration.GetSection("KnownCidrBlocks").Get<string[]>()!);
 
 builder.Services.AddSingleton<TokenBlacklistRedis>();
 builder.Services.AddSingleton<RateLimiterRedis>();
@@ -134,10 +138,11 @@ builder.Logging.AddStructuredConsoleLogging(
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHsts();
-
 app.UseCors("AllowAngularWeb");
 
 app.UseMiddleware<LoggingMiddleware>();
